@@ -69,12 +69,12 @@
 
 | 🎯 **Feature** | 📝 **Description** |
 |:---:|:---|
-| 🔥 **Pure Code** | No external dependencies - just HTML, CSS & JS! |
-| 📱 **Responsive** | Works beautifully across all screen sizes |
-| 🎨 **Modern** | CSS3 animations with cutting-edge techniques |
-| 🖱️ **Interactive** | Click, hover, and scroll-based interactions |
-| 🌐 **Compatible** | Tested on all modern browsers |
-| 📋 **Easy Use** | Copy, paste, and integrate instantly |
+| **Pure Code** | No external dependencies - just HTML, CSS & JS! |
+| **Responsive** | Works beautifully across all screen sizes |
+| **Modern** | CSS3 animations with cutting-edge techniques |
+| **Interactive** | Click, hover, and scroll-based interactions |
+| **Compatible** | Tested on all modern browsers |
+| **Easy Use** | Copy, paste, and integrate instantly |
 
 </div>
 
