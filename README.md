@@ -84,25 +84,25 @@
 
 ```
 🎨 Animated-Designs/
-├── 📁 avengers/           # 🦸 Superhero animations
-├── 📁 game/              # 🎮 Gaming elements
-├── 📁 love/              # 💕 Romantic animations
-├── 📁 slider/            # 📸 Image sliders
-├── 📁 stunning-slider/   # ✨ Advanced sliders
-├── 📁 toggles/           # 🔘 Switch controls
-├── 📄 3d-morphing.html   # 🌀 3D transformations
-├── 📄 achieve.html       # 🏆 Achievement effects
-├── 📄 arrow.html         # ➡️ Arrow animations
-├── 📄 barcode.html       # 📊 Barcode effects
-├── 📄 birthday.html      # 🎂 Birthday celebrations
-├── 📄 button.html        # 🔳 Button hover effects
-├── 📄 car-racing.html    # 🏁 Racing animations
-├── 📄 clock.html         # ⏰ Clock animations
-├── 📄 coffee.html        # ☕ Coffee themes
-├── 📄 glitch.html        # ⚡ Glitch effects
-├── 📄 loading.html       # ⏳ Loading spinners
-├── 📄 login.html         # 🔐 Login forms
-├── 📄 love-calc.html     # 💖 Love calculator
+├── 📁 avengers/           #  Superhero animations
+├── 📁 game/              #  Gaming elements
+├── 📁 love/              #  Romantic animations
+├── 📁 slider/            #  Image sliders
+├── 📁 stunning-slider/   # Advanced sliders
+├── 📁 toggles/           #  Switch controls
+├── 📄 3d-morphing.html   #  3D transformations
+├── 📄 achieve.html       #  Achievement effects
+├── 📄 arrow.html         #  Arrow animations
+├── 📄 barcode.html       #  Barcode effects
+├── 📄 birthday.html      #  Birthday celebrations
+├── 📄 button.html        # Button hover effects
+├── 📄 car-racing.html    #  Racing animations
+├── 📄 clock.html         #  Clock animations
+├── 📄 coffee.html        #  Coffee themes
+├── 📄 glitch.html        #  Glitch effects
+├── 📄 loading.html       #  Loading spinners
+├── 📄 login.html         #  Login forms
+├── 📄 love-calc.html     #  Love calculator
 └── 📄 ... and 50+ more!
 ```
 
