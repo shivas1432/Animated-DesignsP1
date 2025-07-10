@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Code Post Template</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            margin: 40px;
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+            background: #000000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .main-container {
+            width: 700px;
+            height: 500px;
+            background: #000000;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Moving Glow Border Effect */
+        .main-container::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            background: conic-gradient(
+                from 0deg,
+                transparent 0deg,
+                #ff6b6b 45deg,
+                #4ecdc4 90deg,
+                #45b7d1 135deg,
+                #96ceb4 180deg,
+                #feca57 225deg,
+                #ff9ff3 270deg,
+                #54a0ff 315deg,
+                transparent 360deg
+            );
+            border-radius: 15px;
+            z-index: -1;
+            animation: rotateGlow 4s linear infinite;
+            filter: blur(8px);
+        }
+
+        /* Additional inner glow */
+        .main-container::after {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            right: -1px;
+            bottom: -1px;
+            background: conic-gradient(
+                from 0deg,
+                transparent 0deg,
+                #ff6b6b 45deg,
+                #4ecdc4 90deg,
+                #45b7d1 135deg,
+                #96ceb4 180deg,
+                #feca57 225deg,
+                #ff9ff3 270deg,
+                #54a0ff 315deg,
+                transparent 360deg
+            );
+            border-radius: 13px;
+            z-index: -1;
+            animation: rotateGlow 4s linear infinite reverse;
+            opacity: 0.6;
+        }
+
+        @keyframes rotateGlow {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Code Section - Fixed Height */
+        .code-section {
+            height: 500px;
+            background: #0d1117;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .code-editor {
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .editor-header {
+            height: 50px;
+            background: #161b22;
+            display: flex;
+            align-items: center;
+            padding: 0 25px;
+            border-bottom: 1px solid #21262d;
+            flex-shrink: 0;
+        }
+
+        .traffic-lights {
+            display: flex;
+            gap: 8px;
+            margin-right: 20px;
+        }
+
+        .traffic-light {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .traffic-light.red { background: #ff5f57; }
+        .traffic-light.yellow { background: #ffbd2e; }
+        .traffic-light.green { background: #28ca42; }
+
+        .filename {
+            color: #f0f6fc;
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .code-content {
+            padding: 25px 30px;
+            height: calc(100% - 50px);
+            overflow: hidden;
+            background: #0d1117;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        .code-line {
+            font-size: 14px;
+            line-height: 1.8;
+            color: #f0f6fc;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: flex-start;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .line-number {
+            color: #6e7681;
+            margin-right: 25px;
+            min-width: 30px;
+            text-align: right;
+            user-select: none;
+            font-weight: 400;
+        }
+
+        .line-content {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Enhanced Syntax Colors for HD Look */
+        .tag { color: #7ee787; font-weight: 600; }
+        .attr { color: #79c0ff; }
+        .value { color: #a5d6ff; }
+        .comment { color: #8b949e; font-style: italic; }
+        .string { color: #a5d6ff; }
+        .selector { color: #ffa657; font-weight: 600; }
+        .property { color: #79c0ff; }
+        .keyword { color: #ff7b72; font-weight: 600; }
+        .function { color: #d2a8ff; font-weight: 600; }
+        .operator { color: #ff7b72; }
+        .number { color: #79c0ff; }
+
+        /* Enhanced Smooth Flowing Background Effects */
+        .code-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 0;
+            transition: all 8s ease-in-out;
+        }
+
+        .code-content::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 0;
+            transition: all 12s ease-in-out;
+        }
+
+        /* Smooth Ambient Glow with Transitions */
+        .code-section::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            right: -15px;
+            bottom: -15px;
+            background: 
+                radial-gradient(circle at 25% 25%, rgba(139, 69, 19, 0.08) 0%, transparent 60%),
+                radial-gradient(circle at 75% 75%, rgba(34, 197, 94, 0.06) 0%, transparent 60%),
+                radial-gradient(circle at 60% 40%, rgba(220, 38, 127, 0.05) 0%, transparent 50%);
+            filter: blur(20px);
+            z-index: -1;
+            pointer-events: none;
+            transition: all 10s ease-in-out;
+        }
+
+        .code-line {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Responsive for smaller screens */
+        @media (max-width: 700px) {
+            .main-container {
+                width: 95vw;
+                height: 450px;
+            }
+            
+            .code-section {
+                height: 450px;
+            }
+        }
+
+        @media (max-height: 600px) {
+            .main-container {
+                height: 400px;
+            }
+            
+            .code-section {
+                height: 400px;
+            }
+            
+            .editor-header {
+                height: 45px;
+                padding: 0 20px;
+            }
+            
+            .code-content {
+                padding: 20px 25px;
+            }
+            
+            .code-line {
+                font-size: 12px;
+                line-height: 1.6;
+                margin-bottom: 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Code Section Only -->
+        <div class="code-section">
+            <div class="code-editor">
+                <!-- STEP 2: Change filename here -->
+                <div class="editor-header">
+                    <div class="traffic-lights">
+                        <div class="traffic-light red"></div>
+                        <div class="traffic-light yellow"></div>
+                        <div class="traffic-light green"></div>
+                    </div>
+                    <div class="filename">videoplayer.html</div>
+                </div>
+                
+                <!-- STEP 3: Weather API Script Code Display -->
+                <div class="code-content">
+                    <div class="code-line">
+                        <span class="line-number">1</span>
+                        <span class="line-content"><span class="tag">&lt;script&gt;</span></span>
+                    </div>
+                    <div class="code-line">
+                        <span class="line-number">2</span>
+                        <span class="line-content">&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// const WEATHER_API_KEY = 'YOUR_OPENWEATHER_API_KEY'; // &lt;-- Replace with your API key</span></span>
+                    </div>
+                    <div class="code-line">
+                        <span class="line-number">3</span>
+                        <span class="line-content">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">const</span> <span class="property">WEATHER_API_KEY</span> <span class="operator">=</span> <span class="string">''</span>;</span>
+                    </div>
+                    <div class="code-line">
+                        <span class="line-number">4</span>
+                        <span class="line-content"></span>
+                    </div>
+                    <div class="code-line">
+                        <span class="line-number">5</span>
+                        <span class="line-content">&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// List of major UK cities and their coordinates</span></span>
+                    </div>
+                    <div class="code-line">
+                        <span class="line-number">6</span>
+                        <span class="line-content">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">const</span> <span class="property">majorUkCities</span> <span class="operator">=</span> <span class="operator">[</span></span>
+                    </div>
+                    <div class="code-line">
+                        <span class="line-number">7</span>
+                        <span class="line-content">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="operator">{</span> <span class="property">city</span>: <span class="string">'London'</span>, <span class="property">lat</span>: <span class="number">51.5074</span>, <span class="property">lng</span>: <span class="operator">-</span><span class="number">0.1278</span> <span class="operator">}</span>,</span>
+                    </div>
+                    <div class="code-line">
+                        <span class="line-number">8</span>
+                        <span class="line-content">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="operator">{</span> <span class="property">city</span>: <span class="string">'Birmingham'</span>, <span class="property">lat</span>: <span class="number">52.4862</span>, <span class="property">lng</span>: <span class="operator">-</span><span class="number">1.8904</span> <span class="operator">}</span>,</span>
+                    </div>
+                    <div class="code-line">
+                        <span class="line-number">9</span>
+                        <span class="line-content">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="operator">{</span> <span class="property">city</span>: <span class="string">'Manchester'</span>, <span class="property">lat</span>: <span class="number">53.4808</span>, <span class="property">lng</span>: <span class="operator">-</span><span class="number">2.2426</span> <span class="operator">}</span>,</span>
+                    </div>
+                    <div class="code-line">
+                        <span class="line-number">10</span>
+                        <span class="line-content">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="operator">{</span> <span class="property">city</span>: <span class="string">'Glasgow'</span>, <span class="property">lat</span>: <span class="number">55.8642</span>, <span class="property">lng</span>: <span class="operator">-</span><span class="number">4.2518</span> <span class="operator">}</span>,</span>
+                    </div>
+                    <div class="code-line">
+                        <span class="line-number">11</span>
+                        <span class="line-content">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="operator">{</span> <span class="property">city</span>: <span class="string">'Liverpool'</span>, <span class="property">lat</span>: <span class="number">53.4084</span>, <span class="property">lng</span>: <span class="operator">-</span><span class="number">2.9916</span> <span class="operator">}</span> <span class="comment">etc.....</span></span>
+                    </div>
+                    <div class="code-line">
+                        <span class="line-number">12</span>
+                        <span class="line-content">&nbsp;&nbsp;&nbsp;&nbsp;<span class="operator">];</span></span>
+                    </div>
+                    <div class="code-line">
+                        <span class="line-number">13</span>
+                        <span class="line-content"><span class="tag">&lt;/script&gt;</span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Futuristic Video Editor Pro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: radial-gradient(ellipse at center, #0a0a0a 0%, #000814 50%, #001d3d 100%);
+            font-family: 'JetBrains Mono', 'Consolas', monospace;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+        }
+
+        .editor-container {
+            width: 98vw;
+            height: 95vh;
+            background: rgba(5, 15, 25, 0.4);
+            backdrop-filter: blur(30px);
+            border-radius: 20px;
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            display: flex;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 0 50px rgba(0, 255, 255, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        /* Left Control Panel */
+        .left-panel {
+            width: 350px;
+            background: rgba(0, 10, 20, 0.6);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(0, 255, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .panel-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.1);
+            background: rgba(0, 255, 255, 0.05);
+        }
+
+        .panel-title {
+            color: #00ffff;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+        }
+
+        .panel-subtitle {
+            color: #64748b;
+            font-size: 11px;
+        }
+
+        .control-section {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .section-title {
+            color: #e2e8f0;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .slider-control {
+            margin-bottom: 15px;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            color: #94a3b8;
+            font-size: 11px;
+            margin-bottom: 8px;
+        }
+
+        .slider-container {
+            position: relative;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .slider-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ffff, #0080ff, #8000ff);
+            border-radius: 3px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .slider-thumb {
+            position: absolute;
+            right: -6px;
+            top: -3px;
+            width: 12px;
+            height: 12px;
+            background: #00ffff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .control-btn {
+            padding: 10px;
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 8px;
+            color: #00ffff;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-btn:hover {
+            background: rgba(0, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.3);
+        }
+
+        .control-btn.active {
+            background: rgba(0, 255, 255, 0.3);
+            border-color: #00ffff;
+        }
+
+        /* Main Video Area */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .video-workspace {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .video-preview {
+            flex: 1;
+            background: #000000;
+            border-radius: 16px;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .preview-overlay {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            display: flex;
+            justify-content: space-between;
+            z-index: 10;
+        }
+
+        .preview-info {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            color: #00ffff;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+        }
+
+        .video-display {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            position: relative;
+        }
+
+        .video-frame {
+            width: 90%;
+            height: 80%;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+            position: relative;
+            background: #000;
+        }
+
+        .video-element {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        /* Video placeholder/thumbnail */
+        .video-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #001122 0%, #003366 50%, #0066cc 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: #00ffff;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .video-placeholder:hover {
+            background: linear-gradient(135deg, #002244 0%, #004488 50%, #0088ff 100%);
+        }
+
+        .placeholder-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+
+        .placeholder-text {
+            font-size: 18px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .placeholder-subtitle {
+            font-size: 12px;
+            opacity: 0.7;
+            margin-bottom: 20px;
+        }
+
+        .placeholder-button {
+            padding: 12px 24px;
+            background: linear-gradient(45deg, #00ffff, #0080ff);
+            border: none;
+            border-radius: 25px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .placeholder-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 255, 255, 0.5);
+        }
+
+        /* Video Controls */
+        .video-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 30;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px 20px;
+            border-radius: 25px;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .play-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #00ffff, #0080ff);
+            border: none;
+            color: #000;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
+        }
+
+        .control-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: rgba(0, 255, 255, 0.2);
+            border: 1px solid rgba(0, 255, 255, 0.5);
+            color: #00ffff;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .control-icon:hover {
+            background: rgba(0, 255, 255, 0.4);
+            transform: scale(1.1);
+        }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .volume-slider {
+            width: 80px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .volume-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ffff, #0080ff);
+            border-radius: 2px;
+            width: 70%;
+        }
+
+        /* Progress bar */
+        .progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ffff, #0080ff);
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+
+        /* Timeline Section */
+        .timeline-section {
+            height: 180px;
+            background: rgba(0, 5, 15, 0.8);
+            border-radius: 12px;
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            padding: 15px;
+            backdrop-filter: blur(20px);
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .timeline-title {
+            color: #00ffff;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .timeline-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .timeline-btn {
+            padding: 6px 12px;
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 6px;
+            color: #00ffff;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-tracks {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .track {
+            height: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .track-content {
+            height: 100%;
+            background: linear-gradient(90deg, rgba(0, 255, 255, 0.3), rgba(128, 0, 255, 0.3));
+            width: 60%;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            font-size: 10px;
+            color: #ffffff;
+        }
+
+        .playhead {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #ff0080;
+            left: 0%;
+            box-shadow: 0 0 10px rgba(255, 0, 128, 0.5);
+            transition: left 0.1s ease;
+        }
+
+        /* Right Control Panel */
+        .right-panel {
+            width: 350px;
+            background: rgba(0, 10, 20, 0.6);
+            backdrop-filter: blur(20px);
+            border-left: 1px solid rgba(0, 255, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .effects-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .effect-btn {
+            padding: 15px;
+            background: rgba(128, 0, 255, 0.1);
+            border: 1px solid rgba(128, 0, 255, 0.3);
+            border-radius: 10px;
+            color: #8000ff;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .effect-btn:hover {
+            background: rgba(128, 0, 255, 0.2);
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(128, 0, 255, 0.3);
+        }
+
+        .color-picker {
+            width: 100%;
+            height: 40px;
+            background: linear-gradient(90deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        .waveform {
+            width: 100%;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .wave-bars {
+            display: flex;
+            align-items: end;
+            height: 100%;
+            padding: 5px;
+            gap: 2px;
+        }
+
+        .wave-bar {
+            flex: 1;
+            background: linear-gradient(to top, #00ffff, #0080ff);
+            border-radius: 1px;
+            transition: height 0.1s ease;
+            min-height: 10%;
+        }
+
+        .wave-bar.active {
+            background: linear-gradient(to top, #ff0080, #ff8000);
+            box-shadow: 0 0 10px rgba(255, 0, 128, 0.5);
+        }
+
+        /* Audio spectrum */
+        .main-spectrum {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 1100px;
+            height: 80px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 8px;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: end;
+            padding: 5px;
+            gap: 3px;
+            z-index: 20;
+        }
+
+        .main-spectrum-bar {
+            flex: 1;
+            background: linear-gradient(to top, #00ffff, #0080ff, #8000ff);
+            border-radius: 2px;
+            transition: height 0.1s ease;
+            min-height: 15%;
+            opacity: 0.8;
+        }
+
+        .main-spectrum-bar.beat {
+            background: linear-gradient(to top, #ff0080, #ff4000, #ffff00);
+            box-shadow: 0 0 15px rgba(255, 0, 128, 0.8);
+            opacity: 1;
+        }
+
+        .render-section {
+            background: rgba(255, 0, 128, 0.1);
+            border: 1px solid rgba(255, 0, 128, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .render-progress {
+            width: 100%;
+            height: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .render-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff0080, #ff8000);
+            width: 45%;
+            animation: render-pulse 2s infinite;
+        }
+
+        @keyframes render-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Floating UI Elements */
+        .floating-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .floating-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(0, 255, 255, 0.5);
+            color: #00ffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .floating-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        }
+
+        /* File input styling */
+        .file-input-section {
+            background: rgba(0, 20, 40, 0.8);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 12px 20px;
+            background: linear-gradient(45deg, #00ffff, #0080ff);
+            color: #000;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        .file-input-label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.5);
+        }
+
+        .demo-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .demo-btn {
+            flex: 1;
+            padding: 8px;
+            background: rgba(128, 0, 255, 0.2);
+            border: 1px solid rgba(128, 0, 255, 0.5);
+            border-radius: 6px;
+            color: #8000ff;
+            cursor: pointer;
+            font-size: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .demo-btn:hover {
+            background: rgba(128, 0, 255, 0.4);
+            transform: translateY(-1px);
+        }
+
+        /* Status indicator */
+        .status-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 0, 0, 0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+            z-index: 20;
+        }
+
+        .status-indicator.playing {
+            background: rgba(0, 255, 0, 0.8);
+            color: black;
+        }
+
+        .status-indicator.paused {
+            background: rgba(255, 255, 0, 0.8);
+            color: black;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, #00ffff, #8000ff);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(45deg, #8000ff, #ff0080);
+        }
+
+        /* Animations */
+        @keyframes glow-pulse {
+            0%, 100% { box-shadow: 0 0 5px rgba(0, 255, 255, 0.5); }
+            50% { box-shadow: 0 0 25px rgba(0, 255, 255, 0.8); }
+        }
+
+        .control-btn.active {
+            animation: glow-pulse 2s infinite;
+        }
+
+        /* Futuristic scene elements */
+        .futuristic-scene {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100px;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .grid-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+            animation: grid-move 10s linear infinite;
+        }
+
+        @keyframes grid-move {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(40px, 40px); }
+        }
+
+        .hologram-mountains {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            display: flex;
+            align-items: end;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .holo-mountain {
+            width: 0;
+            height: 0;
+            border-left: 30px solid transparent;
+            border-right: 30px solid transparent;
+            border-bottom: 40px solid rgba(0, 255, 255, 0.3);
+            filter: blur(1px);
+            animation: mountain-glow 3s ease-in-out infinite alternate;
+        }
+
+        .holo-mountain:nth-child(2) {
+            border-bottom-color: rgba(128, 0, 255, 0.3);
+            animation-delay: 0.5s;
+        }
+
+        .holo-mountain:nth-child(3) {
+            border-bottom-color: rgba(255, 0, 128, 0.3);
+            animation-delay: 1s;
+        }
+
+        @keyframes mountain-glow {
+            0% { opacity: 0.5; transform: scale(1); }
+            100% { opacity: 1; transform: scale(1.1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="editor-container">
+        <!-- Floating Controls -->
+        <div class="floating-controls">
+            <div class="floating-btn" title="Settings">⚙️</div>
+            <div class="floating-btn" title="Fullscreen">⛶</div>
+            <div class="floating-btn" title="Help">❓</div>
+        </div>
+
+        <!-- Left Control Panel -->
+        <div class="left-panel">
+            <div class="panel-header">
+                <div class="panel-title">EDIT CONTROLS</div>
+                <div class="panel-subtitle">Advanced Video Processing</div>
+            </div>
+
+            <!-- Video Input Section -->
+            <div class="control-section">
+                <div class="section-title">VIDEO SOURCE</div>
+                <div class="file-input-section">
+                    <input type="file" class="file-input" id="videoFile" accept="video/*">
+                    <label for="videoFile" class="file-input-label">
+                        📁 LOAD VIDEO FILE
+                    </label>
+                    <div style="font-size: 10px; color: #64748b; margin-bottom: 10px;">
+                        Supports MP4, WebM, MOV files
+                    </div>
+                    <div class="demo-buttons">
+                        <div class="demo-btn" onclick="loadDemoVideo(1)">DEMO 1</div>
+                        <div class="demo-btn" onclick="loadDemoVideo(2)">DEMO 2</div>
+                        <div class="demo-btn" onclick="loadDemoVideo(3)">DEMO 3</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <div class="section-title">VIDEO PROPERTIES</div>
+                
+                <div class="slider-control">
+                    <div class="slider-label">
+                        <span>Brightness</span>
+                        <span>75%</span>
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-fill" style="width: 75%">
+                            <div class="slider-thumb"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slider-control">
+                    <div class="slider-label">
+                        <span>Contrast</span>
+                        <span>60%</span>
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-fill" style="width: 60%">
+                            <div class="slider-thumb"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slider-control">
+                    <div class="slider-label">
+                        <span>Saturation</span>
+                        <span>85%</span>
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-fill" style="width: 85%">
+                            <div class="slider-thumb"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-grid">
+                    <div class="control-btn active">AUTO</div>
+                    <div class="control-btn">HDR</div>
+                    <div class="control-btn">LUT</div>
+                    <div class="control-btn">CURVES</div>
+                    <div class="control-btn">LEVELS</div>
+                    <div class="control-btn">RGB</div>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <div class="section-title">MOTION & TRANSFORM</div>
+                
+                <div class="slider-control">
+                    <div class="slider-label">
+                        <span>Position X</span>
+                        <span>0.0</span>
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-fill" style="width: 50%">
+                            <div class="slider-thumb"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slider-control">
+                    <div class="slider-label">
+                        <span>Scale</span>
+                        <span>1.2x</span>
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-fill" style="width: 70%">
+                            <div class="slider-thumb"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slider-control">
+                    <div class="slider-label">
+                        <span>Rotation</span>
+                        <span>15°</span>
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-fill" style="width: 40%">
+                            <div class="slider-thumb"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-grid">
+                    <div class="control-btn">KEYFRAME</div>
+                    <div class="control-btn">BEZIER</div>
+                    <div class="control-btn">LINEAR</div>
+                    <div class="control-btn">EASE IN</div>
+                    <div class="control-btn">EASE OUT</div>
+                    <div class="control-btn">BOUNCE</div>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <div class="section-title">AUDIO MIXING</div>
+                
+                <div class="slider-control">
+                    <div class="slider-label">
+                        <span>Master Volume</span>
+                        <span>-6dB</span>
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-fill" style="width: 65%">
+                            <div class="slider-thumb"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slider-control">
+                    <div class="slider-label">
+                        <span>Bass</span>
+                        <span>+3dB</span>
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-fill" style="width: 55%">
+                            <div class="slider-thumb"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-grid">
+                    <div class="control-btn">EQ</div>
+                    <div class="control-btn">COMP</div>
+                    <div class="control-btn">REVERB</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <div class="video-workspace">
+                <div class="video-preview">
+                    <div class="preview-overlay">
+                       
+                        <div class="preview-info" id="timeDisplay">00:00 / 00:00</div>
+                    </div>
+                    
+                    <div class="video-display">
+                        <div class="video-frame" id="videoFrame">
+                            <!-- HTML5 Video Player -->
+                            <video 
+                                id="mainVideo"
+                                class="video-element"
+                                style="display: none;"
+                                controls="false"
+                                muted
+                                loop>
+                                Your browser does not support the video tag.
+                            </video>
+                            
+                            <!-- Status indicator -->
+                            <div class="status-indicator" id="statusIndicator">READY</div>
+                            
+                            <!-- Video placeholder -->
+                            <div class="video-placeholder" id="videoPlaceholder">
+                                <div class="placeholder-icon">🎬</div>
+                                <div class="placeholder-text">FUTURISTIC VIDEO EDITOR</div>
+                                <div class="placeholder-subtitle">Load a video file to get started</div>
+                                <button class="placeholder-button" onclick="document.getElementById('videoFile').click()">
+                                    SELECT VIDEO FILE
+                                </button>
+                            </div>
+                            
+                            <!-- Progress bar -->
+                            <div class="progress-bar" id="progressBar" onclick="seekVideo(event)">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Futuristic background scene -->
+                        <div class="futuristic-scene">
+                            <div class="grid-overlay"></div>
+                            <div class="hologram-mountains">
+                                <div class="holo-mountain"></div>
+                                <div class="holo-mountain"></div>
+                                <div class="holo-mountain"></div>
+                            </div>
+                        </div>
+                    </div>
+               
+                    <!-- Audio Spectrum Overlay -->
+                    <div class="main-spectrum">
+                        <div class="main-spectrum-bar"></div>
+                        <div class="main-spectrum-bar"></div>
+                        <div class="main-spectrum-bar"></div>
+                        <div class="main-spectrum-bar"></div>
+                        <div class="main-spectrum-bar"></div>
+                        <div class="main-spectrum-bar"></div>
+                        <div class="main-spectrum-bar"></div>
+                        <div class="main-spectrum-bar"></div>
+                        <div class="main-spectrum-bar"></div>
+                        <div class="main-spectrum-bar"></div>
+                        <div class="main-spectrum-bar"></div>
+                        <div class="main-spectrum-bar"></div>
+                        <div class="main-spectrum-bar"></div>
+                        <div class="main-spectrum-bar"></div>
+                        <div class="main-spectrum-bar"></div>
+                        <div class="main-spectrum-bar"></div>
+                        <div class="main-spectrum-bar"></div>
+                        <div class="main-spectrum-bar"></div>
+                        <div class="main-spectrum-bar"></div>
+                        <div class="main-spectrum-bar"></div>
+                    </div>
+                </div>
+
+                
+            </div>
+        </div>
+
+        <!-- Right Control Panel -->
+        <div class="right-panel">
+            <div class="panel-header">
+                <div class="panel-title">EFFECTS & OUTPUT</div>
+                <div class="panel-subtitle">Post-Processing Pipeline</div>
+            </div>
+
+            <div class="control-section">
+                <div class="section-title">VISUAL EFFECTS</div>
+                
+                <div class="effects-grid">
+                    <div class="effect-btn">BLUR</div>
+                    <div class="effect-btn">GLOW</div>
+                    <div class="effect-btn">CHROMA</div>
+                    <div class="effect-btn">NOISE</div>
+                    <div class="effect-btn">GLITCH</div>
+                    <div class="effect-btn">MIRROR</div>
+                    <div class="effect-btn">WARP</div>
+                    <div class="effect-btn">LENS</div>
+                </div>
+
+                <div class="color-picker"></div>
+
+                <div class="slider-control">
+                    <div class="slider-label">
+                        <span>Effect Intensity</span>
+                        <span>80%</span>
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-fill" style="width: 80%">
+                            <div class="slider-thumb"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <div class="section-title">AUDIO SPECTRUM</div>
+                <div class="waveform">
+                    <div class="wave-bars">
+                        <div class="wave-bar" style="height: 30%"></div>
+                        <div class="wave-bar" style="height: 60%"></div>
+                        <div class="wave-bar" style="height: 40%"></div>
+                        <div class="wave-bar" style="height: 70%"></div>
+                        <div class="wave-bar" style="height: 50%"></div>
+                        <div class="wave-bar" style="height: 80%"></div>
+                        <div class="wave-bar" style="height: 35%"></div>
+                        <div class="wave-bar" style="height: 65%"></div>
+                        <div class="wave-bar" style="height: 45%"></div>
+                        <div class="wave-bar" style="height: 75%"></div>
+                        <div class="wave-bar" style="height: 55%"></div>
+                        <div class="wave-bar" style="height: 85%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <div class="section-title">EXPORT SETTINGS</div>
+                
+                <div class="button-grid">
+                    <div class="control-btn active">4K</div>
+                    <div class="control-btn">1080p</div>
+                    <div class="control-btn">720p</div>
+                    <div class="control-btn">H.264</div>
+                    <div class="control-btn">H.265</div>
+                    <div class="control-btn">ProRes</div>
+                </div>
+
+                <div class="render-section">
+                    <div class="section-title">RENDER QUEUE</div>
+                    <div style="color: #ff0080; font-size: 11px; margin-bottom: 10px;">
+                        Processing: Scene_001.mp4
+                    </div>
+                    <div class="render-progress">
+                        <div class="render-fill"></div>
+                    </div>
+                    <div id="renderStatus" style="color: #64748b; font-size: 10px;">
+                        45% Complete • 03:24 remaining
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <div class="section-title">PROJECT FILES</div>
+                
+                <div class="button-grid">
+                    <div class="control-btn">IMPORT</div>
+                    <div class="control-btn">EXPORT</div>
+                    <div class="control-btn">SAVE</div>
+                    <div class="control-btn">BACKUP</div>
+                    <div class="control-btn">SHARE</div>
+                    <div class="control-btn">CLOUD</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let video = null;
+        let isPlaying = false;
+        let currentTime = 0;
+        let duration = 0;
+        let volume = 0.7;
+        let isMuted = true; 
+        let animationFrame = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeEditor();
+            showNotification('Futuristic Video Editor Pro - Ready!', 'success');
+        });
+
+        function initializeEditor() {
+            video = document.getElementById('mainVideo');
+            
+            // Video event listeners
+            video.addEventListener('loadedmetadata', onVideoLoaded);
+            video.addEventListener('timeupdate', onTimeUpdate);
+            video.addEventListener('ended', onVideoEnded);
+            video.addEventListener('play', onVideoPlay);
+            video.addEventListener('pause', onVideoPause);
+            video.addEventListener('error', onVideoError);
+            
+            // File input handler
+            document.getElementById('videoFile').addEventListener('change', handleFileSelect);
+            
+            // Initialize UI controls
+            initializeControls();
+            
+            // Start spectrum animation
+            startSpectrumAnimation();
+            
+            // Start render progress simulation
+            startRenderProgress();
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', handleKeyboard);
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file && file.type.startsWith('video/')) {
+                loadVideoFile(file);
+            } else {
+                showNotification('Please select a valid video file', 'error');
+            }
+        }
+
+        function loadVideoFile(file) {
+            const url = URL.createObjectURL(file);
+            video.src = url;
+            video.load();
+            
+            // Update UI
+            document.getElementById('videoPlaceholder').style.display = 'none';
+            video.style.display = 'block';
+            document.getElementById('videoControls').style.display = 'flex';
+            
+            // Update title
+            document.getElementById('videoTitle').textContent = file.name;
+            document.getElementById('timelineTitle').textContent = 'NOW EDITING';
+            document.getElementById('trackContent').textContent = file.name;
+            
+            showNotification('Video loaded successfully!', 'success');
+        }
+
+        function loadDemoVideo(demoNumber) {
+            // Create demo video URLs (using sample videos)
+            const demoVideos = {
+                1: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
+                2: 'https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4',
+                3: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
+            };
+            
+            const demoTitles = {
+                1: 'Demo Video 1 - Sample Clip',
+                2: 'Demo Video 2 - Test Footage',
+                3: 'Demo Video 3 - Big Buck Bunny'
+            };
+            
+            if (demoVideos[demoNumber]) {
+                video.src = demoVideos[demoNumber];
+                video.load();
+                
+                // Update UI
+                document.getElementById('videoPlaceholder').style.display = 'none';
+                video.style.display = 'block';
+                document.getElementById('videoControls').style.display = 'flex';
+                
+                // Update title
+                document.getElementById('videoTitle').textContent = demoTitles[demoNumber];
+                document.getElementById('timelineTitle').textContent = 'NOW EDITING';
+                document.getElementById('trackContent').textContent = demoTitles[demoNumber];
+                
+                showNotification(`Loading ${demoTitles[demoNumber]}...`, 'info');
+            }
+        }
+
+        // Video event handlers
+        function onVideoLoaded() {
+            duration = video.duration;
+            updateTimeDisplay();
+            updateStatus('READY');
+            showNotification('Video ready to play!', 'success');
+        }
+
+        function onTimeUpdate() {
+            currentTime = video.currentTime;
+            updateTimeDisplay();
+            updateProgress();
+            updatePlayhead();
+        }
+
+        function onVideoEnded() {
+            isPlaying = false;
+            updatePlayButton();
+            updateStatus('ENDED');
+            // Reset to beginning
+            video.currentTime = 0;
+        }
+
+        function onVideoPlay() {
+            isPlaying = true;
+            updatePlayButton();
+            updateStatus('PLAYING');
+        }
+
+        function onVideoPause() {
+            isPlaying = false;
+            updatePlayButton();
+            updateStatus('PAUSED');
+        }
+
+        function onVideoError() {
+            showNotification('Error loading video. Please try another file.', 'error');
+            updateStatus('ERROR');
+        }
+
+        // Control functions
+        function togglePlay() {
+            if (!video.src) {
+                showNotification('Please load a video first', 'error');
+                return;
+            }
+            
+            if (isPlaying) {
+                video.pause();
+            } else {
+                video.play().catch(e => {
+                    console.log('Autoplay prevented:', e);
+                    showNotification('Click play again to start video', 'info');
+                });
+            }
+        }
+
+        function skipBackward() {
+            if (video.src) {
+                video.currentTime = Math.max(0, video.currentTime - 10);
+                showNotification('Skipped back 10 seconds');
+            }
+        }
+
+        function skipForward() {
+            if (video.src) {
+                video.currentTime = Math.min(duration, video.currentTime + 10);
+                showNotification('Skipped forward 10 seconds');
+            }
+        }
+
+        function toggleMute() {
+            if (!video.src) return;
+            
+            isMuted = !isMuted;
+            video.muted = isMuted;
+            
+            const volumeBtn = document.getElementById('volumeBtn');
+            const volumeFill = document.getElementById('volumeFill');
+            
+            if (isMuted) {
+                volumeBtn.textContent = '🔇';
+                volumeFill.style.width = '0%';
+            } else {
+                volumeBtn.textContent = '🔊';
+                volumeFill.style.width = (volume * 100) + '%';
+                video.volume = volume;
+            }
+        }
+
+        function setVolume(event) {
+            if (!video.src) return;
+            
+            const volumeSlider = event.currentTarget;
+            const rect = volumeSlider.getBoundingClientRect();
+            const percent = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+            
+            volume = percent;
+            video.volume = volume;
+            
+            const volumeFill = document.getElementById('volumeFill');
+            volumeFill.style.width = (volume * 100) + '%';
+            
+            if (volume === 0) {
+                isMuted = true;
+                video.muted = true;
+                document.getElementById('volumeBtn').textContent = '🔇';
+            } else {
+                isMuted = false;
+                video.muted = false;
+                document.getElementById('volumeBtn').textContent = '🔊';
+            }
+        }
+
+        function toggleFullscreen() {
+            const videoFrame = document.getElementById('videoFrame');
+            
+            if (!document.fullscreenElement) {
+                videoFrame.requestFullscreen().catch(err => {
+                    showNotification('Fullscreen not supported', 'error');
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function seekVideo(event) {
+            if (!video.src) return;
+            
+            const progressBar = event.currentTarget;
+            const rect = progressBar.getBoundingClientRect();
+            const percent = (event.clientX - rect.left) / rect.width;
+            
+            video.currentTime = duration * percent;
+        }
+
+        function seekTimeline(event) {
+            seekVideo(event);
+        }
+
+        // UI update functions
+        function updateTimeDisplay() {
+            const formatTime = (time) => {
+                const minutes = Math.floor(time / 60);
+                const seconds = Math.floor(time % 60);
+                return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            };
+            
+            const timeDisplay = document.getElementById('timeDisplay');
+            timeDisplay.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
+        }
+
+        function updateProgress() {
+            const progressFill = document.getElementById('progressFill');
+            const percent = duration > 0 ? (currentTime / duration) * 100 : 0;
+            progressFill.style.width = percent + '%';
+        }
+
+        function updatePlayhead() {
+            const playhead = document.getElementById('playhead');
+            const percent = duration > 0 ? (currentTime / duration) * 100 : 0;
+            playhead.style.left = percent + '%';
+        }
+
+        function updatePlayButton() {
+            const playBtn = document.getElementById('playBtn');
+            playBtn.textContent = isPlaying ? '⏸' : '▶';
+        }
+
+        function updateStatus(status) {
+            const statusIndicator = document.getElementById('statusIndicator');
+            statusIndicator.textContent = status;
+            
+            statusIndicator.className = 'status-indicator';
+            
+            switch(status) {
+                case 'PLAYING':
+                    statusIndicator.classList.add('playing');
+                    break;
+                case 'PAUSED':
+                    statusIndicator.classList.add('paused');
+                    break;
+            }
+        }
+
+        // Initialize controls
+        function initializeControls() {
+            // Interactive slider controls
+            const sliders = document.querySelectorAll('.slider-container');
+            sliders.forEach(slider => {
+                slider.addEventListener('click', function(e) {
+                    const rect = this.getBoundingClientRect();
+                    const percent = (e.clientX - rect.left) / rect.width;
+                    const fill = this.querySelector('.slider-fill');
+                    const label = this.parentElement.querySelector('.slider-label span:last-child');
+                    
+                    fill.style.width = (percent * 100) + '%';
+                    
+                    // Update label based on slider type
+                    const sliderType = this.parentElement.querySelector('.slider-label span:first-child').textContent;
+                    let value = '';
+                    
+                    switch(sliderType) {
+                        case 'Brightness':
+                        case 'Contrast':
+                        case 'Saturation':
+                        case 'Effect Intensity':
+                            value = Math.round(percent * 100) + '%';
+                            // Apply filter to video
+                            applyVideoFilter(sliderType, percent);
+                            break;
+                        case 'Scale':
+                            value = (percent * 2).toFixed(1) + 'x';
+                            break;
+                        case 'Rotation':
+                            value = Math.round(percent * 360) + '°';
+                            break;
+                        case 'Master Volume':
+                        case 'Bass':
+                            value = (percent * 20 - 10).toFixed(0) + 'dB';
+                            break;
+                        default:
+                            value = (percent * 2 - 1).toFixed(1);
+                    }
+                    
+                    label.textContent = value;
+                });
+            });
+
+            // Control button interactions
+            const controlBtns = document.querySelectorAll('.control-btn');
+            controlBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const parent = this.parentElement;
+                    if (parent.classList.contains('button-grid')) {
+                        parent.querySelectorAll('.control-btn').forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
+                    } else {
+                        this.classList.toggle('active');
+                    }
+                });
+
+                btn.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px) scale(1.05)';
+                });
+
+                btn.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+
+            // Effect button interactions
+            const effectBtns = document.querySelectorAll('.effect-btn');
+            effectBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                    if (this.classList.contains('active')) {
+                        this.style.background = 'rgba(128, 0, 255, 0.3)';
+                        this.style.borderColor = '#8000ff';
+                        applyVideoEffect(this.textContent);
+                    } else {
+                        this.style.background = 'rgba(128, 0, 255, 0.1)';
+                        this.style.borderColor = 'rgba(128, 0, 255, 0.3)';
+                        removeVideoEffect(this.textContent);
+                    }
+                });
+            });
+
+            // Timeline control buttons
+            const timelineBtns = document.querySelectorAll('.timeline-btn');
+            timelineBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    timelineBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    this.style.background = 'rgba(0, 255, 255, 0.2)';
+                    this.style.borderColor = '#00ffff';
+                    
+                    setTimeout(() => {
+                        this.style.background = 'rgba(0, 255, 255, 0.1)';
+                        this.style.borderColor = 'rgba(0, 255, 255, 0.3)';
+                    }, 2000);
+                });
+            });
+
+            // Color picker interaction
+            const colorPicker = document.querySelector('.color-picker');
+            colorPicker.addEventListener('click', function(e) {
+                const rect = this.getBoundingClientRect();
+                const percent = (e.clientX - rect.left) / rect.width;
+                
+                const indicator = document.createElement('div');
+                indicator.style.cssText = `
+                    position: absolute;
+                    top: 50%;
+                    left: ${percent * 100}%;
+                    width: 4px;
+                    height: 100%;
+                    background: #ffffff;
+                    transform: translateX(-50%) translateY(-50%);
+                    border: 1px solid #000;
+                    z-index: 10;
+                `;
+                
+                const existingIndicator = this.querySelector('div');
+                if (existingIndicator) {
+                    existingIndicator.remove();
+                }
+                
+                this.style.position = 'relative';
+                this.appendChild(indicator);
+            });
+
+            // Floating button interactions
+            const floatingBtns = document.querySelectorAll('.floating-btn');
+            floatingBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    this.style.transform = 'scale(0.9)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1.1)';
+                    }, 100);
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 200);
+                });
+            });
+        }
+
+        // Video effects
+        function applyVideoFilter(type, value) {
+            if (!video) return;
+            
+            let filter = '';
+            switch(type) {
+                case 'Brightness':
+                    filter = `brightness(${value * 2})`;
+                    break;
+                case 'Contrast':
+                    filter = `contrast(${value * 2})`;
+                    break;
+                case 'Saturation':
+                    filter = `saturate(${value * 2})`;
+                    break;
+            }
+            
+            video.style.filter = filter;
+        }
+
+        function applyVideoEffect(effectName) {
+            if (!video) return;
+            
+            const effects = {
+                'BLUR': 'blur(3px)',
+                'GLOW': 'drop-shadow(0 0 10px #00ffff)',
+                'NOISE': 'contrast(1.5) brightness(1.2)',
+                'GLITCH': 'hue-rotate(180deg) saturate(2)',
+            };
+            
+            if (effects[effectName]) {
+                video.style.filter = (video.style.filter || '') + ' ' + effects[effectName];
+            }
+        }
+
+        function removeVideoEffect(effectName) {
+            // Reset filters when effect is removed
+            if (video) {
+                video.style.filter = '';
+            }
+        }
+
+        // Audio spectrum animation
+        function startSpectrumAnimation() {
+            const waveBars = document.querySelectorAll('.wave-bar');
+            const mainSpectrumBars = document.querySelectorAll('.main-spectrum-bar');
+            
+            function createAudioSpectrum() {
+                const frequencies = [];
+                for (let i = 0; i < 20; i++) {
+                    frequencies.push(Math.random());
+                }
+                
+                // Enhance animation when video is playing
+                const multiplier = isPlaying ? 1.5 : 0.5;
+                
+                const time = Date.now() * 0.001;
+                const bassIntensity = Math.sin(time * 2) * 0.5 + 0.5;
+                const midIntensity = Math.sin(time * 3) * 0.4 + 0.6;
+                const trebleIntensity = Math.sin(time * 5) * 0.3 + 0.7;
+                
+                frequencies.forEach((freq, index) => {
+                    let intensity;
+                    if (index < 6) {
+                        intensity = bassIntensity * (0.7 + Math.random() * 0.3) * multiplier;
+                    } else if (index < 14) {
+                        intensity = midIntensity * (0.5 + Math.random() * 0.5) * multiplier;
+                    } else {
+                        intensity = trebleIntensity * (0.4 + Math.random() * 0.6) * multiplier;
+                    }
+                    
+                    frequencies[index] = Math.min(1, intensity);
+                });
+                
+                return frequencies;
+            }
+            
+            function updateSpectrum() {
+                const frequencies = createAudioSpectrum();
+                
+                mainSpectrumBars.forEach((bar, index) => {
+                    const height = frequencies[index] * 100;
+                    bar.style.height = height + '%';
+                    
+                    if (frequencies[index] > 0.75 && isPlaying) {
+                        bar.classList.add('beat');
+                        setTimeout(() => bar.classList.remove('beat'), 120);
+                    }
+                });
+                
+                waveBars.forEach((bar, index) => {
+                    const height = frequencies[index % frequencies.length] * 85 + 15;
+                    bar.style.height = height + '%';
+                    
+                    if (frequencies[index % frequencies.length] > 0.7 && isPlaying) {
+                        bar.classList.add('active');
+                        setTimeout(() => bar.classList.remove('active'), 150);
+                    }
+                });
+            }
+            
+            setInterval(updateSpectrum, 50);
+        }
+
+        function startRenderProgress() {
+            const renderFill = document.querySelector('.render-fill');
+            const renderStatus = document.getElementById('renderStatus');
+            let renderProgress = 45;
+            
+            setInterval(() => {
+                renderProgress += 0.5;
+                if (renderProgress > 100) renderProgress = 0;
+                renderFill.style.width = renderProgress + '%';
+                
+                const remainingTime = Math.max(0, Math.floor((100 - renderProgress) * 2.5));
+                const minutes = Math.floor(remainingTime / 60);
+                const seconds = remainingTime % 60;
+                renderStatus.textContent = 
+                    `${renderProgress.toFixed(0)}% Complete • ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')} remaining`;
+            }, 1200);
+        }
+
+        // Keyboard shortcuts
+        function handleKeyboard(event) {
+            switch(event.code) {
+                case 'Space':
+                    event.preventDefault();
+                    togglePlay();
+                    break;
+                case 'KeyJ':
+                    event.preventDefault();
+                    skipBackward();
+                    break;
+                case 'KeyL':
+                    event.preventDefault();
+                    skipForward();
+                    break;
+                case 'KeyM':
+                    event.preventDefault();
+                    toggleMute();
+                    break;
+                case 'KeyF':
+                    event.preventDefault();
+                    toggleFullscreen();
+                    break;
+                case 'ArrowLeft':
+                    if (video.src) {
+                        event.preventDefault();
+                        video.currentTime = Math.max(0, video.currentTime - 5);
+                    }
+                    break;
+                case 'ArrowRight':
+                    if (video.src) {
+                        event.preventDefault();
+                        video.currentTime = Math.min(duration, video.currentTime + 5);
+                    }
+                    break;
+                case 'ArrowUp':
+                    if (video.src && !isMuted) {
+                        event.preventDefault();
+                        volume = Math.min(1, volume + 0.1);
+                        video.volume = volume;
+                        document.getElementById('volumeFill').style.width = (volume * 100) + '%';
+                    }
+                    break;
+                case 'ArrowDown':
+                    if (video.src && !isMuted) {
+                        event.preventDefault();
+                        volume = Math.max(0, volume - 0.1);
+                        video.volume = volume;
+                        document.getElementById('volumeFill').style.width = (volume * 100) + '%';
+                    }
+                    break;
+            }
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                padding: 12px 20px;
+                border-radius: 8px;
+                color: white;
+                font-size: 11px;
+                font-weight: 600;
+                z-index: 1000;
+                backdrop-filter: blur(10px);
+                border: 1px solid;
+                transition: all 0.3s ease;
+                transform: translateX(100%);
+                max-width: 300px;
+            `;
+            
+            switch(type) {
+                case 'success':
+                    notification.style.background = 'rgba(0, 255, 0, 0.2)';
+                    notification.style.borderColor = 'rgba(0, 255, 0, 0.5)';
+                    break;
+                case 'error':
+                    notification.style.background = 'rgba(255, 0, 0, 0.2)';
+                    notification.style.borderColor = 'rgba(255, 0, 0, 0.5)';
+                    break;
+                default:
+                    notification.style.background = 'rgba(0, 255, 255, 0.2)';
+                    notification.style.borderColor = 'rgba(0, 255, 255, 0.5)';
+            }
+            
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            // Animate in
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            // Animate out
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Auto-resize video when window resizes
+        window.addEventListener('resize', () => {
+            if (video && video.videoWidth && video.videoHeight) {
+                // Maintain aspect ratio
+                const aspectRatio = video.videoWidth / video.videoHeight;
+                const container = document.getElementById('videoFrame');
+                const containerWidth = container.clientWidth;
+                const containerHeight = container.clientHeight;
+                
+                if (containerWidth / containerHeight > aspectRatio) {
+                    video.style.height = '100%';
+                    video.style.width = 'auto';
+                } else {
+                    video.style.width = '100%';
+                    video.style.height = 'auto';
+                }
+            }
+        });
+
+        // Drag and drop functionality
+        document.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+
+        document.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].type.startsWith('video/')) {
+                loadVideoFile(files[0]);
+                showNotification('Video dropped successfully!', 'success');
+            } else {
+                showNotification('Please drop a valid video file', 'error');
+            }
+        });
+
+        // Initialize volume slider
+        document.getElementById('volumeFill').style.width = (volume * 100) + '%';
+        
+        // Show helpful tips
+        setTimeout(() => {
+            showNotification('💡 Tip: Use spacebar to play/pause, J/L to skip, M to mute', 'info');
+        }, 3000);
+
+        setTimeout(() => {
+            showNotification('📁 Tip: Drag and drop video files directly onto the editor', 'info');
+        }, 8000);
+
+        // Performance optimization - clean up when video changes
+        function cleanupVideo() {
+            if (video.src && video.src.startsWith('blob:')) {
+                URL.revokeObjectURL(video.src);
+            }
+        }
+
+        // Handle page unload
+        window.addEventListener('beforeunload', cleanupVideo);
+    </script>
+</body>
+</html>

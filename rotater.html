@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinite Zoom Mandala</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #000;
+            overflow: hidden;
+            cursor: grab;
+        }
+        
+        body:active {
+            cursor: grabbing;
+        }
+        
+        canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        .controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            color: white;
+            font-family: 'Courier New', monospace;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+        
+        .control-group {
+            margin-bottom: 10px;
+        }
+        
+        .control-group label {
+            display: block;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        
+        .slider {
+            width: 150px;
+            background: #333;
+            outline: none;
+            height: 5px;
+            border-radius: 5px;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 15px;
+            height: 15px;
+            background: #ff00ff;
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #ff00ff;
+        }
+        
+        .btn {
+            background: transparent;
+            color: white;
+            border: 1px solid #ff00ff;
+            padding: 5px 10px;
+            margin: 2px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: #ff00ff;
+            box-shadow: 0 0 15px #ff00ff;
+        }
+        
+        .info {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <h3>🌀TRANCE EFFECT</h3>
+        
+        <div class="control-group">
+            <label>Zoom Speed</label>
+            <input type="range" id="zoomSpeed" class="slider" min="0.1" max="5" step="0.1" value="1">
+        </div>
+        
+        <div class="control-group">
+            <label>Rotation Speed</label>
+            <input type="range" id="rotationSpeed" class="slider" min="0" max="5" step="0.1" value="0.5">
+        </div>
+        
+        <div class="control-group">
+            <label>Complexity</label>
+            <input type="range" id="complexity" class="slider" min="3" max="12" value="6">
+        </div>
+        
+        <div class="control-group">
+            <label>Color Shift</label>
+            <input type="range" id="colorShift" class="slider" min="0" max="10" step="0.1" value="2">
+        </div>
+        
+        <div>
+            <button class="btn" id="pauseBtn">PAUSE</button>
+            <button class="btn" id="resetBtn">RESET</button>
+            <button class="btn" id="randomBtn">RANDOM</button>
+        </div>
+    </div>
+    
+    <div class="info">
+        <div>Scroll to zoom • Click & drag to pan</div>
+        <div>Press SPACE for auto-zoom</div>
+    </div>
+    
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height, centerX, centerY;
+        let zoom = 1;
+        let rotation = 0;
+        let offsetX = 0;
+        let offsetY = 0;
+        let time = 0;
+        let animationId;
+        let isPaused = false;
+        let autoZoom = false;
+        
+        // Mouse/touch handling
+        let isDragging = false;
+        let lastMouseX = 0;
+        let lastMouseY = 0;
+        
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            centerX = width / 2;
+            centerY = height / 2;
+        }
+        
+        function drawMandala() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, width, height);
+            
+            ctx.save();
+            ctx.translate(centerX + offsetX, centerY + offsetY);
+            ctx.rotate(rotation);
+            ctx.scale(zoom, zoom);
+            
+            const complexity = parseInt(document.getElementById('complexity').value);
+            const colorShift = parseFloat(document.getElementById('colorShift').value);
+            
+            // Multiple layers of mandalas
+            for (let layer = 0; layer < 5; layer++) {
+                ctx.save();
+                
+                const layerScale = 1 - layer * 0.2;
+                const layerRotation = layer * 0.1 * time;
+                
+                ctx.scale(layerScale, layerScale);
+                ctx.rotate(layerRotation);
+                
+                // Draw mandala pattern
+                for (let i = 0; i < complexity; i++) {
+                    const angle = (Math.PI * 2 * i) / complexity;
+                    
+                    ctx.save();
+                    ctx.rotate(angle);
+                    
+                    // Draw fractal arms
+                    drawFractalArm(layer, colorShift);
+                    
+                    ctx.restore();
+                }
+                
+                ctx.restore();
+            }
+            
+            ctx.restore();
+        }
+        
+        function drawFractalArm(layer, colorShift) {
+            const armLength = 200 / (layer + 1);
+            const segments = 50;
+            
+            ctx.beginPath();
+            
+            for (let i = 0; i <= segments; i++) {
+                const t = i / segments;
+                const x = t * armLength;
+                
+                // Fractal function
+                let y = 0;
+                for (let n = 1; n <= 5; n++) {
+                    y += Math.sin(t * Math.PI * n * 4 + time * 0.1 * n) / n;
+                }
+                y *= 30 / (layer + 1);
+                
+                // Add breathing effect
+                const breathe = Math.sin(time * 0.05) * 0.1 + 1;
+                y *= breathe;
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            
+            // Color based on layer and time
+            const hue = (layer * 60 + time * colorShift) % 360;
+            const saturation = 70 + layer * 10;
+            const lightness = 50 + Math.sin(time * 0.02 + layer) * 20;
+            
+            ctx.strokeStyle = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+            ctx.lineWidth = 2 / (layer + 1);
+            ctx.lineCap = 'round';
+            ctx.stroke();
+            
+            // Add glow effect
+            ctx.shadowColor = ctx.strokeStyle;
+            ctx.shadowBlur = 10 / (layer + 1);
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+        }
+        
+        function animate() {
+            time += 1;
+            
+            const zoomSpeed = parseFloat(document.getElementById('zoomSpeed').value);
+            const rotationSpeed = parseFloat(document.getElementById('rotationSpeed').value);
+            
+            // Auto zoom
+            if (autoZoom) {
+                zoom *= 1 + zoomSpeed * 0.01;
+                if (zoom > 1000) zoom = 1; // Reset zoom when too large
+            }
+            
+            // Rotation
+            rotation += rotationSpeed * 0.01;
+            
+            drawMandala();
+            
+            if (!isPaused) {
+                animationId = requestAnimationFrame(animate);
+            }
+        }
+        
+        // Event listeners
+        window.addEventListener('resize', resize);
+        
+        // Mouse controls
+        canvas.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+        });
+        
+        canvas.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                offsetX += e.clientX - lastMouseX;
+                offsetY += e.clientY - lastMouseY;
+                lastMouseX = e.clientX;
+                lastMouseY = e.clientY;
+            }
+        });
+        
+        canvas.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+        
+        // Zoom with mouse wheel
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+            zoom *= zoomFactor;
+            zoom = Math.max(0.1, Math.min(1000, zoom));
+        });
+        
+        // Touch controls
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (e.touches.length === 1) {
+                isDragging = true;
+                lastMouseX = e.touches[0].clientX;
+                lastMouseY = e.touches[0].clientY;
+            }
+        });
+        
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (isDragging && e.touches.length === 1) {
+                offsetX += e.touches[0].clientX - lastMouseX;
+                offsetY += e.touches[0].clientY - lastMouseY;
+                lastMouseX = e.touches[0].clientX;
+                lastMouseY = e.touches[0].clientY;
+            }
+        });
+        
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            isDragging = false;
+        });
+        
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            switch(e.code) {
+                case 'Space':
+                    e.preventDefault();
+                    autoZoom = !autoZoom;
+                    break;
+                case 'KeyP':
+                    isPaused = !isPaused;
+                    if (!isPaused) animate();
+                    break;
+                case 'KeyR':
+                    zoom = 1;
+                    rotation = 0;
+                    offsetX = 0;
+                    offsetY = 0;
+                    time = 0;
+                    break;
+            }
+        });
+        
+        // Control buttons
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            isPaused = !isPaused;
+            if (!isPaused) animate();
+            document.getElementById('pauseBtn').textContent = isPaused ? 'PLAY' : 'PAUSE';
+        });
+        
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            zoom = 1;
+            rotation = 0;
+            offsetX = 0;
+            offsetY = 0;
+            time = 0;
+            autoZoom = false;
+        });
+        
+        document.getElementById('randomBtn').addEventListener('click', () => {
+            document.getElementById('zoomSpeed').value = Math.random() * 4 + 0.5;
+            document.getElementById('rotationSpeed').value = Math.random() * 3;
+            document.getElementById('complexity').value = Math.floor(Math.random() * 8) + 4;
+            document.getElementById('colorShift').value = Math.random() * 8 + 1;
+        });
+        
+        // Initialize
+        resize();
+        animate();
+    </script>
+</body>
+</html>

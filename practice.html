@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Talent Visa Recommendation Letter</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 0.75in;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Times New Roman', serif;
+            font-size: 11pt;
+            line-height: 1.4;
+            color: #000;
+            background: white;
+        }
+        
+        .page {
+            width: 100%;
+            min-height: calc(100vh - 1.5in);
+            page-break-after: always;
+            position: relative;
+        }
+        
+        .page:last-child {
+            page-break-after: avoid;
+        }
+        
+        /* Header Section */
+        .header {
+            border-bottom: 2px solid #0066cc;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .company-logo {
+            width: 80px;
+            height: 60px;
+            background: #f0f0f0;
+            border: 1px dashed #999;
+            float: left;
+            margin-right: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9pt;
+            color: #666;
+        }
+        
+        .company-info {
+            overflow: hidden;
+        }
+        
+        .company-name {
+            font-size: 18pt;
+            font-weight: bold;
+            color: #0066cc;
+            margin-bottom: 5px;
+        }
+        
+        .company-address {
+            font-size: 10pt;
+            line-height: 1.3;
+            margin-bottom: 8px;
+        }
+        
+        .contact-details {
+            font-size: 9pt;
+            color: #333;
+        }
+        
+        .clearfix::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+        
+        /* Document Title */
+        .document-title {
+            text-align: center;
+            font-size: 14pt;
+            font-weight: bold;
+            margin: 20px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-top: 1px solid #0066cc;
+            border-bottom: 1px solid #0066cc;
+            padding: 10px 0;
+        }
+        
+        /* Date and Address */
+        .date-section {
+            margin: 15px 0;
+        }
+        
+        .date {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .recipient {
+            margin-bottom: 15px;
+        }
+        
+        /* Section Headers */
+        .section-header {
+            font-size: 12pt;
+            font-weight: bold;
+            color: #0066cc;
+            margin: 15px 0 8px 0;
+            padding-bottom: 3px;
+            border-bottom: 1px solid #ccc;
+        }
+        
+        /* Content Sections */
+        .content-section {
+            margin-bottom: 12px;
+        }
+        
+        .recommender-box {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 12px;
+            margin: 10px 0;
+        }
+        
+        .recommender-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 10pt;
+        }
+        
+        .detail-item {
+            margin-bottom: 4px;
+        }
+        
+        .detail-label {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        /* Lists */
+        .achievement-list {
+            margin-left: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .achievement-list li {
+            margin-bottom: 5px;
+        }
+        
+        /* Highlight Boxes */
+        .highlight-box {
+            background: #e8f4f8;
+            border-left: 4px solid #0066cc;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 10pt;
+        }
+        
+        /* Signature Section */
+        .signature-section {
+            margin-top: 30px;
+            page-break-inside: avoid;
+        }
+        
+        .signature-box {
+            border: 1px dashed #999;
+            height: 60px;
+            margin: 15px 0;
+            background: #fafafa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9pt;
+            color: #666;
+        }
+        
+        .signatory-info {
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        /* Footer */
+        .footer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            font-size: 8pt;
+            color: #666;
+            text-align: center;
+            border-top: 1px solid #ccc;
+            padding-top: 5px;
+        }
+        
+        /* Responsive adjustments */
+        @media print {
+            body {
+                font-size: 10pt;
+            }
+            .page {
+                page-break-after: always;
+            }
+        }
+        
+        /* Specific page content */
+        .page-1 { }
+        .page-2 { }
+        .page-3 { }
+        
+        /* Text formatting */
+        .bold { font-weight: bold; }
+        .italic { font-style: italic; }
+        .underline { text-decoration: underline; }
+        
+        /* Spacing utilities */
+        .mb-small { margin-bottom: 8px; }
+        .mb-medium { margin-bottom: 12px; }
+        .mb-large { margin-bottom: 20px; }
+        
+        /* Placeholder styling */
+        .placeholder {
+            background: #fff3cd;
+            border: 1px dashed #856404;
+            padding: 2px 4px;
+            font-weight: bold;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <!-- PAGE 1 -->
+    <div class="page page-1">
+        <!-- Header -->
+        <div class="header clearfix">
+            <div class="company-logo">
+                [LOGO]
+            </div>
+            <div class="company-info">
+                <div class="company-name"><span class="placeholder">[COMPANY NAME]</span></div>
+                <div class="company-address">
+                    <span class="placeholder">[COMPANY ADDRESS LINE 1]</span><br>
+                    <span class="placeholder">[CITY, POSTAL CODE, COUNTRY]</span>
+                </div>
+                <div class="contact-details">
+                    <strong>Web:</strong> <span class="placeholder">[website.com]</span> | 
+                    <strong>Email:</strong> <span class="placeholder">[contact@company.com]</span> | 
+                    <strong>Phone:</strong> <span class="placeholder">[+44 xxx xxx xxxx]</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Document Title -->
+        <div class="document-title">
+            Letter of Recommendation for UK Global Talent Visa
+        </div>
+
+        <!-- Date and Recipient -->
+        <div class="date-section">
+            <div class="date"><strong>Date:</strong> <span class="placeholder">[Current Date]</span></div>
+            <div class="recipient">
+                <strong>To:</strong> Tech Nation UK Global Talent Team<br>
+                <strong>Re:</strong> Letter of Recommendation for <span class="placeholder">[SHIVASHANKER KANUGULA]</span> - Global Talent Visa Application
+            </div>
+        </div>
+
+        <!-- Recommender Details -->
+        <div class="section-header">RECOMMENDER CREDENTIALS</div>
+        <div class="recommender-box">
+            <div class="recommender-details">
+                <div class="detail-item">
+                    <span class="detail-label">Name:</span> <span class="placeholder">[RECOMMENDER'S FULL NAME]</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Position:</span> <span class="placeholder">[Chief Technology Officer]</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Company:</span> <span class="placeholder">[COMPANY NAME]</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Experience:</span> <span class="placeholder">[X]</span> years in current role
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Email:</span> <span class="placeholder">[recommender@company.com]</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">LinkedIn:</span> <span class="placeholder">[LinkedIn Profile URL]</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Professional Background -->
+        <div class="section-header">PROFESSIONAL BACKGROUND</div>
+        <div class="content-section">
+            I am writing in my capacity as <span class="placeholder">[POSITION]</span> at <span class="placeholder">[COMPANY NAME]</span>, a <span class="placeholder">[INDUSTRY]</span> startup that has <span class="placeholder">[KEY ACHIEVEMENT - e.g., "raised $XXXXXX in Series A funding"]</span>. 
+        </div>
+        <div class="content-section">
+            I hold a <span class="placeholder">[DEGREE]</span> in <span class="placeholder">[FIELD]</span> from <span class="placeholder">[UNIVERSITY]</span> and have <span class="placeholder">[NUMBER]</span> years of experience in software engineering and technology leadership. Prior to <span class="placeholder">[COMPANY NAME]</span>, I held senior positions at <span class="placeholder">[PREVIOUS COMPANIES]</span> where I led teams of <span class="placeholder">[NUMBER]</span> engineers building scalable systems.
+        </div>
+
+        <!-- How I Know the Candidate -->
+        <div class="section-header">PROFESSIONAL RELATIONSHIP</div>
+        <div class="content-section">
+            I first met <span class="placeholder">[SHIVASHANKER]</span> in <span class="placeholder">[JAN, 2022]</span> during a project collaboration meeting at <span class="placeholder">[INFINITE SOLUTIONS]</span>. I was visiting to discuss potential backend development partnerships for our growing startup. <span class="placeholder">[SHIVASHANKER KANUGULA]</span>'s project manager introduced us, identifying him as one of their most capable full-stack developers.
+        </div>
+        
+        <div class="highlight-box">
+            <strong>Collaboration Context:</strong><br>
+            • <strong>Initial Meeting:</strong> <span class="placeholder">[DATE]</span> at <span class="placeholder">[LOCATION]</span><br>
+            • <strong>Project Scope:</strong> Backend development for <span class="placeholder">[PROJECT TYPE]</span><br>
+            • <strong>Duration:</strong> <span class="placeholder">[TIME PERIOD]</span><br>
+            • <strong>My Role:</strong> Direct technical oversight and code review
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            Global Talent Visa Recommendation Letter - Page 1 of 3 - <span class="placeholder">[COMPANY NAME]</span>
+        </div>
+    </div>
+
+    <!-- PAGE 2 -->
+    <div class="page page-2">
+        <!-- Technical Assessment -->
+        <div class="section-header">EXCEPTIONAL TALENT ASSESSMENT</div>
+        <div class="content-section">
+            Based on direct collaboration and code review, I can confidently attest that <span class="placeholder">[SHIVASHANKER KANUGULA]</span> possesses exceptional technical abilities placing him in the top 10% of software engineers I have encountered globally.
+        </div>
+
+        <div class="section-header">OUTSTANDING TECHNICAL SKILLS</div>
+        <div class="content-section">
+            <strong>1. Full-Stack Development Mastery</strong>
+            <ul class="achievement-list">
+                <li>Exceptional proficiency in <span class="placeholder">[React.js, Node.js, PostgreSQL, AWS]</span></li>
+                <li>Architected end-to-end solutions from database design to user interface</li>
+                <li>Deep understanding of CI/CD, microservices, and cloud deployment</li>
+            </ul>
+        </div>
+
+        <div class="content-section">
+            <strong>2. Problem-Solving Excellence</strong>
+            <ul class="achievement-list">
+                <li>Reduced our application response time by <span class="placeholder">[XX%]</span> through optimization</li>
+                <li>Resolved critical performance bottlenecks that puzzled our internal team</li>
+                <li>Consistently proposed innovative solutions to complex challenges</li>
+            </ul>
+        </div>
+
+        <div class="content-section">
+            <strong>3. Code Quality & Leadership</strong>
+            <ul class="achievement-list">
+                <li>Maintained 95%+ test coverage with zero critical security vulnerabilities</li>
+                <li>Mentored junior developers and facilitated knowledge transfer</li>
+                <li>Implemented enterprise-grade security and authentication systems</li>
+            </ul>
+        </div>
+
+        <div class="section-header">SPECIFIC PROJECT CONTRIBUTIONS</div>
+        <div class="highlight-box">
+            During our collaboration on <span class="placeholder">[PROJECT NAME]</span>, <span class="placeholder">[SHIVASHANKER]</span> delivered exceptional results:
+            <br><br>
+            • <strong>Backend Architecture:</strong> Designed scalable REST API handling <span class="placeholder">[X,XXX]</span> requests/second<br>
+            • <strong>Database Optimization:</strong> Improved query performance by <span class="placeholder">[XX%]</span><br>
+            • <strong>Performance:</strong> Reduced load time from <span class="placeholder">[X]</span> to <span class="placeholder">[X]</span> seconds<br>
+            • <strong>Security:</strong> Implemented robust authentication meeting enterprise standards<br>
+            • <strong>Innovation:</strong> <span class="placeholder">[Specific technical innovation implemented]</span>
+        </div>
+
+        <div class="section-header">INNOVATION AND BUSINESS IMPACT</div>
+        <div class="content-section">
+            <strong>Technical Innovation:</strong> <span class="placeholder">[SHIVASHANKER]</span> proposed and implemented <span class="placeholder">[specific innovation, e.g., "a novel caching strategy reducing database load by 60%"]</span>. His technical contributions enabled our company to scale from <span class="placeholder">[X,XXX]</span> to <span class="placeholder">[XX,XXX]</span> users while reducing infrastructure costs by <span class="placeholder">[XX%]</span>.
+        </div>
+
+        <div class="content-section">
+            <strong>Knowledge Leadership:</strong> Created comprehensive technical documentation that became our development standard. Conducted training sessions on <span class="placeholder">[specific technology]</span> and contributed to open-source projects demonstrating thought leadership.
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            Global Talent Visa Recommendation Letter - Page 2 of 3 - <span class="placeholder">[COMPANY NAME]</span>
+        </div>
+    </div>
+
+    <!-- PAGE 3 -->
+    <div class="page page-3">
+        <div class="section-header">GLOBAL TALENT QUALIFICATION</div>
+        <div class="content-section">
+            Having worked with hundreds of engineers across multiple countries, I unequivocally state that <span class="placeholder">[SHIVASHANKER]</span> meets and exceeds UK Global Talent visa criteria:
+        </div>
+
+        <div class="content-section">
+            <strong>1. Technical Expertise:</strong> Demonstrates mastery typically seen in senior engineers with 8-10 years experience<br>
+            <strong>2. Innovation Capacity:</strong> Consistently implements creative solutions advancing software development<br>
+            <strong>3. Leadership Potential:</strong> Natural ability to guide technical decisions and mentor developers<br>
+            <strong>4. Industry Impact:</strong> Direct contribution to successful product launches and business growth<br>
+            <strong>5. Global Perspective:</strong> Understanding of international standards and distributed team collaboration
+        </div>
+
+        <div class="highlight-box">
+            <strong>Industry Assessment:</strong> <span class="placeholder">[SHIVASHANKER]</span> ranks in the top 10% of software engineers globally. His combination of technical depth, practical problem-solving, and business understanding positions him as exceptional talent for any technology ecosystem.
+        </div>
+
+        <div class="section-header">RECOMMENDATION FOR UK TECH ECOSYSTEM</div>
+        <div class="content-section">
+            I strongly recommend <span class="placeholder">[SHIVASHANKER KANUGULA]</span> for the UK Global Talent visa. The UK technology sector would significantly benefit from his expertise in:
+        </div>
+
+        <div class="content-section">
+            • <strong>Startup Ecosystem:</strong> Experience with scalable architectures and rapid development<br>
+            • <strong>Innovation Hub:</strong> Implementation of cutting-edge technologies and practices<br>
+            • <strong>Knowledge Transfer:</strong> Mentoring capabilities and commitment to best practices<br>
+            • <strong>Economic Impact:</strong> Proven track record building systems driving business growth
+        </div>
+
+        <div class="content-section">
+            <span class="placeholder">[SHIVASHANKER]</span> represents exactly the technical talent that strengthens a nation's competitive advantage in global technology.
+        </div>
+
+        <div class="section-header">CONTACT & VERIFICATION</div>
+        <div class="content-section">
+            I am available for further discussion and can be contacted at:
+        </div>
+
+        <div class="recommender-box">
+            <div class="recommender-details">
+                <div class="detail-item">
+                    <span class="detail-label">Email:</span> <span class="placeholder">[recommender@company.com]</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Phone:</span> <span class="placeholder">[+XX XXX XXX XXXX]</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">LinkedIn:</span> <span class="placeholder">[LinkedIn Profile]</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Company Reg:</span> <span class="placeholder">[Registration Number]</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Signature Section -->
+        <div class="signature-section">
+            <div class="content-section">
+                <strong>Sincerely,</strong>
+            </div>
+            
+            <div class="signature-box">
+                [DIGITAL SIGNATURE PLACEHOLDER]
+            </div>
+            
+            <div class="signatory-info">
+                <span class="placeholder">[RECOMMENDER'S FULL NAME]</span><br>
+                <span class="placeholder">[POSITION TITLE]</span><br>
+                <span class="placeholder">[COMPANY NAME]</span><br><br>
+                <strong>Date:</strong> <span class="placeholder">[Current Date]</span>
+            </div>
+        </div>
+
+        <div class="content-section italic" style="margin-top: 15px; font-size: 9pt;">
+            This letter supports <span class="placeholder">[SHIVASHANKER]</span>'s UK Global Talent visa application and reflects my professional assessment based on direct collaboration and technical evaluation.
+        </div>
+    </br>
+        <!-- Footer -->
+        <div class="footer">
+            Global Talent Visa Recommendation Letter - Page 3 of 3 - <span class="placeholder">[COMPANY NAME]</span>
+        </div>
+    </div>
+
+    <script>
+        // Print functionality
+        function printLetter() {
+            window.print();
+        }
+        
+        // Add print button for web view
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!window.matchMedia('print').matches) {
+                const printBtn = document.createElement('button');
+                printBtn.textContent = '';
+                printBtn.style.cssText = 'position: fixed; top: 10px; right: 10px; z-index: 1000; padding: 10px; background: #0066cc; color: white; border: none; border-radius: 5px; cursor: pointer;';
+                printBtn.onclick = printLetter;
+                document.body.appendChild(printBtn);
+            }
+        });
+    </script>
+</body>
+</html>

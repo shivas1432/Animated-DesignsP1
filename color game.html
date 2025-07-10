@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💥 Color Chaos Reactor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            max-width: 420px;
+            width: 100%;
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+        }
+
+        .title {
+            font-size: 2.5em;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff3838, #ff8c00, #ffd700, #32cd32, #1e90ff, #8a2be2);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: rainbowShift 3s ease infinite;
+            margin-bottom: 8px;
+        }
+
+        @keyframes rainbowShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .subtitle {
+            color: #ccc;
+            margin-bottom: 25px;
+            font-size: 1.1em;
+        }
+
+        .game-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .stat {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 12px 8px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .stat-value {
+            font-size: 1.6em;
+            font-weight: bold;
+            color: #00ffff;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.8em;
+            color: #ccc;
+            margin-top: 4px;
+        }
+
+        .reactor-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 25px 0;
+        }
+
+        .target-indicator {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 12px 20px;
+            border-radius: 25px;
+            border: 2px solid;
+            font-weight: bold;
+            font-size: 1.1em;
+            animation: targetGlow 1.5s ease-in-out infinite;
+            margin-bottom: 20px;
+            min-width: 180px;
+        }
+
+        @keyframes targetGlow {
+            0%, 100% { box-shadow: 0 0 15px currentColor; }
+            50% { box-shadow: 0 0 25px currentColor; }
+        }
+
+        .reactor-core {
+            width: 280px;
+            height: 280px;
+            position: relative;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.15), transparent);
+            border: 3px solid rgba(0, 255, 255, 0.5);
+            animation: reactorPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes reactorPulse {
+            0%, 100% { 
+                transform: scale(1); 
+                box-shadow: 0 0 20px rgba(0, 255, 255, 0.3); 
+            }
+            50% { 
+                transform: scale(1.02); 
+                box-shadow: 0 0 30px rgba(0, 255, 255, 0.5); 
+            }
+        }
+
+        .color-orb {
+            position: absolute;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            animation: orbFloat 4s ease-in-out infinite;
+            box-shadow: 0 0 15px currentColor;
+        }
+
+        @keyframes orbFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .color-orb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 25px currentColor;
+        }
+
+        .color-orb:active {
+            transform: scale(0.95);
+        }
+
+        .color-orb.explode {
+            animation: orbExplode 0.5s ease-out forwards;
+        }
+
+        @keyframes orbExplode {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.8); opacity: 0.8; }
+            100% { transform: scale(3); opacity: 0; }
+        }
+
+        .chain-multiplier {
+            position: absolute;
+            top: -60px;
+            right: -40px;
+            background: linear-gradient(45deg, #ff6b6b, #ffa726);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9em;
+            transform: scale(0);
+            animation: multiplierPop 0.4s ease-out forwards;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes multiplierPop {
+            0% { transform: scale(0) rotate(-90deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        .controls {
+            margin-top: 25px;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #00ffff, #0080ff);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 8px;
+            box-shadow: 0 4px 15px rgba(0, 255, 255, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 255, 255, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .game-over-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 35px;
+            border-radius: 25px;
+            text-align: center;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            max-width: 380px;
+            width: 100%;
+        }
+
+        .modal-title {
+            font-size: 2.2em;
+            margin-bottom: 20px;
+        }
+
+        .modal-stats {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .modal-stat {
+            font-size: 1.2em;
+            margin: 8px 0;
+        }
+
+        .modal-stat strong {
+            color: #00ffff;
+            font-size: 1.3em;
+        }
+
+        .share-btn {
+            background: linear-gradient(45deg, #e056fd, #686de0);
+            margin-top: 15px;
+        }
+
+        .explosion {
+            position: absolute;
+            pointer-events: none;
+            border-radius: 50%;
+            animation: explode 0.6s ease-out forwards;
+        }
+
+        @keyframes explode {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(6);
+                opacity: 0;
+            }
+        }
+
+        .combo-text {
+            position: absolute;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            animation: comboFloat 1.5s ease-out forwards;
+            pointer-events: none;
+        }
+
+        @keyframes comboFloat {
+            0% {
+                transform: scale(0.8) translateY(0);
+                opacity: 0;
+            }
+            20% {
+                transform: scale(1.1) translateY(-15px);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(0.9) translateY(-60px);
+                opacity: 0;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .game-container {
+                padding: 25px 20px;
+            }
+            
+            .title {
+                font-size: 2.2em;
+            }
+            
+            .reactor-core {
+                width: 250px;
+                height: 250px;
+            }
+            
+            .color-orb {
+                width: 32px;
+                height: 32px;
+            }
+            
+            .target-indicator {
+                font-size: 1em;
+                padding: 10px 16px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .reactor-core {
+                width: 220px;
+                height: 220px;
+            }
+            
+            .color-orb {
+                width: 28px;
+                height: 28px;
+            }
+            
+            .stat-value {
+                font-size: 1.4em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="title">💥 COLOR CHAOS</h1>
+        <p class="subtitle">React fast! Match the glowing target!</p>
+        
+        <div class="game-stats">
+            <div class="stat">
+                <div class="stat-value" id="score">0</div>
+                <div class="stat-label">SCORE</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="combo">0</div>
+                <div class="stat-label">COMBO</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="timeLeft">30</div>
+                <div class="stat-label">TIME</div>
+            </div>
+        </div>
+        
+        <div class="reactor-container">
+            <div class="target-indicator" id="targetIndicator">CLICK RED!</div>
+            <div class="reactor-core" id="reactorCore"></div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn" id="startBtn" onclick="startGame()">🚀 START REACTOR</button>
+            <button class="btn" id="pauseBtn" onclick="pauseGame()" style="display: none;">⏸️ PAUSE</button>
+        </div>
+    </div>
+
+    <div class="game-over-modal" id="gameOverModal">
+        <div class="modal-content">
+            <h2 class="modal-title">🎯 REACTOR SHUTDOWN!</h2>
+            <div class="modal-stats">
+                <div class="modal-stat">Final Score: <strong id="finalScore">0</strong></div>
+                <div class="modal-stat">Max Combo: <strong id="maxCombo">0</strong></div>
+            </div>
+            <p id="performanceMessage" style="margin: 20px 0; font-size: 1.1em;"></p>
+            <button class="btn share-btn" onclick="shareScore()">📱 SHARE CHAOS</button>
+            <button class="btn" onclick="restartGame()">🔄 RESTART REACTOR</button>
+        </div>
+    </div>
+
+    <script>
+        class ColorChaosReactor {
+            constructor() {
+                this.colors = [
+                    { name: 'RED', value: '#ff3838', text: 'CLICK RED!' },
+                    { name: 'BLUE', value: '#1e90ff', text: 'CLICK BLUE!' },
+                    { name: 'GREEN', value: '#32cd32', text: 'CLICK GREEN!' },
+                    { name: 'YELLOW', value: '#ffd700', text: 'CLICK YELLOW!' },
+                    { name: 'PURPLE', value: '#8a2be2', text: 'CLICK PURPLE!' },
+                    { name: 'ORANGE', value: '#ff8c00', text: 'CLICK ORANGE!' },
+                    { name: 'CYAN', value: '#00ffff', text: 'CLICK CYAN!' },
+                    { name: 'PINK', value: '#ff69b4', text: 'CLICK PINK!' }
+                ];
+                
+                this.score = 0;
+                this.combo = 0;
+                this.maxCombo = 0;
+                this.timeLeft = 30;
+                this.isPlaying = false;
+                this.currentTarget = null;
+                this.orbs = [];
+                this.gameTimer = null;
+                this.spawnTimer = null;
+                
+                this.reactor = document.getElementById('reactorCore');
+                this.targetIndicator = document.getElementById('targetIndicator');
+                
+                this.setupGame();
+            }
+
+            setupGame() {
+                this.spawnOrb();
+                this.spawnOrb();
+                this.spawnOrb();
+                this.setNewTarget();
+            }
+
+            startGame() {
+                this.score = 0;
+                this.combo = 0;
+                this.maxCombo = 0;
+                this.timeLeft = 30;
+                this.isPlaying = true;
+                
+                document.getElementById('startBtn').style.display = 'none';
+                document.getElementById('pauseBtn').style.display = 'inline-block';
+                document.getElementById('gameOverModal').style.display = 'none';
+                
+                this.updateDisplay();
+                this.startTimer();
+                this.startSpawning();
+            }
+
+            startTimer() {
+                this.gameTimer = setInterval(() => {
+                    this.timeLeft--;
+                    this.updateDisplay();
+                    
+                    if (this.timeLeft <= 0) {
+                        this.gameOver();
+                    }
+                }, 1000);
+            }
+
+            startSpawning() {
+                this.spawnTimer = setInterval(() => {
+                    if (this.orbs.length < 6) {
+                        this.spawnOrb();
+                    }
+                }, 1800);
+            }
+
+            spawnOrb() {
+                const orb = document.createElement('div');
+                orb.className = 'color-orb';
+                
+                const colorIndex = Math.floor(Math.random() * this.colors.length);
+                const color = this.colors[colorIndex];
+                
+                orb.style.backgroundColor = color.value;
+                orb.style.color = color.value;
+                orb.dataset.colorName = color.name;
+                
+                // Better positioning around the reactor
+                const angle = Math.random() * 2 * Math.PI;
+                const radius = 100 + Math.random() * 40;
+                const centerX = 140; // Half of reactor width
+                const centerY = 140; // Half of reactor height
+                const x = Math.cos(angle) * radius + centerX - 17.5; // Center the orb
+                const y = Math.sin(angle) * radius + centerY - 17.5; // Center the orb
+                
+                orb.style.left = x + 'px';
+                orb.style.top = y + 'px';
+                orb.style.animationDelay = Math.random() * 2 + 's';
+                
+                orb.addEventListener('click', (e) => this.handleOrbClick(e, orb));
+                
+                this.reactor.appendChild(orb);
+                this.orbs.push(orb);
+                
+                // Remove orb after some time if not clicked
+                setTimeout(() => {
+                    if (orb.parentNode) {
+                        this.removeOrb(orb);
+                    }
+                }, 6000);
+            }
+
+            handleOrbClick(e, orb) {
+                if (!this.isPlaying) return;
+                
+                e.stopPropagation();
+                const clickedColor = orb.dataset.colorName;
+                
+                if (clickedColor === this.currentTarget.name) {
+                    this.correctHit(orb);
+                } else {
+                    this.incorrectHit(orb);
+                }
+            }
+
+            correctHit(orb) {
+                this.combo++;
+                this.maxCombo = Math.max(this.maxCombo, this.combo);
+                
+                let points = 10 + (this.combo * 5);
+                this.score += points;
+                
+                // Visual effects
+                this.createExplosion(orb, this.currentTarget.value);
+                this.showComboText(orb, `+${points}`);
+                
+                if (this.combo > 1) {
+                    this.showMultiplier();
+                }
+                
+                this.removeOrb(orb);
+                this.setNewTarget();
+                this.updateDisplay();
+            }
+
+            incorrectHit(orb) {
+                this.combo = 0;
+                this.createExplosion(orb, '#ff0000');
+                
+                // Shake effect
+                orb.style.animation = 'none';
+                orb.style.transform = 'scale(1.3)';
+                orb.style.boxShadow = '0 0 30px #ff0000';
+                
+                setTimeout(() => {
+                    this.removeOrb(orb);
+                }, 400);
+                
+                this.updateDisplay();
+            }
+
+            createExplosion(orb, color) {
+                const explosion = document.createElement('div');
+                explosion.className = 'explosion';
+                explosion.style.backgroundColor = color;
+                explosion.style.left = orb.style.left;
+                explosion.style.top = orb.style.top;
+                explosion.style.width = '35px';
+                explosion.style.height = '35px';
+                
+                this.reactor.appendChild(explosion);
+                
+                setTimeout(() => {
+                    if (explosion.parentNode) {
+                        explosion.remove();
+                    }
+                }, 600);
+            }
+
+            showComboText(orb, text) {
+                const comboElement = document.createElement('div');
+                comboElement.className = 'combo-text';
+                comboElement.textContent = text;
+                comboElement.style.left = orb.style.left;
+                comboElement.style.top = orb.style.top;
+                
+                this.reactor.appendChild(comboElement);
+                
+                setTimeout(() => {
+                    if (comboElement.parentNode) {
+                        comboElement.remove();
+                    }
+                }, 1500);
+            }
+
+            showMultiplier() {
+                const existing = this.reactor.querySelector('.chain-multiplier');
+                if (existing) existing.remove();
+                
+                const multiplier = document.createElement('div');
+                multiplier.className = 'chain-multiplier';
+                multiplier.textContent = `${this.combo}x COMBO!`;
+                this.reactor.appendChild(multiplier);
+                
+                setTimeout(() => {
+                    if (multiplier.parentNode) {
+                        multiplier.remove();
+                    }
+                }, 1800);
+            }
+
+            removeOrb(orb) {
+                const index = this.orbs.indexOf(orb);
+                if (index > -1) {
+                    this.orbs.splice(index, 1);
+                }
+                if (orb.parentNode) {
+                    orb.remove();
+                }
+            }
+
+            setNewTarget() {
+                this.currentTarget = this.colors[Math.floor(Math.random() * this.colors.length)];
+                this.targetIndicator.textContent = this.currentTarget.text;
+                this.targetIndicator.style.color = this.currentTarget.value;
+                this.targetIndicator.style.borderColor = this.currentTarget.value;
+            }
+
+            updateDisplay() {
+                document.getElementById('score').textContent = this.score;
+                document.getElementById('combo').textContent = this.combo;
+                document.getElementById('timeLeft').textContent = this.timeLeft;
+            }
+
+            pauseGame() {
+                this.isPlaying = !this.isPlaying;
+                const pauseBtn = document.getElementById('pauseBtn');
+                
+                if (this.isPlaying) {
+                    pauseBtn.textContent = '⏸️ PAUSE';
+                    this.startTimer();
+                    this.startSpawning();
+                } else {
+                    pauseBtn.textContent = '▶️ RESUME';
+                    clearInterval(this.gameTimer);
+                    clearInterval(this.spawnTimer);
+                }
+            }
+
+            gameOver() {
+                this.isPlaying = false;
+                clearInterval(this.gameTimer);
+                clearInterval(this.spawnTimer);
+                
+                document.getElementById('finalScore').textContent = this.score;
+                document.getElementById('maxCombo').textContent = this.maxCombo;
+                
+                let message = '';
+                if (this.score >= 500) message = '🚀 REACTOR MASTER! Absolutely insane skills!';
+                else if (this.score >= 300) message = '🔥 CHAOS CONTROLLER! Amazing reflexes!';
+                else if (this.score >= 150) message = '⚡ ENERGY EXPERT! Great job!';
+                else if (this.score >= 50) message = '💫 GOOD REACTION! Keep practicing!';
+                else message = '💪 REACTOR ROOKIE! Try again for glory!';
+                
+                document.getElementById('performanceMessage').textContent = message;
+                document.getElementById('gameOverModal').style.display = 'flex';
+            }
+
+            shareScore() {
+                const text = `💥 I just scored ${this.score} points in Color Chaos Reactor with a ${this.maxCombo}x max combo! ⚡ Can you handle the chaos? 🎯 #ColorChaos #ReactorGame #ViralChallenge`;
+                
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Color Chaos Reactor Challenge',
+                        text: text,
+                        url: window.location.href
+                    });
+                } else {
+                    navigator.clipboard.writeText(text + ' ' + window.location.href);
+                    alert('🎯 Score copied! Share the chaos on social media! 💥');
+                }
+            }
+
+            restart() {
+                // Clear all orbs
+                this.orbs.forEach(orb => orb.remove());
+                this.orbs = [];
+                
+                // Clear all effects
+                document.querySelectorAll('.explosion, .combo-text, .chain-multiplier').forEach(el => el.remove());
+                
+                document.getElementById('startBtn').style.display = 'inline-block';
+                document.getElementById('pauseBtn').style.display = 'none';
+                document.getElementById('gameOverModal').style.display = 'none';
+                
+                this.setupGame();
+            }
+        }
+
+        let game;
+
+        function startGame() {
+            if (!game) {
+                game = new ColorChaosReactor();
+            }
+            game.startGame();
+        }
+
+        function pauseGame() {
+            game.pauseGame();
+        }
+
+        function shareScore() {
+            game.shareScore();
+        }
+
+        function restartGame() {
+            game.restart();
+        }
+
+        // Initialize game
+        window.addEventListener('load', () => {
+            game = new ColorChaosReactor();
+        });
+    </script>
+</body>
+</html>

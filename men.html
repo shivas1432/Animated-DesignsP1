@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Men with INDIA Letters - Walking and Saluting</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .stage {
+            position: relative;
+            width: 500px;
+            height: 400px;
+        }
+        
+        .center-area {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            justify-content: center;
+            height: 60px;
+        }
+        
+        .line-area {
+            position: absolute;
+            top: 60%;
+            left: 50%;
+            transform: translate(-50%, 0);
+            display: flex;
+            justify-content: center;
+            width: 300px;
+        }
+        
+        .letter-placeholder {
+            width: 40px;
+            height: 60px;
+            margin: 0 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .letter {
+            color: white;
+            font-size: 36px;
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+            opacity: 0;
+        }
+        
+        .man-container {
+            position: absolute;
+            width: 40px;
+            height: 60px;
+            transform-origin: center bottom;
+        }
+        
+        /* Men with positions */
+        .man1 {
+            top: 0;
+            left: 0;
+            animation: 
+                move-to-center-1 5s forwards,
+                move-to-line 1s 10s forwards;
+        }
+        
+        .man2 {
+            top: 0;
+            right: 0;
+            animation: 
+                move-to-center-2 5s forwards,
+                move-to-line 1s 10s forwards;
+        }
+        
+        .man3 {
+            bottom: 0;
+            left: 30%;
+            animation: 
+                move-to-center-3 5s forwards,
+                move-to-line 1s 10s forwards;
+        }
+        
+        .man4 {
+            bottom: 30%;
+            right: 10%;
+            animation: 
+                move-to-center-4 5s forwards,
+                move-to-line 1s 10s forwards;
+        }
+        
+        .man5 {
+            bottom: 0;
+            right: 0;
+            animation: 
+                move-to-center-5 5s forwards,
+                move-to-line 1s 10s forwards;
+        }
+        
+        /* Body parts - scaled down and static */
+        .head {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: white;
+            border-radius: 50%;
+            top: 0;
+            left: 16px;
+        }
+        
+        .torso {
+            position: absolute;
+            width: 12px;
+            height: 20px;
+            background-color: white;
+            border-radius: 5px;
+            top: 8px;
+            left: 14px;
+        }
+        
+        .left-arm, .right-arm {
+            position: absolute;
+            width: 3px;
+            height: 16px;
+            background-color: white;
+            border-radius: 2px;
+            transform-origin: top center;
+        }
+        
+        .left-arm {
+            top: 10px;
+            left: 11px;
+            animation: walk-left-arm 0.5s infinite alternate ease-in-out;
+        }
+        
+        .right-arm {
+            top: 10px;
+            left: 26px;
+            animation: walk-right-arm 0.5s infinite alternate ease-in-out;
+            
+        }
+        
+        /* Create the salute V-shape with an additional element */
+        .right-arm-salute {
+            position: absolute;
+            width: 3px;
+            height: 8px; /* Half the length of regular arm */
+            background-color: white;
+            border-radius: 2px;
+            top: 10px;
+            left: 26px;
+            transform-origin: top center;
+            transform: rotate(-140deg); /* Angle for V shape */
+            opacity: 0; /* Hidden by default */
+        }
+        
+        .left-leg, .right-leg {
+            position: absolute;
+            width: 4px;
+            height: 24px;
+            background-color: #ff3366; /* Pink/red pants */
+            border-radius: 2px;
+            top: 28px;
+            transform-origin: top center;
+        }
+        
+        .left-leg {
+            left: 15px;
+            animation: walk-left-leg 0.5s infinite alternate ease-in-out;
+        }
+        
+        .right-leg {
+            left: 21px;
+            animation: walk-right-leg 0.5s infinite alternate ease-in-out;
+        }
+        
+        /* Letter on head */
+        .letter-holder {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: transparent;
+            top: -20px;
+            left: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            animation: letter-fade 0.5s 5s forwards;
+        }
+        
+        /* Walking animations */
+        @keyframes walk-left-arm {
+            0% { transform: rotate(-30deg); }
+            100% { transform: rotate(30deg); }
+        }
+        
+        @keyframes walk-right-arm {
+            0% { transform: rotate(30deg); }
+            100% { transform: rotate(-30deg); }
+        }
+        
+        @keyframes walk-left-leg {
+            0% { transform: rotate(-20deg); }
+            100% { transform: rotate(20deg); }
+        }
+        
+        @keyframes walk-right-leg {
+            0% { transform: rotate(20deg); }
+            100% { transform: rotate(-20deg); }
+        }
+        
+        /* Movement animations */
+        @keyframes move-to-center-1 {
+            0% { transform: translate(0, 0) scale(1); }
+            80% { transform: translate(150px, 170px) scale(1); }
+            90% { transform: translate(150px, 150px) scale(0.5); }
+            100% { transform: translate(150px, 150px) scale(0); }
+        }
+        
+        @keyframes move-to-center-2 {
+            0% { transform: translate(0, 0) scale(1); }
+            80% { transform: translate(-150px, 170px) scale(1); }
+            90% { transform: translate(-150px, 150px) scale(0.5); }
+            100% { transform: translate(-150px, 150px) scale(0); }
+        }
+        
+        @keyframes move-to-center-3 {
+            0% { transform: translate(0, 0) scale(1); }
+            80% { transform: translate(0, -100px) scale(1); }
+            90% { transform: translate(0, -80px) scale(0.5); }
+            100% { transform: translate(0, -80px) scale(0); }
+        }
+        
+        @keyframes move-to-center-4 {
+            0% { transform: translate(0, 0) scale(1); }
+            80% { transform: translate(-80px, 30px) scale(1); }
+            90% { transform: translate(-80px, 30px) scale(0.5); }
+            100% { transform: translate(-80px, 30px) scale(0); }
+        }
+        
+        @keyframes move-to-center-5 {
+            0% { transform: translate(0, 0) scale(1); }
+            80% { transform: translate(-180px, -100px) scale(1); }
+            90% { transform: translate(-180px, -100px) scale(0.5); }
+            100% { transform: translate(-180px, -100px) scale(0); }
+        }
+        
+        /* Line up below INDIA */
+        @keyframes move-to-line {
+            0% { 
+                opacity: 0; 
+                transform: scale(0); 
+            }
+            20% { 
+                opacity: 1; 
+                transform: scale(1) translate(0, 0); 
+            }
+            100% { 
+                opacity: 1; 
+                transform: scale(1) translate(var(--x-pos), 0); 
+            }
+        }
+                
+        /* Letter animations */
+        .letter-1 {
+            animation: show-letter 1s 5s forwards;
+        }
+        
+        .letter-2 {
+            animation: show-letter 1s 6s forwards;
+        }
+        
+        .letter-3 {
+            animation: show-letter 1s 7s forwards;
+        }
+        
+        .letter-4 {
+            animation: show-letter 1s 8s forwards;
+        }
+        
+        .letter-5 {
+            animation: show-letter 1s 9s forwards;
+        }
+        
+        @keyframes show-letter {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes letter-fade {
+            0% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        
+        /* Final line-up positions */
+        .man1 { --x-pos: -100px; }
+        .man2 { --x-pos: -50px; }
+        .man3 { --x-pos: 0px; }
+        .man4 { --x-pos: 50px; }
+        .man5 { --x-pos: 100px; }
+        
+        /* Perfect V salute when active */
+        .man-container.saluting .right-arm {
+              animation: none;
+    transform: rotate(90deg); /* Changed from -90deg to 90deg */
+    height: 10px; /* Shorter for the upper part of the V */
+    top: 10px;
+        }
+        
+        .man-container.saluting .right-arm-salute {
+    position: absolute;
+    width: 3px;
+    height: 8px;
+    background-color: white;
+    border-radius: 2px;
+    top: 10px;
+    left: 30px;
+    transform-origin: top center;
+    transform: rotate(140deg); /* Changed from -140deg to 140deg */
+    opacity: 1;
+}
+    </style>
+</head>
+<body>
+    <div class="stage">
+        <!-- Center area where letters will form "INDIA" -->
+        <div class="center-area">
+            <div class="letter-placeholder">
+                <div class="letter letter-1">I</div>
+            </div>
+            <div class="letter-placeholder">
+                <div class="letter letter-2">N</div>
+            </div>
+            <div class="letter-placeholder">
+                <div class="letter letter-3">D</div>
+            </div>
+            <div class="letter-placeholder">
+                <div class="letter letter-4">I</div>
+            </div>
+            <div class="letter-placeholder">
+                <div class="letter letter-5">A</div>
+            </div>
+        </div>
+        
+        <!-- Line area where men will stand -->
+        <div class="line-area">
+            <!-- Men will line up here -->
+        </div>
+        
+        <!-- Men with letters on their heads -->
+        <div class="man-container man1">
+            <div class="letter-holder">I</div>
+            <div class="head"></div>
+            <div class="torso"></div>
+            <div class="left-arm"></div>
+            <div class="right-arm"></div>
+            <div class="right-arm-salute"></div>
+            <div class="left-leg"></div>
+            <div class="right-leg"></div>
+        </div>
+        
+        <div class="man-container man2">
+            <div class="letter-holder">N</div>
+            <div class="head"></div>
+            <div class="torso"></div>
+            <div class="left-arm"></div>
+            <div class="right-arm"></div>
+            <div class="right-arm-salute"></div>
+            <div class="left-leg"></div>
+            <div class="right-leg"></div>
+        </div>
+        
+        <div class="man-container man3">
+            <div class="letter-holder">D</div>
+            <div class="head"></div>
+            <div class="torso"></div>
+            <div class="left-arm"></div>
+            <div class="right-arm"></div>
+            <div class="right-arm-salute"></div>
+            <div class="left-leg"></div>
+            <div class="right-leg"></div>
+        </div>
+        
+        <div class="man-container man4">
+            <div class="letter-holder">I</div>
+            <div class="head"></div>
+            <div class="torso"></div>
+            <div class="left-arm"></div>
+            <div class="right-arm"></div>
+            <div class="right-arm-salute"></div>
+            <div class="left-leg"></div>
+            <div class="right-leg"></div>
+        </div>
+        
+        <div class="man-container man5">
+            <div class="letter-holder">A</div>
+            <div class="head"></div>
+            <div class="torso"></div>
+            <div class="left-arm"></div>
+            <div class="right-arm"></div>
+            <div class="right-arm-salute"></div>
+            <div class="left-leg"></div>
+            <div class="right-leg"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Add saluting class to make the men salute after they line up
+        setTimeout(() => {
+            document.querySelector('.man1').classList.add('saluting');
+            document.querySelector('.man2').classList.add('saluting');
+            document.querySelector('.man3').classList.add('saluting');
+            document.querySelector('.man4').classList.add('saluting');
+            document.querySelector('.man5').classList.add('saluting');
+        }, 11500); // 11.5 seconds
+        
+        // Stop walking animations when men line up
+        setTimeout(() => {
+            const arms = document.querySelectorAll('.left-arm');
+            const legs = document.querySelectorAll('.left-leg, .right-leg');
+            
+            arms.forEach(arm => {
+                arm.style.animation = 'none';
+                arm.style.transform = 'rotate(0deg)';
+            });
+            
+            legs.forEach(leg => {
+                leg.style.animation = 'none';
+                leg.style.transform = 'rotate(0deg)';
+            });
+        }, 10000); // 10 seconds
+    </script>
+</body>
+</html>

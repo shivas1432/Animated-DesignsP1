@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nothing Phone Snake Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+        }
+
+        .phone-container {
+            width: 320px;
+            height: 640px;
+            background: #000;
+            border: 2px solid #555;
+            border-radius: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .circuit-element {
+            position: absolute;
+            border: 1px solid #666;
+            background: transparent;
+        }
+
+        /* Top camera area - large circular module */
+        .main-camera-housing {
+            top: 40px;
+            left: 60px;
+            width: 200px;
+            height: 200px;
+            border: 2px solid #666;
+            border-radius: 50%;
+        }
+
+        /* Inner camera rings */
+        .camera-ring-1 {
+            top: 60px;
+            left: 80px;
+            width: 160px;
+            height: 160px;
+            border: 1px solid #555;
+            border-radius: 50%;
+        }
+
+        .camera-ring-2 {
+            top: 80px;
+            left: 100px;
+            width: 120px;
+            height: 120px;
+            border: 1px solid #555;
+            border-radius: 50%;
+        }
+
+        /* Individual camera lenses */
+        .lens {
+            border: 1px solid #666;
+            border-radius: 50%;
+            background: transparent;
+        }
+
+        .lens-main {
+            top: 100px;
+            left: 130px;
+            width: 30px;
+            height: 30px;
+        }
+
+        .lens-ultra {
+            top: 100px;
+            left: 180px;
+            width: 25px;
+            height: 25px;
+        }
+
+        .lens-macro {
+            top: 150px;
+            left: 130px;
+            width: 20px;
+            height: 20px;
+        }
+
+        .flash-module {
+            top: 150px;
+            left: 180px;
+            width: 15px;
+            height: 25px;
+            border-radius: 3px;
+        }
+
+        /* Side components */
+        .side-circles {
+            border-radius: 50%;
+        }
+
+        .side-circle-1 { top: 60px; right: 20px; width: 12px; height: 12px; }
+        .side-circle-2 { top: 90px; right: 25px; width: 8px; height: 8px; }
+        .side-circle-3 { top: 120px; right: 15px; width: 15px; height: 15px; }
+
+        /* Left side components */
+        .left-components {
+            border-radius: 50%;
+        }
+
+        .left-circle-1 { top: 80px; left: 25px; width: 10px; height: 10px; }
+        .left-circle-2 { top: 110px; left: 20px; width: 8px; height: 8px; }
+        .left-circle-3 { top: 140px; left: 30px; width: 12px; height: 12px; }
+
+        /* Top edge components */
+        .top-components {
+            border-radius: 2px;
+        }
+
+        .top-rect-1 { top: 25px; left: 100px; width: 20px; height: 8px; }
+        .top-rect-2 { top: 25px; left: 180px; width: 15px; height: 6px; }
+
+        /* Circuit paths - these form the snake game area */
+        .circuit-path {
+            border: 1px solid #666;
+            background: transparent;
+        }
+
+        /* Horizontal circuit lines */
+        .h-line-1 { top: 280px; left: 30px; width: 80px; height: 1px; }
+        .h-line-2 { top: 320px; left: 60px; width: 120px; height: 1px; }
+        .h-line-3 { top: 360px; left: 40px; width: 100px; height: 1px; }
+        .h-line-4 { top: 400px; left: 80px; width: 160px; height: 1px; }
+        .h-line-5 { top: 440px; left: 50px; width: 140px; height: 1px; }
+
+        /* Vertical circuit lines */
+        .v-line-1 { top: 280px; left: 70px; width: 1px; height: 80px; }
+        .v-line-2 { top: 320px; left: 150px; width: 1px; height: 60px; }
+        .v-line-3 { top: 360px; left: 200px; width: 1px; height: 80px; }
+        .v-line-4 { top: 300px; left: 250px; width: 1px; height: 100px; }
+
+        /* Corner connections */
+        .corner-1 { top: 280px; left: 70px; width: 10px; height: 10px; border-radius: 0 0 10px 0; border-top: none; border-left: none; }
+        .corner-2 { top: 320px; left: 150px; width: 15px; height: 15px; border-radius: 0 0 0 15px; border-top: none; border-right: none; }
+        .corner-3 { top: 360px; left: 185px; width: 15px; height: 15px; border-radius: 15px 0 0 0; border-bottom: none; border-right: none; }
+
+        /* Bottom area large curve */
+        .bottom-curve {
+            bottom: 120px;
+            left: 40px;
+            width: 240px;
+            height: 120px;
+            border: 2px solid #666;
+            border-radius: 50%;
+            border-bottom: none;
+        }
+
+        /* Game area - bottom section */
+        .game-section {
+            position: absolute;
+            bottom: 80px;
+            left: 20px;
+            width: 280px;
+            height: 140px;
+            border: 2px solid #666;
+            border-radius: 8px;
+        }
+
+        /* Snake game canvas - transparent to show circuit design */
+        .game-canvas {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        /* Bottom components */
+        .bottom-components {
+            border-radius: 50%;
+        }
+
+        .bottom-circle-1 { bottom: 50px; left: 40px; width: 8px; height: 8px; }
+        .bottom-circle-2 { bottom: 40px; right: 50px; width: 10px; height: 10px; }
+        .bottom-rect { bottom: 30px; left: 120px; width: 80px; height: 8px; border-radius: 4px; }
+
+        /* Score dots */
+        .score-area {
+            position: absolute;
+            bottom: 230px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 3px;
+        }
+
+        .score-dot {
+            width: 6px;
+            height: 6px;
+            background: #fff;
+            border-radius: 50%;
+        }
+
+        /* Power indicator */
+        .power-led {
+            position: absolute;
+            bottom: 390px;
+            left: 15px;
+            width: 6px;
+            height: 6px;
+            background: #ff3333;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #ff3333;
+        }
+
+        /* Additional decorative circuits */
+        .deco-circuit {
+            border: 1px solid #555;
+        }
+
+        .deco-1 { top: 260px; left: 200px; width: 40px; height: 20px; border-radius: 10px; }
+        .deco-2 { top: 480px; left: 220px; width: 30px; height: 15px; border-radius: 5px; }
+        .deco-3 { top: 500px; left: 60px; width: 25px; height: 25px; border-radius: 50%; }
+
+        /* Snake and food styling */
+        .snake-segment {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #fff;
+            border-radius: 1px;
+            box-shadow: 0 0 4px rgba(255,255,255,0.5);
+        }
+
+        .food-item {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #ff3333;
+            border-radius: 50%;
+            box-shadow: 0 0 6px #ff3333;
+        }
+
+        /* Game controls */
+        .controls {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #666;
+            font-size: 10px;
+            text-align: center;
+        }
+
+        .game-over-screen {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #fff;
+            background: rgba(0,0,0,0.8);
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .restart-button {
+            margin-top: 10px;
+            padding: 8px 16px;
+            background: transparent;
+            border: 1px solid #fff;
+            color: #fff;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .restart-button:hover {
+            background: #fff;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-container">
+        <!-- Main camera housing -->
+        <div class="circuit-element main-camera-housing"></div>
+        <div class="circuit-element camera-ring-1"></div>
+        <div class="circuit-element camera-ring-2"></div>
+        
+        <!-- Camera lenses -->
+        <div class="circuit-element lens lens-main"></div>
+        <div class="circuit-element lens lens-ultra"></div>
+        <div class="circuit-element lens lens-macro"></div>
+        <div class="circuit-element flash-module"></div>
+        
+        <!-- Side components -->
+        <div class="circuit-element side-circles side-circle-1"></div>
+        <div class="circuit-element side-circles side-circle-2"></div>
+        <div class="circuit-element side-circles side-circle-3"></div>
+        
+        <!-- Left components -->
+        <div class="circuit-element left-components left-circle-1"></div>
+        <div class="circuit-element left-components left-circle-2"></div>
+        <div class="circuit-element left-components left-circle-3"></div>
+        
+        <!-- Top components -->
+        <div class="circuit-element top-components top-rect-1"></div>
+        <div class="circuit-element top-components top-rect-2"></div>
+        
+        <!-- Circuit paths for snake movement -->
+        <div class="circuit-path h-line-1"></div>
+        <div class="circuit-path h-line-2"></div>
+        <div class="circuit-path h-line-3"></div>
+        <div class="circuit-path h-line-4"></div>
+        <div class="circuit-path h-line-5"></div>
+        
+        <div class="circuit-path v-line-1"></div>
+        <div class="circuit-path v-line-2"></div>
+        <div class="circuit-path v-line-3"></div>
+        <div class="circuit-path v-line-4"></div>
+        
+        <!-- Corner connections -->
+        <div class="circuit-element corner-1"></div>
+        <div class="circuit-element corner-2"></div>
+        <div class="circuit-element corner-3"></div>
+        
+        <!-- Bottom curve -->
+        <div class="circuit-element bottom-curve"></div>
+        
+        <!-- Game section -->
+        <div class="game-section"></div>
+        
+        <!-- Bottom components -->
+        <div class="circuit-element bottom-components bottom-circle-1"></div>
+        <div class="circuit-element bottom-components bottom-circle-2"></div>
+        <div class="circuit-element bottom-rect"></div>
+        
+        <!-- Decorative circuits -->
+        <div class="deco-circuit deco-1"></div>
+        <div class="deco-circuit deco-2"></div>
+        <div class="deco-circuit deco-3"></div>
+        
+        <!-- Power LED -->
+        <div class="power-led"></div>
+        
+        <!-- Score display -->
+        <div class="score-area">
+            <div class="score-dot"></div>
+            <div class="score-dot"></div>
+            <div class="score-dot"></div>
+            <div class="score-dot"></div>
+            <div class="score-dot"></div>
+            <div class="score-dot"></div>
+        </div>
+        
+        <!-- Game canvas -->
+        <canvas class="game-canvas" id="gameCanvas" width="320" height="640"></canvas>
+        
+        <!-- Game over screen -->
+        <div class="game-over-screen" id="gameOverScreen">
+            <div>Game Over</div>
+            <div>Score: <span id="finalScore">0</span></div>
+            <button class="restart-button" onclick="restartGame()">Restart</button>
+        </div>
+        
+        <!-- Controls -->
+        <div class="controls">
+            <div>Tap to Play</div>
+            <div>Swipe to Control</div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const gameOverScreen = document.getElementById('gameOverScreen');
+        const finalScoreEl = document.getElementById('finalScore');
+
+        // Game state
+        let gameRunning = false;
+        let score = 0;
+        let snake = [];
+        let food = null;
+        let direction = { x: 0, y: 0 };
+
+        // Circuit paths where snake can move
+        const circuitPaths = [
+            // Horizontal lines
+            { x: 30, y: 280, width: 80, height: 1, type: 'horizontal' },
+            { x: 60, y: 320, width: 120, height: 1, type: 'horizontal' },
+            { x: 40, y: 360, width: 100, height: 1, type: 'horizontal' },
+            { x: 80, y: 400, width: 160, height: 1, type: 'horizontal' },
+            { x: 50, y: 440, width: 140, height: 1, type: 'horizontal' },
+            
+            // Vertical lines
+            { x: 70, y: 280, width: 1, height: 80, type: 'vertical' },
+            { x: 150, y: 320, width: 1, height: 60, type: 'vertical' },
+            { x: 200, y: 360, width: 1, height: 80, type: 'vertical' },
+            { x: 250, y: 300, width: 1, height: 100, type: 'vertical' },
+            
+            // Bottom game area paths
+            { x: 20, y: 500, width: 280, height: 1, type: 'horizontal' },
+            { x: 20, y: 520, width: 280, height: 1, type: 'horizontal' },
+            { x: 20, y: 540, width: 280, height: 1, type: 'horizontal' },
+            { x: 20, y: 560, width: 280, height: 1, type: 'horizontal' },
+            { x: 20, y: 580, width: 280, height: 1, type: 'horizontal' },
+            
+            { x: 40, y: 480, width: 1, height: 120, type: 'vertical' },
+            { x: 80, y: 480, width: 1, height: 120, type: 'vertical' },
+            { x: 120, y: 480, width: 1, height: 120, type: 'vertical' },
+            { x: 160, y: 480, width: 1, height: 120, type: 'vertical' },
+            { x: 200, y: 480, width: 1, height: 120, type: 'vertical' },
+            { x: 240, y: 480, width: 1, height: 120, type: 'vertical' },
+            { x: 280, y: 480, width: 1, height: 120, type: 'vertical' }
+        ];
+
+        // Get valid positions on circuit paths
+        function getValidPositions() {
+            const positions = [];
+            circuitPaths.forEach(path => {
+                if (path.type === 'horizontal') {
+                    for (let x = path.x; x < path.x + path.width; x += 8) {
+                        positions.push({ x: x, y: path.y });
+                    }
+                } else {
+                    for (let y = path.y; y < path.y + path.height; y += 8) {
+                        positions.push({ x: path.x, y: y });
+                    }
+                }
+            });
+            return positions;
+        }
+
+        const validPositions = getValidPositions();
+
+        function getRandomPosition() {
+            return validPositions[Math.floor(Math.random() * validPositions.length)];
+        }
+
+        function isValidPosition(pos) {
+            return validPositions.some(valid => valid.x === pos.x && valid.y === pos.y);
+        }
+
+        function initGame() {
+            snake = [{ x: 80, y: 400 }];
+            direction = { x: 8, y: 0 };
+            food = getRandomPosition();
+            score = 0;
+            gameRunning = false;
+        }
+
+        function drawSnake() {
+            snake.forEach((segment, index) => {
+                ctx.fillStyle = index === 0 ? '#fff' : '#ddd';
+                ctx.shadowColor = '#fff';
+                ctx.shadowBlur = 4;
+                ctx.fillRect(segment.x - 4, segment.y - 4, 8, 8);
+                ctx.shadowBlur = 0;
+            });
+        }
+
+        function drawFood() {
+            if (food) {
+                ctx.fillStyle = '#ff3333';
+                ctx.shadowColor = '#ff3333';
+                ctx.shadowBlur = 6;
+                ctx.beginPath();
+                ctx.arc(food.x, food.y, 3, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+        }
+
+        function drawCircuits() {
+            ctx.strokeStyle = '#666';
+            ctx.lineWidth = 1;
+            
+            circuitPaths.forEach(path => {
+                ctx.beginPath();
+                ctx.moveTo(path.x, path.y);
+                if (path.type === 'horizontal') {
+                    ctx.lineTo(path.x + path.width, path.y);
+                } else {
+                    ctx.lineTo(path.x, path.y + path.height);
+                }
+                ctx.stroke();
+            });
+        }
+
+        function moveSnake() {
+            const head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
+            
+            if (!isValidPosition(head)) {
+                return false; // Invalid move
+            }
+            
+            snake.unshift(head);
+            
+            // Check food collision
+            if (head.x === food.x && head.y === food.y) {
+                score++;
+                food = getRandomPosition();
+                // Make sure food doesn't spawn on snake
+                while (snake.some(segment => segment.x === food.x && segment.y === food.y)) {
+                    food = getRandomPosition();
+                }
+            } else {
+                snake.pop();
+            }
+            
+            // Check self collision
+            for (let i = 1; i < snake.length; i++) {
+                if (head.x === snake[i].x && head.y === snake[i].y) {
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+
+        function gameLoop() {
+            if (!gameRunning) return;
+            
+            if (!moveSnake()) {
+                gameOver();
+                return;
+            }
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw game elements
+            drawCircuits();
+            drawFood();
+            drawSnake();
+            
+            setTimeout(gameLoop, 200);
+        }
+
+        function gameOver() {
+            gameRunning = false;
+            finalScoreEl.textContent = score;
+            gameOverScreen.style.display = 'block';
+        }
+
+        function startGame() {
+            if (gameRunning) return;
+            gameRunning = true;
+            gameOverScreen.style.display = 'none';
+            gameLoop();
+        }
+
+        function restartGame() {
+            initGame();
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawCircuits();
+            drawFood();
+            drawSnake();
+            gameOverScreen.style.display = 'none';
+        }
+
+        // Touch controls
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (!gameRunning) {
+                startGame();
+                return;
+            }
+            
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            touchStartX = touch.clientX - rect.left;
+            touchStartY = touch.clientY - rect.top;
+        });
+
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            if (!gameRunning) return;
+            
+            const touch = e.changedTouches[0];
+            const rect = canvas.getBoundingClientRect();
+            const touchEndX = touch.clientX - rect.left;
+            const touchEndY = touch.clientY - rect.top;
+            
+            const deltaX = touchEndX - touchStartX;
+            const deltaY = touchEndY - touchStartY;
+            
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                if (deltaX > 0 && direction.x !== -8) {
+                    direction = { x: 8, y: 0 };
+                } else if (deltaX < 0 && direction.x !== 8) {
+                    direction = { x: -8, y: 0 };
+                }
+            } else {
+                if (deltaY > 0 && direction.y !== -8) {
+                    direction = { x: 0, y: 8 };
+                } else if (deltaY < 0 && direction.y !== 8) {
+                    direction = { x: 0, y: -8 };
+                }
+            }
+        });
+
+        canvas.addEventListener('click', (e) => {
+            if (!gameRunning) {
+                startGame();
+            }
+        });
+
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            if (!gameRunning && e.key === ' ') {
+                startGame();
+                return;
+            }
+            
+            if (!gameRunning) return;
+            
+            switch (e.key) {
+                case 'ArrowUp':
+                    if (direction.y !== 8) direction = { x: 0, y: -8 };
+                    break;
+                case 'ArrowDown':
+                    if (direction.y !== -8) direction = { x: 0, y: 8 };
+                    break;
+                case 'ArrowLeft':
+                    if (direction.x !== 8) direction = { x: -8, y: 0 };
+                    break;
+                case 'ArrowRight':
+                    if (direction.x !== -8) direction = { x: 8, y: 0 };
+                    break;
+            }
+        });
+
+        // Initialize
+        initGame();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawCircuits();
+        drawFood();
+        drawSnake();
+    </script>
+</body>
+</html>

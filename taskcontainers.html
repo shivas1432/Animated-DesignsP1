@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instagram Code Post - Neuromorphic Buttons</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+    }
+    
+    body {
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: white;
+    }
+    
+    .instagram-post {
+      width: 600px;
+      height: 750px;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
+      position: relative;
+    }
+    
+    .demo-section {
+      height: 50%;
+      background: linear-gradient(135deg, #1a1f29 0%, #2c3345 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .glow-effect {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(76,175,80,0.1) 0%, rgba(76,175,80,0) 60%);
+      top: -200px;
+      left: 0;
+      pointer-events: none;
+    }
+    
+    .glow-effect-2 {
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(244,67,54,0.05) 0%, rgba(244,67,54,0) 60%);
+      bottom: -200px;
+      right: -100px;
+      pointer-events: none;
+    }
+    
+    .neuro-demo {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .code-section {
+      height: 50%;
+      background: #0d1117;
+      padding: 0 0 15px 0;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .code-header {
+      height: 30px;
+      background: #161b22;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      border-bottom: 1px solid #30363d;
+    }
+    
+    .mac-buttons {
+      display: flex;
+      gap: 6px;
+      margin-right: 12px;
+    }
+    
+    .mac-button {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    
+    .red { background: #ff5f56; }
+    .yellow { background: #ffbd2e; }
+    .green { background: #27c93f; }
+    
+    .file-name {
+      font-size: 12px;
+      color: #8b949e;
+    }
+    
+    .code-content {
+      padding: 15px;
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 11px;
+      line-height: 1.4;
+      color: #c9d1d9;
+      height: calc(100% - 30px);
+      overflow-y: auto;
+    }
+    
+    .code-content::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    .code-content::-webkit-scrollbar-track {
+      background: #161b22;
+    }
+    
+    .code-content::-webkit-scrollbar-thumb {
+      background: #30363d;
+      border-radius: 4px;
+    }
+    
+    .tag { color: #7ee787; }
+    .attr { color: #79c0ff; }
+    .value { color: #a5d6ff; }
+    .punctuation { color: #c9d1d9; }
+    .comment { color: #8b949e; font-style: italic; }
+    
+    .card-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      perspective: 1000px;
+    }
+    
+    :root {
+      --main-bg: #2a3142;
+      --success-bg: #3a4156;
+      --error-bg: #3a4156;
+      --success-color: #4CAF50;
+      --error-color: #F44336;
+      --shadow-light: rgba(255, 255, 255, 0.05);
+      --shadow-dark: rgba(0, 0, 0, 0.3);
+      --text-color: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.7);
+    }
+    
+    .card {
+      background-color: var(--success-bg);
+      width: 160px;
+      height: 180px;
+      border-radius: 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 15px;
+      box-shadow: 
+        8px 8px 16px var(--shadow-dark),
+        -8px -8px 16px var(--shadow-light);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 
+        10px 10px 20px var(--shadow-dark),
+        -10px -10px 20px var(--shadow-light);
+    }
+    
+    .icon-circle {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 12px;
+      position: relative;
+      box-shadow: inset 4px 4px 8px var(--shadow-dark),
+                  inset -4px -4px 8px var(--shadow-light);
+    }
+    
+    .success .icon-circle {
+      background: linear-gradient(145deg, #364050, #3e4a5e);
+    }
+    
+    .error .icon-circle {
+      background: linear-gradient(145deg, #364050, #3e4a5e);
+    }
+    
+    .icon {
+      font-size: 22px;
+      z-index: 2;
+      position: relative;
+    }
+    
+    .success .icon {
+      color: var(--success-color);
+    }
+    
+    .error .icon {
+      color: var(--error-color);
+    }
+    
+    .title {
+      color: var(--text-color);
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+    
+    .subtitle {
+      color: var(--text-secondary);
+      font-size: 12px;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    
+    .button {
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      border: none;
+      color: var(--text-color);
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      box-shadow: 5px 5px 10px var(--shadow-dark),
+                 -5px -5px 10px var(--shadow-light);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent);
+      animation: topEdgeAnimation 2s linear infinite;
+    }
+    
+    .success .button {
+      background: linear-gradient(145deg, #3a4156, #313849);
+    }
+    
+    .error .button {
+      background: linear-gradient(145deg, #3a4156, #313849);
+    }
+    
+    .success .pulse {
+      background-color: var(--success-color);
+    }
+    
+    .error .pulse {
+      background-color: var(--error-color);
+    }
+    
+    .pulse {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      transform: scale(0);
+      opacity: 0;
+      animation: pulse 2s ease-out infinite;
+    }
+    
+    .success .icon-circle::before {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background-color: var(--success-color);
+      opacity: 0.1;
+      transform: scale(0.8);
+    }
+    
+    .error .icon-circle::before {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background-color: var(--error-color);
+      opacity: 0.1;
+      transform: scale(0.8);
+    }
+    
+    .card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    }
+    
+    .success::after {
+      background: linear-gradient(90deg, transparent, var(--success-color), transparent);
+    }
+    
+    .error::after {
+      background: linear-gradient(90deg, transparent, var(--error-color), transparent);
+    }
+    
+    .confetti-container {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 10;
+      overflow: hidden;
+    }
+    
+    .confetti {
+      position: absolute;
+      z-index: 10;
+      border-radius: 0;
+    }
+    
+    .green-ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 2px solid rgba(76, 175, 80, 0.5);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      z-index: 5;
+      box-sizing: border-box;
+    }
+    
+    .success-effect .green-ring {
+      width: 100%;
+      height: 100%;
+      animation: greenRingExpand 0.8s ease-out forwards;
+    }
+    
+    .error-circle {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background-color: rgba(244, 67, 54, 0.3);
+      transform: scale(0);
+    }
+    
+    .error-effect .error-circle {
+      animation: errorPulse 0.8s ease-out forwards;
+    }
+    
+    .error-effect {
+      animation: errorShake 0.5s ease-in-out;
+    }
+    
+    .success-effect .title {
+      animation: successPulse 0.6s ease-in-out;
+    }
+    
+    .error-effect .title {
+      animation: errorFlash 0.6s ease-in-out;
+    }
+    
+    @keyframes pulse {
+      0% {
+        transform: scale(0);
+        opacity: 0.7;
+      }
+      100% {
+        transform: scale(2);
+        opacity: 0;
+      }
+    }
+    
+    @keyframes topEdgeAnimation {
+      0% {
+        left: -100%;
+      }
+      50% {
+        left: 100%;
+      }
+      100% {
+        left: 100%;
+      }
+    }
+    
+    @keyframes confettiExplode {
+      0% {
+        transform: translate(-50%, -50%) translateY(0) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(-50%, -50%) translateY(var(--fall-distance)) rotate(var(--rotation));
+        opacity: 0;
+      }
+    }
+    
+    @keyframes confettiFly {
+      0% {
+        transform: translate(0, 0) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(var(--x), var(--y)) rotate(var(--r));
+        opacity: 0;
+      }
+    }
+    
+    @keyframes successPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); color: var(--success-color); }
+      100% { transform: scale(1); }
+    }
+    
+    @keyframes greenRingExpand {
+      0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0.7; }
+      100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+    }
+    
+    @keyframes errorShake {
+      0% { transform: translateX(0); }
+      20% { transform: translateX(-8px); }
+      40% { transform: translateX(8px); }
+      60% { transform: translateX(-4px); }
+      80% { transform: translateX(4px); }
+      100% { transform: translateX(0); }
+    }
+    
+    @keyframes errorPulse {
+      0% { transform: scale(0); opacity: 0.8; }
+      100% { transform: scale(3); opacity: 0; }
+    }
+    
+    @keyframes errorFlash {
+      0% { color: var(--text-color); }
+      50% { color: var(--error-color); }
+      100% { color: var(--text-color); }
+    }
+    
+    svg.checkmark path,
+    svg.x-mark path {
+      stroke-dasharray: 60;
+      stroke-dashoffset: 60;
+      animation: drawCheck 1.2s ease-in-out forwards;
+    }
+    
+    @keyframes drawCheck {
+      0% {
+        stroke-dashoffset: 60;
+      }
+      100% {
+        stroke-dashoffset: 0;
+      }
+    }
+    
+    .watermark {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.4);
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <div class="instagram-post">
+    <div class="demo-section">
+      <div class="glow-effect"></div>
+      <div class="glow-effect-2"></div>
+      <div class="neuro-demo">
+        <div class="card-container">
+          <div class="card success" id="successCard">
+            <div class="icon-circle">
+              <div class="pulse"></div>
+              <svg class="icon checkmark" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 13L9 17L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="title">Success!</div>
+            <div class="subtitle">Your task is completed</div>
+            <button class="button" id="successButton">Continue</button>
+          </div>
+          
+          <div class="card error" id="errorCard">
+            <div class="icon-circle">
+              <div class="pulse"></div>
+              <svg class="icon x-mark" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="title">Oh No!</div>
+            <div class="subtitle">Something went wrong</div>
+            <button class="button" id="errorButton">Try Again</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="code-section">
+      <div class="code-header">
+        <div class="mac-buttons">
+          <div class="mac-button red"></div>
+          <div class="mac-button yellow"></div>
+          <div class="mac-button green"></div>
+        </div>
+        <div class="file-name">button-animations.js</div>
+      </div>
+      <div class="code-content">
+        <pre><span class="comment">/* Button Click Effects */</span>
+<span class="tag">function</span> <span class="value">playSuccessAnimation</span>(button) {
+  <span class="attr">const</span> card = button.closest(<span class="value">'.card'</span>);
+  card.classList.add(<span class="value">'success-effect'</span>);
+  
+  <span class="attr">const</span> confettiContainer = document.createElement(<span class="value">'div'</span>);
+  confettiContainer.classList.add(<span class="value">'confetti-container'</span>);
+  card.appendChild(confettiContainer);
+  
+  <span class="attr">const</span> greenRing = document.createElement(<span class="value">'div'</span>);
+  greenRing.classList.add(<span class="value">'green-ring'</span>);
+  confettiContainer.appendChild(greenRing);
+  
+  <span class="attr">for</span> (<span class="attr">let</span> i = 0; i < 50; i++) {
+    <span class="attr">const</span> confetti = document.createElement(<span class="value">'div'</span>);
+    confetti.classList.add(<span class="value">'confetti'</span>);
+    confetti.style.backgroundColor = <span class="value">getRandomColor()</span>;
+    confetti.style.width = <span class="value">Math.random() * 8 + 4 + 'px'</span>;
+    confetti.style.height = <span class="value">Math.random() * 4 + 2 + 'px'</span>;
+    confetti.style.left = <span class="value">'50%'</span>;
+    confetti.style.top = <span class="value">'50%'</span>;
+    
+    <span class="attr">const</span> x = (Math.random() - 0.5) * 150;
+    <span class="attr">const</span> y = (Math.random() - 0.5) * 150;
+    <span class="attr">const</span> r = Math.random() * 360;
+ 
+  }
+  
+  setTimeout(() => {
+    card.classList.remove(<span class="value">'success-effect'</span>);
+    confettiContainer.remove();
+  }, <span class="value">1500</span>);
+}</pre>
+      </div>
+    </div>
+    <div class="watermark">@ss_web_innovations</div>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const successButton = document.getElementById('successButton');
+      const errorButton = document.getElementById('errorButton');
+      const successCard = document.getElementById('successCard');
+      const errorCard = document.getElementById('errorCard');
+      
+      successButton.addEventListener('click', () => {
+        const existingContainer = successCard.querySelector('.confetti-container');
+        if (existingContainer) {
+          existingContainer.remove();
+        }
+        
+        successCard.classList.add('success-effect');
+        
+        const confettiContainer = document.createElement('div');
+        confettiContainer.classList.add('confetti-container');
+        successCard.appendChild(confettiContainer);
+        
+        const greenRing = document.createElement('div');
+        greenRing.classList.add('green-ring');
+        confettiContainer.appendChild(greenRing);
+        
+        const colors = ['#4CAF50', '#8BC34A', '#CDDC39', '#FFEB3B', '#ffffff'];
+        for (let i = 0; i < 50; i++) {
+          const confetti = document.createElement('div');
+          confetti.classList.add('confetti');
+          
+          const size = Math.random() * 8 + 4;
+          confetti.style.width = `${size}px`;
+          confetti.style.height = `${Math.random() * 4 + 2}px`;
+          confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+          confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+          
+          confetti.style.left = '50%';
+          confetti.style.top = '50%';
+          
+          const angle = Math.random() * Math.PI * 2;
+          const distance = Math.random() * 120 + 30;
+          const x = Math.cos(angle) * distance;
+          const y = Math.sin(angle) * distance;
+          const rotation = Math.random() * 720 - 360;
+          
+          confetti.style.setProperty('--x', `${x}px`);
+          confetti.style.setProperty('--y', `${y}px`);
+          confetti.style.setProperty('--r', `${rotation}deg`);
+          
+          confetti.style.animation = 'confettiFly 1s ease-out forwards';
+          
+          confettiContainer.appendChild(confetti);
+        }
+        
+        setTimeout(() => {
+          successCard.classList.remove('success-effect');
+          confettiContainer.remove();
+        }, 1500);
+      });
+      
+      errorButton.addEventListener('click', () => {
+        const existingContainer = errorCard.querySelector('.confetti-container');
+        if (existingContainer) {
+          existingContainer.remove();
+        }
+        
+        errorCard.classList.add('error-effect');
+        
+        const errorContainer = document.createElement('div');
+        errorContainer.classList.add('confetti-container');
+        errorCard.appendChild(errorContainer);
+        
+        for (let i = 0; i < 5; i++) {
+          const errorCircle = document.createElement('div');
+          errorCircle.classList.add('error-circle');
+          
+          errorCircle.style.left = `${Math.random() * 80 + 10}%`;
+          errorCircle.style.top = `${Math.random() * 80 + 10}%`;
+          
+          errorCircle.style.animationDelay = `${i * 0.1}s`;
+          
+          errorContainer.appendChild(errorCircle);
+        }
+        
+        setTimeout(() => {
+          errorCard.classList.remove('error-effect');
+          errorContainer.remove();
+        }, 1500);
+      });
+    });
+  </script>
+</body>
+</html>

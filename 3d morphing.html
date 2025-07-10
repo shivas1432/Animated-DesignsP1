@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Morphing 3D Container - Advanced Transformation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: radial-gradient(ellipse at center, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1200px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Dynamic Background Grid */
+        .grid-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: grid-flow 20s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes grid-flow {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Floating Energy Orbs */
+        .energy-orb {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, 
+                rgba(255, 0, 150, 0.8), 
+                rgba(0, 255, 255, 0.4), 
+                transparent);
+            animation: energy-float 8s ease-in-out infinite;
+            filter: blur(2px);
+            pointer-events: none;
+        }
+
+        .energy-orb:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            top: 15%;
+            left: 20%;
+            animation-delay: 0s;
+        }
+
+        .energy-orb:nth-child(2) {
+            width: 120px;
+            height: 120px;
+            top: 70%;
+            right: 25%;
+            animation-delay: 3s;
+        }
+
+        .energy-orb:nth-child(3) {
+            width: 60px;
+            height: 60px;
+            bottom: 20%;
+            left: 70%;
+            animation-delay: 6s;
+        }
+
+        @keyframes energy-float {
+            0%, 100% { 
+                transform: translateY(0px) translateX(0px) scale(1);
+                opacity: 0.4;
+            }
+            33% { 
+                transform: translateY(-40px) translateX(30px) scale(1.2);
+                opacity: 0.8;
+            }
+            66% { 
+                transform: translateY(20px) translateX(-20px) scale(0.8);
+                opacity: 0.6;
+            }
+        }
+
+        /* Main Container */
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 50px;
+        }
+
+        .title {
+            color: #fff;
+            font-size: 3rem;
+            font-weight: 100;
+            text-align: center;
+            text-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+            letter-spacing: 5px;
+            margin-bottom: 20px;
+        }
+
+        /* Morphing Container */
+        .morph-container {
+            width: 350px;
+            height: 250px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: all 1.2s cubic-bezier(0.23, 1, 0.32, 1);
+            cursor: pointer;
+            margin: 50px;
+        }
+
+        /* Individual Faces */
+        .morph-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            padding: 30px;
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 
+                inset 0 0 50px rgba(255, 255, 255, 0.05),
+                0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.6s ease;
+            overflow: hidden;
+        }
+
+        /* Face-specific backgrounds and transforms */
+        .morph-face.front {
+            background: linear-gradient(135deg, 
+                rgba(255, 0, 150, 0.15), 
+                rgba(0, 255, 255, 0.15),
+                rgba(255, 0, 150, 0.1));
+            transform: translateZ(125px);
+        }
+
+        .morph-face.back {
+            background: linear-gradient(135deg, 
+                rgba(0, 255, 255, 0.15), 
+                rgba(255, 0, 150, 0.15),
+                rgba(0, 255, 255, 0.1));
+            transform: translateZ(-125px) rotateY(180deg);
+        }
+
+        .morph-face.right {
+            background: linear-gradient(135deg, 
+                rgba(150, 255, 0, 0.15), 
+                rgba(255, 0, 150, 0.15),
+                rgba(150, 255, 0, 0.1));
+            transform: rotateY(90deg) translateZ(125px);
+        }
+
+        .morph-face.left {
+            background: linear-gradient(135deg, 
+                rgba(255, 150, 0, 0.15), 
+                rgba(0, 150, 255, 0.15),
+                rgba(255, 150, 0, 0.1));
+            transform: rotateY(-90deg) translateZ(125px);
+        }
+
+        .morph-face.top {
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 0, 0.15), 
+                rgba(150, 0, 255, 0.15),
+                rgba(255, 255, 0, 0.1));
+            transform: rotateX(90deg) translateZ(125px);
+        }
+
+        .morph-face.bottom {
+            background: linear-gradient(135deg, 
+                rgba(0, 255, 150, 0.15), 
+                rgba(255, 0, 255, 0.15),
+                rgba(0, 255, 150, 0.1));
+            transform: rotateX(-90deg) translateZ(125px);
+        }
+
+        /* Face Content */
+        .face-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .face-content h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        .face-content p {
+            font-size: 14px;
+            opacity: 0.9;
+            line-height: 1.6;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        /* Animated Border Effect */
+        .morph-face::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            background: linear-gradient(45deg, 
+                transparent 30%,
+                rgba(255, 0, 150, 0.6) 40%,
+                rgba(0, 255, 255, 0.6) 60%,
+                transparent 70%);
+            background-size: 300% 300%;
+            border-radius: 28px;
+            z-index: -1;
+            animation: border-flow 4s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        @keyframes border-flow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Hover States */
+        .morph-container:hover {
+            transform: rotateX(360deg) rotateY(360deg) scale(1.15);
+            filter: drop-shadow(0 30px 60px rgba(0, 255, 255, 0.3));
+        }
+
+        .morph-container:hover .morph-face::before {
+            opacity: 1;
+        }
+
+        .morph-container:hover .morph-face {
+            box-shadow: 
+                inset 0 0 80px rgba(255, 255, 255, 0.1),
+                0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Click Animation States */
+        .morph-container.morph-x {
+            animation: morph-x-rotation 2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .morph-container.morph-y {
+            animation: morph-y-rotation 2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .morph-container.morph-z {
+            animation: morph-z-rotation 2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes morph-x-rotation {
+            0% { transform: rotateX(0deg); }
+            50% { transform: rotateX(180deg) scale(1.2); }
+            100% { transform: rotateX(360deg); }
+        }
+
+        @keyframes morph-y-rotation {
+            0% { transform: rotateY(0deg); }
+            50% { transform: rotateY(180deg) scale(1.2); }
+            100% { transform: rotateY(360deg); }
+        }
+
+        @keyframes morph-z-rotation {
+            0% { transform: rotateZ(0deg); }
+            50% { transform: rotateZ(180deg) scale(1.2); }
+            100% { transform: rotateZ(360deg); }
+        }
+
+        /* Control Panel */
+        .control-panel {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .control-btn {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            font-size: 14px;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .control-btn:hover {
+            background: rgba(0, 255, 255, 0.1);
+            border-color: rgba(0, 255, 255, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 255, 255, 0.2);
+        }
+
+        .control-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Particle System */
+        .particle-system {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            animation: particle-drift 6s linear infinite;
+        }
+
+        @keyframes particle-drift {
+            0% {
+                transform: translateY(100vh) translateX(0px);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(50px);
+                opacity: 0;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .morph-container {
+                width: 280px;
+                height: 200px;
+                margin: 30px;
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+            
+            .face-content h3 {
+                font-size: 20px;
+            }
+            
+            .face-content p {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-background"></div>
+    
+    <div class="energy-orb"></div>
+    <div class="energy-orb"></div>
+    <div class="energy-orb"></div>
+    
+    <div class="main-container">
+        <h1 class="title">MORPHING DIMENSIONS</h1>
+        
+        <div class="morph-container" id="morphContainer">
+            <div class="morph-face front">
+                <div class="face-content">
+                    <h3>NEURAL CORE</h3>
+                    <p>Primary interface matrix with quantum entanglement protocols and real-time data processing capabilities.</p>
+                </div>
+            </div>
+            
+            <div class="morph-face back">
+                <div class="face-content">
+                    <h3>QUANTUM VOID</h3>
+                    <p>Parallel dimension gateway offering infinite computational possibilities beyond spacetime constraints.</p>
+                </div>
+            </div>
+            
+            <div class="morph-face right">
+                <div class="face-content">
+                    <h3>ENERGY FLUX</h3>
+                    <p>Electromagnetic field generator creating sustainable power matrices for advanced operations.</p>
+                </div>
+            </div>
+            
+            <div class="morph-face left">
+                <div class="face-content">
+                    <h3>TEMPORAL SHIFT</h3>
+                    <p>Chronological displacement interface enabling time-dilated processing and historical data access.</p>
+                </div>
+            </div>
+            
+            <div class="morph-face top">
+                <div class="face-content">
+                    <h3>COSMIC LINK</h3>
+                    <p>Interstellar communication array connecting to deep space networks and alien technologies.</p>
+                </div>
+            </div>
+            
+            <div class="morph-face bottom">
+                <div class="face-content">
+                    <h3>CORE MATRIX</h3>
+                    <p>Fundamental reality anchor maintaining dimensional stability across all parallel universes.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="control-panel">
+            <button class="control-btn" onclick="morphX()">X-AXIS MORPH</button>
+            <button class="control-btn" onclick="morphY()">Y-AXIS MORPH</button>
+            <button class="control-btn" onclick="morphZ()">Z-AXIS MORPH</button>
+            <button class="control-btn" onclick="randomMorph()">CHAOS MODE</button>
+        </div>
+        
+        <div class="particle-system" id="particleSystem"></div>
+    </div>
+
+    <script>
+        class MorphingContainer {
+            constructor(containerElement) {
+                this.container = containerElement;
+                this.isAnimating = false;
+                this.currentRotation = { x: 0, y: 0, z: 0 };
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.createParticleSystem();
+                this.startAmbientEffects();
+                this.setupMouseTracking();
+            }
+
+            setupEventListeners() {
+                this.container.addEventListener('click', () => this.handleClick());
+                this.container.addEventListener('mouseenter', () => this.handleMouseEnter());
+                this.container.addEventListener('mouseleave', () => this.handleMouseLeave());
+                
+                // Touch events for mobile
+                this.container.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    this.handleClick();
+                });
+            }
+
+            handleClick() {
+                if (this.isAnimating) return;
+                this.randomMorph();
+            }
+
+            handleMouseEnter() {
+                this.intensifyEffects();
+            }
+
+            handleMouseLeave() {
+                this.normalizeEffects();
+            }
+
+            morphX() {
+                if (this.isAnimating) return;
+                this.performMorph('morph-x');
+            }
+
+            morphY() {
+                if (this.isAnimating) return;
+                this.performMorph('morph-y');
+            }
+
+            morphZ() {
+                if (this.isAnimating) return;
+                this.performMorph('morph-z');
+            }
+
+            randomMorph() {
+                const morphTypes = ['morph-x', 'morph-y', 'morph-z'];
+                const randomType = morphTypes[Math.floor(Math.random() * morphTypes.length)];
+                this.performMorph(randomType);
+            }
+
+            performMorph(morphType) {
+                this.isAnimating = true;
+                this.container.classList.add(morphType);
+                
+                // Create energy burst effect
+                this.createEnergyBurst();
+                
+                setTimeout(() => {
+                    this.container.classList.remove(morphType);
+                    this.isAnimating = false;
+                }, 2000);
+            }
+
+            createEnergyBurst() {
+                const faces = this.container.querySelectorAll('.morph-face');
+                faces.forEach((face, index) => {
+                    setTimeout(() => {
+                        face.style.boxShadow = `
+                            inset 0 0 100px rgba(255, 255, 255, 0.3),
+                            0 0 100px rgba(0, 255, 255, 0.6)
+                        `;
+                        
+                        setTimeout(() => {
+                            face.style.boxShadow = '';
+                        }, 300);
+                    }, index * 100);
+                });
+            }
+
+            intensifyEffects() {
+                const particles = document.querySelectorAll('.particle');
+                particles.forEach(particle => {
+                    particle.style.background = 'rgba(0, 255, 255, 0.8)';
+                    particle.style.boxShadow = '0 0 10px rgba(0, 255, 255, 0.8)';
+                });
+            }
+
+            normalizeEffects() {
+                const particles = document.querySelectorAll('.particle');
+                particles.forEach(particle => {
+                    particle.style.background = 'rgba(255, 255, 255, 0.6)';
+                    particle.style.boxShadow = 'none';
+                });
+            }
+
+            setupMouseTracking() {
+                document.addEventListener('mousemove', (e) => {
+                    if (this.isAnimating) return;
+                    
+                    const centerX = window.innerWidth / 2;
+                    const centerY = window.innerHeight / 2;
+                    
+                    const deltaX = (e.clientX - centerX) / centerX;
+                    const deltaY = (e.clientY - centerY) / centerY;
+                    
+                    const rotateY = deltaX * 15;
+                    const rotateX = -deltaY * 15;
+                    
+                    this.container.style.transform = `
+                        rotateX(${rotateX}deg) 
+                        rotateY(${rotateY}deg) 
+                        translateZ(0)
+                    `;
+                });
+                
+                document.addEventListener('mouseleave', () => {
+                    if (!this.isAnimating) {
+                        this.container.style.transform = '';
+                    }
+                });
+            }
+
+            createParticleSystem() {
+                const particleSystem = document.getElementById('particleSystem');
+                const particleCount = 30;
+                
+                for (let i = 0; i < particleCount; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.animationDelay = Math.random() * 6 + 's';
+                    particle.style.animationDuration = (Math.random() * 4 + 4) + 's';
+                    
+                    // Add subtle variation to particle movement
+                    particle.style.setProperty('--random-x', (Math.random() - 0.5) * 100 + 'px');
+                    
+                    particleSystem.appendChild(particle);
+                }
+            }
+
+            startAmbientEffects() {
+                // Subtle breathing effect for the container
+                let breathePhase = 0;
+                setInterval(() => {
+                    if (!this.isAnimating) {
+                        breathePhase += 0.02;
+                        const scale = 1 + Math.sin(breathePhase) * 0.02;
+                        const brightness = 0.9 + Math.sin(breathePhase * 1.5) * 0.1;
+                        
+                        this.container.style.filter = `
+                            brightness(${brightness})
+                            contrast(1.1)
+                        `;
+                    }
+                }, 16);
+
+                // Dynamic face content updates
+                this.cycleFaceEffects();
+            }
+
+            cycleFaceEffects() {
+                const faces = this.container.querySelectorAll('.morph-face');
+                let currentFace = 0;
+                
+                setInterval(() => {
+                    if (!this.isAnimating) {
+                        faces.forEach(face => face.style.borderColor = 'rgba(255, 255, 255, 0.1)');
+                        
+                        faces[currentFace].style.borderColor = 'rgba(0, 255, 255, 0.5)';
+                        
+                        currentFace = (currentFace + 1) % faces.length;
+                    }
+                }, 2000);
+            }
+        }
+
+        // Global functions for control buttons
+        let morphContainer;
+
+        function morphX() {
+            morphContainer.morphX();
+        }
+
+        function morphY() {
+            morphContainer.morphY();
+        }
+
+        function morphZ() {
+            morphContainer.morphZ();
+        }
+
+        function randomMorph() {
+            morphContainer.randomMorph();
+        }
+
+        // Enhanced particle animation with CSS custom properties
+        const enhancedParticleStyles = document.createElement('style');
+        enhancedParticleStyles.textContent = `
+            .particle {
+                transform: translateY(100vh) translateX(var(--random-x, 0px));
+            }
+            
+            @keyframes particle-drift {
+                0% {
+                    transform: translateY(100vh) translateX(var(--random-x, 0px));
+                    opacity: 0;
+                }
+                10% {
+                    opacity: 1;
+                }
+                90% {
+                    opacity: 1;
+                }
+                100% {
+                    transform: translateY(-100px) translateX(calc(var(--random-x, 0px) + 50px));
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(enhancedParticleStyles);
+
+        // Initialize everything when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            const containerElement = document.getElementById('morphContainer');
+            morphContainer = new MorphingContainer(containerElement);
+            
+            // Performance optimization
+            let lastFrameTime = performance.now();
+            
+            function optimizeFrameRate() {
+                const currentTime = performance.now();
+                const deltaTime = currentTime - lastFrameTime;
+                
+                if (deltaTime > 16.67) { // ~60fps
+                    // Reduce particle count if performance is poor
+                    const particles = document.querySelectorAll('.particle');
+                    if (particles.length > 20 && deltaTime > 33) {
+                        particles[particles.length - 1].remove();
+                    }
+                }
+                
+                lastFrameTime = currentTime;
+                requestAnimationFrame(optimizeFrameRate);
+            }
+            
+            requestAnimationFrame(optimizeFrameRate);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Avengers Slider </title>
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.1/css/all.min.css'>
+    <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Montserrat&display=swap'>
+    <link rel='stylesheet' href='https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&family=Exo+2:wght@300;400;600;800&family=Russo+One&display=swap'>
+    <link rel="stylesheet" href="./style.css">
+    <style>
+        .text.name {
+            font-family: 'Orbitron', monospace;
+            font-weight: 900;
+            font-size: 42px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7);
+            background-size: 300% 300%;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 3s ease-in-out infinite;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 30px rgba(255, 107, 107, 0.5);
+        }
+
+        .text.location {
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+            font-size: 18px;
+            color: #ffd700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+        }
+
+        .text.description {
+            font-family: 'Exo 2', sans-serif;
+            font-weight: 400;
+            font-size: 16px;
+            color: #ffffff;
+            line-height: 1.6;
+            font-style: italic;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+            letter-spacing: 1px;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        /* Special character-specific styles */
+        .info.current--info .text.name {
+            background: linear-gradient(45deg, #ff4757, #ff3838, #c44569);
+            background-size: 300% 300%;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: spiderGlow 2s ease-in-out infinite;
+        }
+
+        .info.next--info .text.name {
+            background: linear-gradient(45deg, #3742fa, #2f3542, #ff4757);
+            background-size: 300% 300%;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: captainGlow 2.5s ease-in-out infinite;
+        }
+
+        .info.previous--info .text.name {
+            background: linear-gradient(45deg, #ffa502, #ff6348, #ff4757);
+            background-size: 300% 300%;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: ironGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes spiderGlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes captainGlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes ironGlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="cardList">
+            <button class="cardList__btn btn btn--left">
+                <div class="icon">
+                    <svg>
+                        <use xlink:href="#arrow-left"></use>
+                    </svg>
+                </div>
+            </button>
+
+            <div class="cards__wrapper">
+                <div class="card current--card">
+                    <div class="card__image">
+                        <img src="s1.jpg" alt="" />
+                    </div>
+                </div>
+
+                <div class="card next--card">
+                    <div class="card__image">
+                        <img src="c1.jpg" alt="" />
+                    </div>
+                </div>
+
+                <div class="card previous--card">
+                    <div class="card__image">
+                        <img src="i1.jpg" alt="" />
+                    </div>
+                </div>
+            </div>
+
+            <button class="cardList__btn btn btn--right">
+                <div class="icon">
+                    <svg>
+                        <use xlink:href="#arrow-right"></use>
+                    </svg>
+                </div>
+            </button>
+        </div>
+
+        <div class="infoList">
+            <div class="info__wrapper">
+                <div class="info current--info">
+                    <h1 class="text name">Spider-Man</h1>
+                    <h4 class="text location">Peter Parker</h4>
+                    <p class="text description">Your friendly neighborhood superhero</p>
+                </div>
+
+                <div class="info next--info">
+                    <h1 class="text name">Captain America</h1>
+                    <h4 class="text location">Steve Rogers</h4>
+                    <p class="text description">The First Avenger</p>
+                </div>
+
+                <div class="info previous--info">
+                    <h1 class="text name">Iron Man</h1>
+                    <h4 class="text location">Tony Stark</h4>
+                    <p class="text description">Genius, billionaire, playboy, philanthropist</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="app__bg">
+            <div class="app__bg__image current--image">
+                <img src="s1.jpg" alt="" />
+            </div>
+            <div class="app__bg__image next--image">
+                <img src="c1.jpg" alt="" />
+            </div>
+            <div class="app__bg__image previous--image">
+                <img src="i1.jpg" alt="" />
+            </div>
+        </div>
+    </div>
+
+    <div class="loading__wrapper">
+        <div class="loader--text">Loading...</div>
+        <div class="loader">
+            <span></span>
+        </div>
+    </div>
+
+    <svg class="icons" style="display: none;">
+        <symbol id="arrow-left" xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'>
+            <polyline points='328 112 184 256 328 400' style='fill:none;stroke:#fff;stroke-linecap:round;stroke-linejoin:round;stroke-width:48px' />
+        </symbol>
+        <symbol id="arrow-right" xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'>
+            <polyline points='184 112 328 256 184 400' style='fill:none;stroke:#fff;stroke-linecap:round;stroke-linejoin:round;stroke-width:48px' />
+        </symbol>
+    </svg>
+
+   
+
+    <script src='https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/gsap/3.3.3/gsap.min.js'></script>
+    <script src="./script.js"></script>
+</body>
+</html>

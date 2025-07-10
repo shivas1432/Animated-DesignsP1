@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Cursor Trail Effect</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body, html {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #000428 0%, #004e92 100%);
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+        
+        .controls {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            z-index: 1000;
+            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 78, 146, 0.3), 
+                        0 2px 8px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .controls h3 {
+            margin-bottom: 20px;
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .control-group {
+            margin-bottom: 0;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #e0e6ed;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .control-group input[type="text"] {
+            width: 220px;
+            padding: 12px 16px;
+            border: 2px solid #004e92;
+            border-radius: 10px;
+            font-size: 16px;
+            background: linear-gradient(145deg, #0d1117, #161b22);
+            color: #ffffff;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+        }
+        
+        .control-group input[type="text"]:focus {
+            border-color: #0078d4;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.2);
+            transform: translateY(-1px);
+        }
+        
+        .control-group input[type="text"]::placeholder {
+            color: #7d8590;
+        }
+        
+        .text-cursor-container {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            cursor: none;
+        }
+        
+        .text-cursor-inner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+        }
+        
+        .text-cursor-item {
+            position: absolute;
+            user-select: none;
+            white-space: nowrap;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #0078d4;
+            text-shadow: 0 2px 8px rgba(0, 120, 212, 0.5);
+            transform-origin: center;
+            transition: opacity 0.3s ease-out;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .instructions {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            color: #e0e6ed;
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 78, 146, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.8); }
+        }
+        
+        @keyframes floatAnimation {
+            0%, 100% { transform: translateY(0px) translateX(0px); }
+            33% { transform: translateY(-5px) translateX(2px); }
+            66% { transform: translateY(2px) translateX(-3px); }
+        }
+        
+        .floating {
+            animation: floatAnimation 2s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <h3>✨ Text Trail</h3>
+        
+        <div class="control-group">
+            <label for="textInput">Enter Your Text:</label>
+            <input type="text" id="textInput" value="SHIVA" placeholder="Type something awesome...">
+        </div>
+    </div>
+
+    <div class="text-cursor-container" id="container">
+        <div class="text-cursor-inner" id="trailContainer"></div>
+    </div>
+    
+    <div class="instructions">
+        💡 <strong>Instructions:</strong><br>
+        Move your mouse around to create a trail!<br>
+        Customize the text and settings on the left.
+    </div>
+
+    <script>
+        class TextCursor {
+            constructor(options = {}) {
+                this.text = options.text || "⚛️";
+                this.delay = options.delay || 0.01;
+                this.spacing = options.spacing || 80;
+                this.followMouseDirection = options.followMouseDirection !== undefined ? options.followMouseDirection : true;
+                this.randomFloat = options.randomFloat !== undefined ? options.randomFloat : true;
+                this.exitDuration = options.exitDuration || 0.3;
+                this.removalInterval = options.removalInterval || 20;
+                this.maxPoints = options.maxPoints || 10;
+                
+                this.container = document.getElementById('container');
+                this.trailContainer = document.getElementById('trailContainer');
+                this.trail = [];
+                this.lastMoveTime = Date.now();
+                this.idCounter = 0;
+                
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.startRemovalTimer();
+            }
+
+            setupEventListeners() {
+                this.container.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+            }
+
+            handleMouseMove(e) {
+                const rect = this.container.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+
+                if (this.trail.length === 0) {
+                    this.addTrailPoint(mouseX, mouseY, 0);
+                } else {
+                    const last = this.trail[this.trail.length - 1];
+                    const dx = mouseX - last.x;
+                    const dy = mouseY - last.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance >= this.spacing) {
+                        let rawAngle = (Math.atan2(dy, dx) * 180) / Math.PI;
+                        if (rawAngle > 90) rawAngle -= 180;
+                        else if (rawAngle < -90) rawAngle += 180;
+                        const computedAngle = this.followMouseDirection ? rawAngle : 0;
+                        
+                        const steps = Math.floor(distance / this.spacing);
+                        for (let i = 1; i <= steps; i++) {
+                            const t = (this.spacing * i) / distance;
+                            const newX = last.x + dx * t;
+                            const newY = last.y + dy * t;
+                            this.addTrailPoint(newX, newY, computedAngle);
+                        }
+                    }
+                }
+
+                if (this.trail.length > this.maxPoints) {
+                    const removed = this.trail.shift();
+                    this.removeTrailElement(removed.element);
+                }
+
+                this.lastMoveTime = Date.now();
+            }
+
+            addTrailPoint(x, y, angle) {
+                const element = document.createElement('div');
+                element.className = 'text-cursor-item';
+                element.textContent = this.text;
+                element.style.left = x + 'px';
+                element.style.top = y + 'px';
+                element.style.transform = `rotate(${angle}deg)`;
+                
+                if (this.randomFloat) {
+                    element.classList.add('floating');
+                    const randomX = Math.random() * 10 - 5;
+                    const randomY = Math.random() * 10 - 5;
+                    const randomRotate = Math.random() * 10 - 5;
+                    
+                    element.style.setProperty('--random-x', randomX + 'px');
+                    element.style.setProperty('--random-y', randomY + 'px');
+                    element.style.setProperty('--random-rotate', randomRotate + 'deg');
+                }
+
+                // Fade in animation
+                element.style.opacity = '0';
+                element.style.transform += ' scale(0.8)';
+                
+                setTimeout(() => {
+                    element.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
+                    element.style.opacity = '1';
+                    element.style.transform = element.style.transform.replace('scale(0.8)', 'scale(1)');
+                }, this.delay * 1000);
+
+                this.trailContainer.appendChild(element);
+                
+                const trailPoint = {
+                    id: this.idCounter++,
+                    x: x,
+                    y: y,
+                    angle: angle,
+                    element: element
+                };
+                
+                this.trail.push(trailPoint);
+            }
+
+            removeTrailElement(element) {
+                if (element && element.parentNode) {
+                    element.style.transition = `opacity ${this.exitDuration}s ease-out, transform ${this.exitDuration}s ease-out`;
+                    element.style.opacity = '0';
+                    element.style.transform += ' scale(0)';
+                    
+                    setTimeout(() => {
+                        if (element.parentNode) {
+                            element.parentNode.removeChild(element);
+                        }
+                    }, this.exitDuration * 1000);
+                }
+            }
+
+            startRemovalTimer() {
+                this.removalTimer = setInterval(() => {
+                    if (Date.now() - this.lastMoveTime > 100 && this.trail.length > 0) {
+                        const removed = this.trail.shift();
+                        this.removeTrailElement(removed.element);
+                    }
+                }, this.removalInterval);
+            }
+
+            updateText(newText) {
+                this.text = newText;
+            }
+
+            updateSpacing(newSpacing) {
+                this.spacing = newSpacing;
+            }
+
+            updateMaxPoints(newMaxPoints) {
+                this.maxPoints = newMaxPoints;
+            }
+
+            updateRemovalInterval(newInterval) {
+                this.removalInterval = newInterval;
+                clearInterval(this.removalTimer);
+                this.startRemovalTimer();
+            }
+
+            updateFollowMouseDirection(follow) {
+                this.followMouseDirection = follow;
+            }
+
+            updateRandomFloat(randomFloat) {
+                this.randomFloat = randomFloat;
+            }
+
+            destroy() {
+                if (this.removalTimer) {
+                    clearInterval(this.removalTimer);
+                }
+                this.trail.forEach(point => {
+                    if (point.element && point.element.parentNode) {
+                        point.element.parentNode.removeChild(point.element);
+                    }
+                });
+                this.trail = [];
+            }
+        }
+
+        // Initialize the effect
+        let textCursor;
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            textCursor = new TextCursor({
+                text: "SHIVA",
+                spacing: 80,
+                maxPoints: 10,
+                removalInterval: 20,
+                followMouseDirection: true,
+                randomFloat: true
+            });
+
+            // Setup controls
+            const textInput = document.getElementById('textInput');
+
+            // Event listeners for controls
+            textInput.addEventListener('input', (e) => {
+                textCursor.updateText(e.target.value || "SHIVA");
+            });
+
+            // Cleanup on page unload
+            window.addEventListener('beforeunload', () => {
+                textCursor.destroy();
+            });
+        });
+    </script>
+</body>
+</html>

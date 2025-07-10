@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Showcase - 3D Interactive Grid</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        
+        body {
+            background-color: #000;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .instagram-post {
+            width: 100%;
+            max-width: 600px;
+            height: 800px;
+            background: linear-gradient(145deg, #0a0a0a 0%, #151515 100%);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            position: relative;
+        }
+        
+        /* Demo Section */
+        .demo-section {
+            height: 55%;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(145deg, #0f0f0f 0%, #191919 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .ambient-glow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(80, 40, 150, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        /* Code Editor Section */
+        .code-section {
+            height: 45%;
+            background-color: #0d1117;
+            position: relative;
+            overflow: hidden;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .editor-header {
+            height: 32px;
+            background-color: #161b22;
+            padding: 0 16px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .window-controls {
+            display: flex;
+            gap: 6px;
+            margin-right: 16px;
+        }
+        
+        .control {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .control.red {
+            background-color: #ff5f56;
+        }
+        
+        .control.yellow {
+            background-color: #ffbd2e;
+        }
+        
+        .control.green {
+            background-color: #27c93f;
+        }
+        
+        .filename {
+            font-size: 12px;
+            color: #8b949e;
+            font-weight: 500;
+        }
+        
+        .code-container {
+            padding: 16px;
+            height: calc(100% - 32px);
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #30363d #0d1117;
+        }
+        
+        .code-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .code-container::-webkit-scrollbar-track {
+            background: #0d1117;
+        }
+        
+        .code-container::-webkit-scrollbar-thumb {
+            background-color: #30363d;
+            border-radius: 4px;
+        }
+        
+        pre {
+            margin: 0;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 11px;
+            line-height: 1.4;
+            color: #e6edf3;
+            white-space: pre-wrap;
+        }
+        
+        .code-tag {
+            color: #7ee787;
+        }
+        
+        .code-attr {
+            color: #79c0ff;
+        }
+        
+        .code-string {
+            color: #a5d6ff;
+        }
+        
+        .code-comment {
+            color: #8b949e;
+            font-style: italic;
+        }
+        
+        .code-keyword {
+            color: #ff7b72;
+        }
+        
+        .code-function {
+            color: #d2a8ff;
+        }
+        
+        .code-variable {
+            color: #ffa657;
+        }
+        
+        .code-separator {
+            color: #8b949e;
+            margin-top: 8px;
+            margin-bottom: 8px;
+            border-bottom: 1px dashed rgba(139, 148, 158, 0.3);
+            padding-bottom: 4px;
+        }
+        
+        /* Watermark */
+        .watermark {
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            font-size: 14px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.2);
+            z-index: 100;
+        }
+        
+        /* 3D Grid Animation Content */
+        .scene {
+            position: relative;
+            width: 80%;
+            height: 80%;
+            transform-style: preserve-3d;
+            transform: rotateX(10deg) rotateY(0deg);
+            transition: transform 0.5s ease;
+        }
+        
+        .grid-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: repeat(20, 1fr);
+            grid-template-rows: repeat(20, 1fr);
+            gap: 2px;
+            transform-style: preserve-3d;
+        }
+        
+        .grid-cell {
+            background-color: #1a1a1a;
+            border-radius: 2px;
+            position: relative;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transform-style: preserve-3d;
+            transform: translateZ(0);
+        }
+        
+        .grid-cell.active {
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+            animation: cellActivation 2s forwards;
+        }
+        
+        @keyframes cellActivation {
+            0% { 
+                transform: translateZ(0px); 
+                filter: brightness(0.7);
+            }
+            10% { 
+                transform: translateZ(15px); 
+                filter: brightness(1.2);
+            }
+            70% { 
+                transform: translateZ(15px); 
+                filter: brightness(1.2);
+            }
+            100% { 
+                transform: translateZ(0px); 
+                filter: brightness(0.7);
+                box-shadow: none;
+            }
+        }
+
+        .glow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 2px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        
+        .grid-cell.active .glow {
+            opacity: 1;
+            animation: glowPulse 2s forwards;
+        }
+        
+        @keyframes glowPulse {
+            0% { opacity: 0; }
+            10% { opacity: 0.8; }
+            70% { opacity: 0.6; }
+            100% { opacity: 0; }
+        }
+        
+        .background-glow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(30, 30, 30, 0.3) 0%, rgba(0, 0, 0, 0) 70%);
+            pointer-events: none;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+    <div class="instagram-post">
+        <div class="demo-section">
+            <div class="ambient-glow"></div>
+            <div class="scene" id="scene">
+                <div class="background-glow"></div>
+                <div class="grid-container" id="gridContainer"></div>
+            </div>
+        </div>
+        <div class="code-section">
+            <div class="editor-header">
+                <div class="window-controls">
+                    <div class="control red"></div>
+                    <div class="control yellow"></div>
+                    <div class="control green"></div>
+                </div>
+                <div class="filename">3d-interactive-grid.js</div>
+            </div>
+            <div class="code-container">
+                <pre><span class="code-comment">/* Core Animation Functions */</span>
+<span class="code-keyword">function</span> <span class="code-function">processMouseInteraction</span>() {
+  <span class="code-keyword">if</span> (mouseSpeed < <span class="code-variable">3</span>) <span class="code-keyword">return</span>;
+  
+  <span class="code-keyword">const</span> rect = scene.getBoundingClientRect();
+  <span class="code-keyword">const</span> relativeX = mouseX - rect.left;
+  <span class="code-keyword">const</span> relativeY = mouseY - rect.top;
+  
+  <span class="code-keyword">if</span> (relativeX >= <span class="code-variable">0</span> && relativeX <= rect.width && 
+      relativeY >= <span class="code-variable">0</span> && relativeY <= rect.height) {
+      
+    <span class="code-keyword">const</span> cellWidth = rect.width / GRID_SIZE;
+    <span class="code-keyword">const</span> cellHeight = rect.height / GRID_SIZE;
+    
+    <span class="code-keyword">const</span> cellX = Math.floor(relativeX / cellWidth);
+    <span class="code-keyword">const</span> cellY = Math.floor(relativeY / cellHeight);
+    
+    setTimeout(<span class="code-function">() => </span>{
+      activateCell(cellX, cellY);
+    }, Math.random() * <span class="code-variable">50</span>);
+    
+    <span class="code-keyword">const</span> activationCount = Math.min(<span class="code-variable">2</span>, Math.floor(mouseSpeed / <span class="code-variable">10</span>) + <span class="code-variable">1</span>);
+    <span class="code-keyword">for</span> (<span class="code-keyword">let</span> i = <span class="code-variable">0</span>; i < activationCount; i++) {
+      <span class="code-keyword">const</span> distanceFactor = Math.random() * <span class="code-variable">3</span> + <span class="code-variable">1</span>;
+      <span class="code-keyword">const</span> angle = Math.random() * Math.PI * <span class="code-variable">2</span>;
+      
+      <span class="code-keyword">const</span> spreadX = Math.floor(cellX + Math.cos(angle) * distanceFactor);
+      <span class="code-keyword">const</span> spreadY = Math.floor(cellY + Math.sin(angle) * distanceFactor);
+      
+      setTimeout(<span class="code-function">() => </span>{
+        activateCell(spreadX, spreadY);
+      }, Math.random() * <span class="code-variable">100</span>);
+    }
+  }
+}</pre>
+            </div>
+        </div>
+        <div class="watermark">@ss_web_innovations</div>
+    </div>
+
+    <script>
+        const colors = [
+            '#e74c3c', 
+            '#3498db', 
+            '#2ecc71', 
+            '#9b59b6', 
+            '#f39c12', 
+            '#1abc9c', 
+            '#e67e22', 
+            '#ff5baf', 
+            '#3a7bd5', 
+            '#00d2d3'  
+        ];
+        
+        const GRID_SIZE = 20;
+        
+        const gridContainer = document.getElementById('gridContainer');
+        const scene = document.getElementById('scene');
+        
+        for (let i = 0; i < GRID_SIZE * GRID_SIZE; i++) {
+            const cell = document.createElement('div');
+            cell.classList.add('grid-cell');
+            cell.dataset.index = i;
+            
+            const glow = document.createElement('div');
+            glow.classList.add('glow');
+            cell.appendChild(glow);
+            
+            gridContainer.appendChild(cell);
+        }
+        
+        let mouseX = 0;
+        let mouseY = 0;
+        let lastMouseX = 0;
+        let lastMouseY = 0;
+        let mouseSpeed = 0;
+        
+        document.addEventListener('mousemove', (e) => {
+            const dx = e.clientX - lastMouseX;
+            const dy = e.clientY - lastMouseY;
+            mouseSpeed = Math.sqrt(dx*dx + dy*dy);
+            
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+            const rotateY = (mouseX - centerX) / centerX * 5;
+            const rotateX = (centerY - mouseY) / centerY * 5;
+            
+            scene.style.transform = `rotateX(${10 + rotateX}deg) rotateY(${rotateY}deg)`;
+            
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+            
+            processMouseInteraction();
+        });
+        
+        document.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            
+            const dx = touch.clientX - lastMouseX;
+            const dy = touch.clientY - lastMouseY;
+            mouseSpeed = Math.sqrt(dx*dx + dy*dy);
+            
+            mouseX = touch.clientX;
+            mouseY = touch.clientY;
+            
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+            const rotateY = (mouseX - centerX) / centerX * 5;
+            const rotateX = (centerY - mouseY) / centerY * 5;
+            
+            scene.style.transform = `rotateX(${10 + rotateX}deg) rotateY(${rotateY}deg)`;
+            
+            lastMouseX = touch.clientX;
+            lastMouseY = touch.clientY;
+            
+            processMouseInteraction();
+        }, { passive: false });
+        
+        function processMouseInteraction() {
+            if (mouseSpeed < 3) return;
+            
+            const rect = scene.getBoundingClientRect();
+            
+            const relativeX = mouseX - rect.left;
+            const relativeY = mouseY - rect.top;
+            
+            if (relativeX >= 0 && relativeX <= rect.width && 
+                relativeY >= 0 && relativeY <= rect.height) {
+                
+                const cellWidth = rect.width / GRID_SIZE;
+                const cellHeight = rect.height / GRID_SIZE;
+                
+                const cellX = Math.floor(relativeX / cellWidth);
+                const cellY = Math.floor(relativeY / cellHeight);
+                
+                setTimeout(() => {
+                    activateCell(cellX, cellY);
+                }, Math.random() * 50);
+                
+                const activationCount = Math.min(2, Math.floor(mouseSpeed / 10) + 1);
+                for (let i = 0; i < activationCount; i++) {
+                    const distanceFactor = Math.random() * 3 + 1;
+                    const angle = Math.random() * Math.PI * 2;
+                    
+                    const spreadX = Math.floor(cellX + Math.cos(angle) * distanceFactor);
+                    const spreadY = Math.floor(cellY + Math.sin(angle) * distanceFactor);
+                    
+                    setTimeout(() => {
+                        activateCell(spreadX, spreadY);
+                    }, Math.random() * 100);
+                }
+            }
+        }
+        
+        function activateCell(x, y) {
+            if (x < 0 || x >= GRID_SIZE || y < 0 || y >= GRID_SIZE) return;
+            
+            const index = y * GRID_SIZE + x;
+            const cell = gridContainer.children[index];
+            
+            if (cell.classList.contains('active')) return;
+            
+            const colorIndex = Math.floor(Math.random() * colors.length);
+            const color = colors[colorIndex];
+            
+            cell.style.backgroundColor = color;
+            
+            const glow = cell.querySelector('.glow');
+            glow.style.boxShadow = `0 0 15px ${color}`;
+            
+            cell.classList.add('active');
+            
+            setTimeout(() => {
+                cell.classList.remove('active');
+                cell.style.backgroundColor = '#1a1a1a';
+            }, 2000);
+        }
+        
+        function initialize() {
+            const patternCells = [
+                {x: 3, y: 2}, {x: 2, y: 4}, {x: 5, y: 5}, {x: 8, y: 3}, 
+                {x: 10, y: 6}, {x: 12, y: 4}, {x: 14, y: 7}, {x: 16, y: 2}, 
+                {x: 7, y: 8}, {x: 4, y: 10}, {x: 9, y: 11}, {x: 13, y: 9}, 
+                {x: 11, y: 13}, {x: 15, y: 11}, {x: 17, y: 14}, {x: 3, y: 14},
+                {x: 6, y: 16}, {x: 12, y: 17}, {x: 8, y: 12}, {x: 2, y: 9},
+                {x: 18, y: 5}, {x: 9, y: 3}, {x: 14, y: 15}, {x: 5, y: 12},
+                {x: 16, y: 9}, {x: 3, y: 18}, {x: 11, y: 2}, {x: 7, y: 15}
+            ];
+            
+            patternCells.forEach((cell, index) => {
+                setTimeout(() => {
+                    activateCell(cell.x, cell.y);
+                }, index * 100);
+            });
+        }
+        
+        initialize();
+        
+        setInterval(() => {
+            if (Math.random() < 0.1) {
+                const x = Math.floor(Math.random() * GRID_SIZE);
+                const y = Math.floor(Math.random() * GRID_SIZE);
+                activateCell(x, y);
+            }
+        }, 100);
+        
+        let idleAnimation;
+        function startIdleAnimation() {
+            let angle = 0;
+            idleAnimation = setInterval(() => {
+                angle += 0.01;
+                const rotateY = Math.sin(angle) * 3;
+                const rotateX = 10 + Math.cos(angle) * 2;
+                scene.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            }, 10);
+        }
+        
+        function stopIdleAnimation() {
+            clearInterval(idleAnimation);
+        }
+        
+        startIdleAnimation();
+        document.addEventListener('mousemove', () => {
+            stopIdleAnimation();
+            clearTimeout(window.idleTimer);
+            window.idleTimer = setTimeout(startIdleAnimation, 5000);
+        });
+    </script>
+</body>
+</html>

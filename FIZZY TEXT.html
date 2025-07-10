@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fuzzy Text Effect</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Creepster&family=Bungee&family=Fredoka:wght@400;600&family=Comic+Neue:wght@700&family=Bangers&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0d2e 50%, #16213e 100%);
+            font-family: 'Bangers', cursive;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 800px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            background: rgba(255, 107, 107, 0.03);
+            border: 1px solid rgba(255, 107, 107, 0.2);
+            border-radius: 20px;
+            box-shadow: 
+                0 0 50px rgba(255, 107, 107, 0.15),
+                inset 0 0 50px rgba(255, 107, 107, 0.02);
+            backdrop-filter: blur(10px);
+        }
+
+        #fuzzyCanvas {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <canvas id="fuzzyCanvas"></canvas>
+    </div>
+
+    <script>
+        class FuzzyText {
+            constructor(options = {}) {
+                this.text = options.text || 'FUZZY TEXT';
+                this.fontSize = options.fontSize || 'clamp(2rem, 10vw, 10rem)';
+                this.fontWeight = options.fontWeight || 900;
+                this.fontFamily = options.fontFamily || 'Arial, sans-serif';
+                this.color = options.color || '#fff';
+                this.enableHover = options.enableHover !== false;
+                this.baseIntensity = options.baseIntensity || 0.18;
+                this.hoverIntensity = options.hoverIntensity || 0.5;
+
+                this.canvas = document.getElementById('fuzzyCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.animationFrameId = null;
+                this.isCancelled = false;
+                this.isHovering = false;
+                this.fuzzRange = 30;
+
+                this.init();
+            }
+
+            async init() {
+                if (document.fonts?.ready) {
+                    await document.fonts.ready;
+                }
+                if (this.isCancelled) return;
+
+                await this.setupCanvas();
+                this.setupEventListeners();
+                this.run();
+            }
+
+            calculateFontSize() {
+                if (typeof this.fontSize === 'number') {
+                    return this.fontSize;
+                }
+
+                // Handle clamp and other CSS functions
+                const temp = document.createElement('span');
+                temp.style.fontSize = this.fontSize;
+                temp.style.position = 'absolute';
+                temp.style.visibility = 'hidden';
+                document.body.appendChild(temp);
+                const computedSize = window.getComputedStyle(temp).fontSize;
+                const numericSize = parseFloat(computedSize);
+                document.body.removeChild(temp);
+                return numericSize;
+            }
+
+            async setupCanvas() {
+                const numericFontSize = this.calculateFontSize();
+                const fontSizeStr = typeof this.fontSize === 'number' ? `${this.fontSize}px` : `${numericFontSize}px`;
+
+                // Create offscreen canvas to measure and render clean text
+                this.offscreen = document.createElement('canvas');
+                this.offCtx = this.offscreen.getContext('2d');
+
+                this.offCtx.font = `${this.fontWeight} ${fontSizeStr} ${this.fontFamily}`;
+                this.offCtx.textBaseline = 'alphabetic';
+                const metrics = this.offCtx.measureText(this.text);
+
+                const actualLeft = metrics.actualBoundingBoxLeft ?? 0;
+                const actualRight = metrics.actualBoundingBoxRight ?? metrics.width;
+                const actualAscent = metrics.actualBoundingBoxAscent ?? numericFontSize;
+                const actualDescent = metrics.actualBoundingBoxDescent ?? numericFontSize * 0.2;
+
+                this.textBoundingWidth = Math.ceil(actualLeft + actualRight);
+                this.tightHeight = Math.ceil(actualAscent + actualDescent);
+
+                const extraWidthBuffer = 10;
+                const offscreenWidth = this.textBoundingWidth + extraWidthBuffer;
+
+                this.offscreen.width = offscreenWidth;
+                this.offscreen.height = this.tightHeight;
+
+                const xOffset = extraWidthBuffer / 2;
+                this.offCtx.font = `${this.fontWeight} ${fontSizeStr} ${this.fontFamily}`;
+                this.offCtx.textBaseline = 'alphabetic';
+                this.offCtx.fillStyle = this.color;
+                this.offCtx.fillText(this.text, xOffset - actualLeft, actualAscent);
+
+                // Setup main canvas
+                const horizontalMargin = 50;
+                const verticalMargin = 0;
+                this.canvas.width = offscreenWidth + horizontalMargin * 2;
+                this.canvas.height = this.tightHeight + verticalMargin * 2;
+                this.ctx.translate(horizontalMargin, verticalMargin);
+
+                // Calculate interactive area
+                this.interactiveLeft = horizontalMargin + xOffset;
+                this.interactiveTop = verticalMargin;
+                this.interactiveRight = this.interactiveLeft + this.textBoundingWidth;
+                this.interactiveBottom = this.interactiveTop + this.tightHeight;
+
+                this.offscreenWidth = offscreenWidth;
+            }
+
+            setupEventListeners() {
+                if (!this.enableHover) return;
+
+                const isInsideTextArea = (x, y) => {
+                    return (
+                        x >= this.interactiveLeft &&
+                        x <= this.interactiveRight &&
+                        y >= this.interactiveTop &&
+                        y <= this.interactiveBottom
+                    );
+                };
+
+                const handleMouseMove = (e) => {
+                    const rect = this.canvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    this.isHovering = isInsideTextArea(x, y);
+                };
+
+                const handleMouseLeave = () => {
+                    this.isHovering = false;
+                };
+
+                const handleTouchMove = (e) => {
+                    e.preventDefault();
+                    const rect = this.canvas.getBoundingClientRect();
+                    const touch = e.touches[0];
+                    const x = touch.clientX - rect.left;
+                    const y = touch.clientY - rect.top;
+                    this.isHovering = isInsideTextArea(x, y);
+                };
+
+                const handleTouchEnd = () => {
+                    this.isHovering = false;
+                };
+
+                this.canvas.addEventListener('mousemove', handleMouseMove);
+                this.canvas.addEventListener('mouseleave', handleMouseLeave);
+                this.canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+                this.canvas.addEventListener('touchend', handleTouchEnd);
+
+                // Store cleanup function
+                this.cleanup = () => {
+                    this.canvas.removeEventListener('mousemove', handleMouseMove);
+                    this.canvas.removeEventListener('mouseleave', handleMouseLeave);
+                    this.canvas.removeEventListener('touchmove', handleTouchMove);
+                    this.canvas.removeEventListener('touchend', handleTouchEnd);
+                };
+            }
+
+            run() {
+                if (this.isCancelled) return;
+
+                this.ctx.clearRect(
+                    -this.fuzzRange,
+                    -this.fuzzRange,
+                    this.offscreenWidth + 2 * this.fuzzRange,
+                    this.tightHeight + 2 * this.fuzzRange
+                );
+
+                const intensity = this.isHovering ? this.hoverIntensity : this.baseIntensity;
+
+                // Draw each horizontal line with random horizontal displacement
+                for (let j = 0; j < this.tightHeight; j++) {
+                    const dx = Math.floor(intensity * (Math.random() - 0.5) * this.fuzzRange);
+                    this.ctx.drawImage(
+                        this.offscreen,
+                        0, j, this.offscreenWidth, 1,  // source
+                        dx, j, this.offscreenWidth, 1  // destination
+                    );
+                }
+
+                this.animationFrameId = requestAnimationFrame(() => this.run());
+            }
+
+            destroy() {
+                this.isCancelled = true;
+                if (this.animationFrameId) {
+                    cancelAnimationFrame(this.animationFrameId);
+                }
+                if (this.cleanup) {
+                    this.cleanup();
+                }
+            }
+        }
+
+        // Initialize the FuzzyText effect
+        document.addEventListener('DOMContentLoaded', () => {
+            new FuzzyText({
+                text: '404 NOT FOUND',
+                fontSize: 'clamp(3rem, 12vw, 8rem)',
+                fontWeight: 400,
+                fontFamily: 'Bangers, cursive',
+                color: '#ff6b6b',
+                enableHover: true,
+                baseIntensity: 0.2,
+                hoverIntensity: 1.8
+            });
+        });
+
+        // Handle page unload
+        window.addEventListener('beforeunload', () => {
+            if (window.fuzzyTextInstance) {
+                window.fuzzyTextInstance.destroy();
+            }
+        });
+    </script>
+</body>
+</html>

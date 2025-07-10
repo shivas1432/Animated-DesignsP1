@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfect Circle Wave Animation</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #0a0a0a;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #canvas-container {
+            width: 100%;
+            height: 100%;
+        }
+
+        .controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        input[type="file"] {
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 5px;
+            backdrop-filter: blur(10px);
+        }
+
+        .info {
+            font-size: 12px;
+            opacity: 0.7;
+            margin-top: 10px;
+            max-width: 200px;
+        }
+
+        .status {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: white;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="canvas-container"></div>
+        <div class="controls">
+            <input type="file" id="audioFile" accept="audio/*">
+            <button id="playPause">Play/Pause</button>
+            <button id="resetView">Reset View</button>
+            <div class="info">
+                Upload music for reactive animation
+            </div>
+        </div>
+        <div class="status" id="status">Initializing...</div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Check if Three.js loaded
+        if (typeof THREE === 'undefined') {
+            document.getElementById('status').textContent = 'Three.js failed to load. Please refresh.';
+            throw new Error('Three.js not loaded');
+        }
+
+        document.getElementById('status').textContent = 'Three.js loaded successfully';
+
+        // Global variables
+        let scene, camera, renderer, audioContext, analyser, dataArray, audio;
+        let waveLines = [];
+        let time = 0;
+        let isPlaying = false;
+
+        // Configuration
+        const config = {
+            numLines: 20,          // 60 lines for density
+            maxRadius: 5.5,        // Back to previous tight spacing
+            minRadius: 4.2,        // Back to previous range
+            segmentsPerLine: 200,  // High segment count for smooth waves
+            waveFrequency: 8,      // Back to original frequency
+            waveAmplitude: 0.25,   // Back to original amplitude
+            animationSpeed: 0.02,  // Back to original speed
+        };
+
+        // Initialize Three.js
+        function init() {
+            try {
+                // Scene
+                scene = new THREE.Scene();
+                
+                // Camera
+                camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                camera.position.z = 18;
+
+                // Renderer
+                renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setClearColor(0x0a0a0a, 1);
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                
+                const container = document.getElementById('canvas-container');
+                container.appendChild(renderer.domElement);
+
+                // Create wave circles
+                createWaveCircles();
+                
+                // Start animation
+                animate();
+                
+                document.getElementById('status').textContent = 'Animation running - ' + waveLines.length + ' circles';
+                
+            } catch (error) {
+                console.error('Initialization failed:', error);
+                document.getElementById('status').textContent = 'Initialization failed: ' + error.message;
+            }
+        }
+
+        // Create all wave circles
+        function createWaveCircles() {
+            for (let i = 0; i < config.numLines; i++) {
+                const circle = createWaveCircle(i);
+                if (circle) {
+                    scene.add(circle);
+                    waveLines.push(circle);
+                }
+            }
+        }
+
+        // Create a single wavy circle
+        function createWaveCircle(index) {
+            try {
+                const points = [];
+                const colors = [];
+                
+                // Calculate radius for this circle with tight spacing
+                const radiusRatio = index / (config.numLines - 1);
+                const baseRadius = config.minRadius + (config.maxRadius - config.minRadius) * radiusRatio;
+                
+                // Create points around the circle with perfect closure
+                for (let i = 0; i < config.segmentsPerLine; i++) { // Changed to < instead of <=
+                    const angle = (i / config.segmentsPerLine) * Math.PI * 2;
+                    
+                    // Base circle position
+                    const x = Math.cos(angle) * baseRadius;
+                    const y = Math.sin(angle) * baseRadius;
+                    const z = 0;
+                    
+                    points.push(new THREE.Vector3(x, y, z));
+                    
+                    // Back to original color scheme with slight variation
+                    const hue = (radiusRatio * 0.8 + angle / (Math.PI * 2) * 0.2) % 1;
+                    const saturation = 0.9;
+                    const lightness = 0.4 + radiusRatio * 0.4;
+                    const color = new THREE.Color().setHSL(hue, saturation, lightness);
+                    colors.push(color.r, color.g, color.b);
+                }
+
+                const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+                const material = new THREE.LineBasicMaterial({
+                    vertexColors: true,
+                    transparent: true,
+                    opacity: 0.2 + radiusRatio * 0.4, // Slight fade effect: inner lines dimmer, outer brighter
+                    blending: THREE.AdditiveBlending
+                });
+
+                const line = new THREE.LineLoop(geometry, material); // Changed to LineLoop for perfect closure
+                
+                line.userData = {
+                    index: index,
+                    baseRadius: baseRadius,
+                    radiusRatio: radiusRatio,
+                    phaseOffset: Math.random() * Math.PI * 2, // Random phase for each circle
+                    waveOffset: Math.random() * Math.PI * 2   // Random wave pattern offset
+                };
+                
+                return line;
+                
+            } catch (error) {
+                console.error('Circle creation failed:', error);
+                return null;
+            }
+        }
+
+        // Update wave animations
+        function updateWaves() {
+            if (!waveLines.length) return;
+            
+            let audioData = null;
+            let audioAverage = 0;
+
+            if (analyser && isPlaying) {
+                try {
+                    analyser.getByteFrequencyData(dataArray);
+                    audioData = dataArray;
+                    audioAverage = dataArray.reduce((sum, value) => sum + value, 0) / dataArray.length;
+                } catch (error) {
+                    console.error('Audio data error:', error);
+                }
+            }
+
+            // Update each circle
+            waveLines.forEach((line, lineIndex) => {
+                try {
+                    const userData = line.userData;
+                    const geometry = line.geometry;
+                    const positions = geometry.attributes.position.array;
+                    const colors = geometry.attributes.color.array;
+
+                    // Audio responsiveness
+                    let audioMultiplier = 1;
+                    if (audioData && audioData.length > 0) {
+                        const dataIndex = Math.floor((lineIndex / waveLines.length) * audioData.length);
+                        audioMultiplier = 1 + (audioData[dataIndex] / 255) * 2;
+                    }
+
+                    // Update each point on the circle with perfect closure
+                    for (let i = 0; i < config.segmentsPerLine; i++) { // Changed to < for proper closure
+                        const angle = (i / config.segmentsPerLine) * Math.PI * 2;
+                        const baseRadius = userData.baseRadius;
+                        
+                        // Back to original wave effects
+                        const wave1 = Math.sin(angle * config.waveFrequency + time * config.animationSpeed + userData.phaseOffset) * config.waveAmplitude;
+                        const wave2 = Math.sin(angle * (config.waveFrequency * 1.3) - time * config.animationSpeed * 0.7 + userData.waveOffset) * config.waveAmplitude * 0.6;
+                        const wave3 = Math.sin(angle * (config.waveFrequency * 0.7) + time * config.animationSpeed * 1.3) * config.waveAmplitude * 0.4;
+                        
+                        // Combine waves for complex patterns
+                        const totalWave = (wave1 + wave2 + wave3) * audioMultiplier;
+                        
+                        // Apply wave to radius (in-line effect)
+                        const currentRadius = baseRadius + totalWave;
+                        
+                        // Calculate position
+                        const x = Math.cos(angle) * currentRadius;
+                        const y = Math.sin(angle) * currentRadius;
+                        const z = Math.sin(angle * config.waveFrequency * 0.5 + time * 0.01) * 0.2 * audioMultiplier;
+                        
+                        // Update position
+                        positions[i * 3] = x;
+                        positions[i * 3 + 1] = y;
+                        positions[i * 3 + 2] = z;
+                        
+                        // Back to original colors with animation
+                        const hue = (userData.radiusRatio * 0.8 + angle / (Math.PI * 2) * 0.2 + time * 0.005) % 1;
+                        const intensity = 1 + Math.abs(totalWave) * 0.3;
+                        const saturation = Math.min(0.9, 1);
+                        const lightness = Math.min(0.4 + userData.radiusRatio * 0.4 + intensity * 0.1, 0.8);
+                        
+                        const color = new THREE.Color().setHSL(hue, saturation, lightness);
+                        colors[i * 3] = color.r;
+                        colors[i * 3 + 1] = color.g;
+                        colors[i * 3 + 2] = color.b;
+                    }
+
+                    geometry.attributes.position.needsUpdate = true;
+                    geometry.attributes.color.needsUpdate = true;
+                    
+                    // Slight fade effect: inner lines dimmer, outer lines brighter
+                    const baseFade = 0.15 + userData.radiusRatio * 0.3;
+                    line.material.opacity = baseFade + audioMultiplier * 0.1;
+                    
+                } catch (error) {
+                    console.error('Wave update error:', error);
+                }
+            });
+        }
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            try {
+                updateWaves();
+                
+                // Gentle camera movement
+                camera.position.x = Math.sin(time * 0.002) * 1;
+                camera.position.y = Math.cos(time * 0.003) * 0.8;
+                camera.lookAt(0, 0, 0);
+                
+                renderer.render(scene, camera);
+                time += 1;
+                
+            } catch (error) {
+                console.error('Animation error:', error);
+            }
+        }
+
+        // Audio setup
+        function setupAudio() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256;
+                dataArray = new Uint8Array(analyser.frequencyBinCount);
+                document.getElementById('status').textContent = 'Audio ready';
+            } catch (error) {
+                console.error('Audio setup failed:', error);
+                document.getElementById('status').textContent = 'Audio setup failed';
+            }
+        }
+
+        // Event listeners
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        document.getElementById('audioFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (!audioContext) {
+                    setupAudio();
+                }
+                
+                if (audio) {
+                    audio.pause();
+                    isPlaying = false;
+                }
+                
+                audio = new Audio();
+                const url = URL.createObjectURL(file);
+                audio.src = url;
+                
+                audio.addEventListener('loadeddata', () => {
+                    try {
+                        const source = audioContext.createMediaElementSource(audio);
+                        source.connect(analyser);
+                        analyser.connect(audioContext.destination);
+                        document.getElementById('status').textContent = 'Audio file loaded';
+                    } catch (error) {
+                        console.error('Audio connection failed:', error);
+                    }
+                });
+            }
+        });
+
+        document.getElementById('playPause').addEventListener('click', async () => {
+            if (!audioContext) {
+                setupAudio();
+            }
+            
+            try {
+                if (audioContext.state === 'suspended') {
+                    await audioContext.resume();
+                }
+                
+                if (audio) {
+                    if (audio.paused) {
+                        await audio.play();
+                        isPlaying = true;
+                        document.getElementById('status').textContent = 'Playing audio';
+                    } else {
+                        audio.pause();
+                        isPlaying = false;
+                        document.getElementById('status').textContent = 'Audio paused';
+                    }
+                }
+            } catch (error) {
+                console.error('Play/pause failed:', error);
+            }
+        });
+
+        document.getElementById('resetView').addEventListener('click', () => {
+            camera.position.set(0, 0, 18);
+            camera.lookAt(0, 0, 0);
+        });
+
+        // Initialize
+        if (typeof THREE !== 'undefined') {
+            init();
+        } else {
+            window.addEventListener('load', () => {
+                setTimeout(init, 1000);
+            });
+        }
+    </script>
+</body>
+</html>

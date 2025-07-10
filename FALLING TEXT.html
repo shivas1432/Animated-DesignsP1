@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Falling Text Effect</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body, html {
+            width: 80%;
+            height: 100%;
+            background: #1a1a2e;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+        
+        .falling-text-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            height: 100vh;
+            cursor: pointer;
+            text-align: center;
+            padding-top: 2em;
+        }
+        
+        .falling-text-target {
+            display: inline-block;
+        }
+        
+        .word {
+            display: inline-block;
+            margin: 0 2px;
+            user-select: none;
+            color: white;
+        }
+        
+        .highlighted {
+            color: cyan;
+            font-weight: bold;
+        }
+        
+        .falling-text-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+        
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div id="container" class="falling-text-container">
+        <div class="falling-text-target"></div>
+        <div class="falling-text-canvas"></div>
+    </div>
+
+    <script>
+        class FallingText {
+            constructor(options = {}) {
+                this.className = options.className || '';
+                this.text = options.text || 'SS Web Innovations creates cutting-edge digital solutions with modern web technologies, delivering exceptional user experiences and innovative design patterns that transform your online presence.';
+                this.highlightWords = options.highlightWords || ["SS", "Web", "Innovations", "cutting-edge", "modern", "exceptional", "innovative", "transform"];
+                this.highlightClass = options.highlightClass || "highlighted";
+                this.trigger = options.trigger || "hover";
+                this.backgroundColor = options.backgroundColor || "transparent";
+                this.wireframes = options.wireframes || false;
+                this.gravity = options.gravity || 0.56;
+                this.mouseConstraintStiffness = options.mouseConstraintStiffness || 0.9;
+                this.fontSize = options.fontSize || "2rem";
+                
+                this.containerRef = document.getElementById('container');
+                this.textRef = this.containerRef.querySelector('.falling-text-target');
+                this.canvasContainerRef = this.containerRef.querySelector('.falling-text-canvas');
+                
+                this.effectStarted = false;
+                this.engine = null;
+                this.render = null;
+                this.runner = null;
+                this.animationFrame = null;
+                
+                this.init();
+            }
+
+            init() {
+                this.setupText();
+                this.setupTrigger();
+            }
+
+            setupText() {
+                if (!this.textRef) return;
+                
+                const words = this.text.split(" ");
+                const newHTML = words
+                    .map((word) => {
+                        const isHighlighted = this.highlightWords.some((hw) => word.startsWith(hw));
+                        return `<span class="word ${isHighlighted ? this.highlightClass : ""}">${word}</span>`;
+                    })
+                    .join(" ");
+                
+                this.textRef.innerHTML = newHTML;
+                this.textRef.style.fontSize = this.fontSize;
+                this.textRef.style.lineHeight = "1.4";
+            }
+
+            setupTrigger() {
+                if (this.trigger === "auto") {
+                    this.startEffect();
+                    return;
+                }
+                
+                if (this.trigger === "scroll") {
+                    const observer = new IntersectionObserver(
+                        ([entry]) => {
+                            if (entry.isIntersecting) {
+                                this.startEffect();
+                                observer.disconnect();
+                            }
+                        },
+                        { threshold: 0.1 }
+                    );
+                    observer.observe(this.containerRef);
+                    return;
+                }
+                
+                if (this.trigger === "click") {
+                    this.containerRef.addEventListener('click', () => this.handleTrigger());
+                }
+                
+                if (this.trigger === "hover") {
+                    this.containerRef.addEventListener('mouseenter', () => this.handleTrigger());
+                }
+            }
+
+            handleTrigger() {
+                if (!this.effectStarted && (this.trigger === "click" || this.trigger === "hover")) {
+                    this.startEffect();
+                }
+            }
+
+            startEffect() {
+                if (this.effectStarted) return;
+                this.effectStarted = true;
+                this.setupPhysics();
+            }
+
+            setupPhysics() {
+                const {
+                    Engine,
+                    Render,
+                    World,
+                    Bodies,
+                    Runner,
+                    Mouse,
+                    MouseConstraint,
+                } = Matter;
+
+                const containerRect = this.containerRef.getBoundingClientRect();
+                const width = containerRect.width;
+                const height = containerRect.height;
+
+                if (width <= 0 || height <= 0) {
+                    return;
+                }
+
+                this.engine = Engine.create();
+                this.engine.world.gravity.y = this.gravity;
+
+                this.render = Render.create({
+                    element: this.canvasContainerRef,
+                    engine: this.engine,
+                    options: {
+                        width,
+                        height,
+                        background: this.backgroundColor,
+                        wireframes: this.wireframes,
+                    },
+                });
+
+                const boundaryOptions = {
+                    isStatic: true,
+                    render: { fillStyle: "transparent" },
+                };
+                
+                const floor = Bodies.rectangle(width / 2, height + 25, width, 50, boundaryOptions);
+                const leftWall = Bodies.rectangle(-25, height / 2, 50, height, boundaryOptions);
+                const rightWall = Bodies.rectangle(width + 25, height / 2, 50, height, boundaryOptions);
+                const ceiling = Bodies.rectangle(width / 2, -25, width, 50, boundaryOptions);
+
+                const wordSpans = this.textRef.querySelectorAll(".word");
+                this.wordBodies = [...wordSpans].map((elem) => {
+                    const rect = elem.getBoundingClientRect();
+
+                    const x = rect.left - containerRect.left + rect.width / 2;
+                    const y = rect.top - containerRect.top + rect.height / 2;
+
+                    const body = Bodies.rectangle(x, y, rect.width, rect.height, {
+                        render: { fillStyle: "transparent" },
+                        restitution: 0.8,
+                        frictionAir: 0.01,
+                        friction: 0.2,
+                    });
+
+                    Matter.Body.setVelocity(body, {
+                        x: (Math.random() - 0.5) * 5,
+                        y: 0
+                    });
+                    Matter.Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.05);
+                    return { elem, body };
+                });
+
+                this.wordBodies.forEach(({ elem, body }) => {
+                    elem.style.position = "absolute";
+                    elem.style.left = `${body.position.x - body.bounds.max.x + body.bounds.min.x / 2}px`;
+                    elem.style.top = `${body.position.y - body.bounds.max.y + body.bounds.min.y / 2}px`;
+                    elem.style.transform = "none";
+                });
+
+                const mouse = Mouse.create(this.containerRef);
+                const mouseConstraint = MouseConstraint.create(this.engine, {
+                    mouse,
+                    constraint: {
+                        stiffness: this.mouseConstraintStiffness,
+                        render: { visible: false },
+                    },
+                });
+                this.render.mouse = mouse;
+
+                World.add(this.engine.world, [
+                    floor,
+                    leftWall,
+                    rightWall,
+                    ceiling,
+                    mouseConstraint,
+                    ...this.wordBodies.map((wb) => wb.body),
+                ]);
+
+                this.runner = Runner.create();
+                Runner.run(this.runner, this.engine);
+                Render.run(this.render);
+
+                this.startUpdateLoop();
+            }
+
+            startUpdateLoop() {
+                const updateLoop = () => {
+                    if (!this.wordBodies || !this.engine) return;
+                    
+                    this.wordBodies.forEach(({ body, elem }) => {
+                        const { x, y } = body.position;
+                        elem.style.left = `${x}px`;
+                        elem.style.top = `${y}px`;
+                        elem.style.transform = `translate(-50%, -50%) rotate(${body.angle}rad)`;
+                    });
+                    
+                    Matter.Engine.update(this.engine);
+                    this.animationFrame = requestAnimationFrame(updateLoop);
+                };
+                updateLoop();
+            }
+
+            destroy() {
+                if (this.animationFrame) {
+                    cancelAnimationFrame(this.animationFrame);
+                }
+                
+                if (this.render) {
+                    Render.stop(this.render);
+                    if (this.render.canvas && this.canvasContainerRef) {
+                        this.canvasContainerRef.removeChild(this.render.canvas);
+                    }
+                }
+                
+                if (this.runner) {
+                    Runner.stop(this.runner);
+                }
+                
+                if (this.engine) {
+                    World.clear(this.engine.world);
+                    Engine.clear(this.engine);
+                }
+            }
+        }
+
+        // Initialize the effect when page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            // Example 1: Basic usage (like the React example)
+            const fallingText = new FallingText({
+                text: `SS Web Innovations creates cutting-edge digital solutions with modern web technologies, delivering exceptional user experiences and innovative design patterns that transform your online presence.`,
+                highlightWords: ["SS", "Web", "Innovations", "cutting-edge", "modern", "exceptional", "innovative", "transform"],
+                highlightClass: "highlighted",
+                trigger: "hover",
+                backgroundColor: "transparent",
+                wireframes: false,
+                gravity: 0.56,
+                fontSize: "2rem",
+                mouseConstraintStiffness: 0.9
+            });
+
+            // Example 2: Auto trigger version
+            /*
+            const fallingText = new FallingText({
+                text: "Click me to watch the text fall!",
+                trigger: "auto",
+                gravity: 1,
+                fontSize: "3rem"
+            });
+            */
+
+            // Example 3: Click trigger version
+            /*
+            const fallingText = new FallingText({
+                text: "Click me to watch the text fall!",
+                trigger: "click",
+                gravity: 1.2,
+                fontSize: "2.5rem",
+                highlightWords: ["Click", "fall"],
+                wireframes: true
+            });
+            */
+
+            // Cleanup on page unload
+            window.addEventListener('beforeunload', () => {
+                fallingText.destroy();
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                fallingText.destroy();
+                setTimeout(() => {
+                    const newFallingText = new FallingText({
+                        text: `SS Web Innovations creates cutting-edge digital solutions with modern web technologies, delivering exceptional user experiences and innovative design patterns that transform your online presence.`,
+                        highlightWords: ["SS", "Web", "Innovations", "cutting-edge", "modern", "exceptional", "innovative", "transform"],
+                        highlightClass: "highlighted",
+                        trigger: "hover",
+                        backgroundColor: "transparent",
+                        wireframes: false,
+                        gravity: 0.56,
+                        fontSize: "2rem",
+                        mouseConstraintStiffness: 0.9
+                    });
+                }, 100);
+            });
+        });
+    </script>
+</body>
+</html>

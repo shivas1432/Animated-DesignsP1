@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Robot Character - Instagram Code Post</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #000;
+            overflow: hidden;
+        }
+        
+        .instagram-post {
+            width: 600px;
+            height: 750px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .visual-section {
+            background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .visual-section::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, rgba(46, 204, 113, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        
+        .title {
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .subtitle {
+            color: #aaaaaa;
+            font-size: 14px;
+            letter-spacing: 1px;
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .robot-face {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            perspective: 1000px;
+            z-index: 2;
+        }
+        
+        .face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 4px solid #ffffff;
+            box-shadow: 0 0 20px rgba(46, 204, 113, 0.3);
+            animation: pulse 3s infinite ease-in-out, glowBorder 4s infinite alternate;
+        }
+        
+        .eyes {
+            position: absolute;
+            width: 100%;
+            top: 45%;
+            transform: translateY(-50%);
+            display: flex;
+            justify-content: space-around;
+        }
+        
+        .eye {
+            width: 20px;
+            height: 20px;
+            background-color: #2ecc71;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .eye::after {
+            content: '';
+            position: absolute;
+            top: 25%;
+            left: 25%;
+            width: 50%;
+            height: 50%;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+        }
+        
+        .eye-pupil {
+            position: absolute;
+            width: 60%;
+            height: 60%;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            top: 20%;
+            left: 20%;
+        }
+        
+        .mouth {
+            position: absolute;
+            width: 80px;
+            height: 20px;
+            border-radius: 0 0 90px 90px;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: transparent;
+            border-bottom: 3px solid #2ecc71;
+            height: 30px;
+        }
+        
+        .code-section {
+            background-color: #0d1117;
+            height: 350px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .editor-header {
+            background-color: #161b22;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 6px;
+        }
+        
+        .button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .button-red {
+            background-color: #ff5f56;
+        }
+        
+        .button-yellow {
+            background-color: #ffbd2e;
+        }
+        
+        .button-green {
+            background-color: #27c93f;
+        }
+        
+        .filename {
+            margin-left: 10px;
+            color: #8b949e;
+            font-size: 12px;
+        }
+        
+        .code-content {
+            padding: 15px;
+            overflow-y: auto;
+            height: calc(100% - 30px);
+        }
+        
+        .code {
+            color: #e1e4e8;
+            font-family: 'SF Mono', 'Menlo', monospace;
+            font-size: 11px;
+            line-height: 1.4;
+            white-space: pre;
+        }
+        
+        .tag {
+            color: #7ee787;
+        }
+        
+        .attribute {
+            color: #79c0ff;
+        }
+        
+        .value {
+            color: #a5d6ff;
+        }
+        
+        .hashtags {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            color: #8b949e;
+            font-size: 12px;
+        }
+        
+        .glow-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        
+        .glow {
+            position: absolute;
+            background: radial-gradient(circle at center, rgba(46, 204, 113, 0.2) 0%, transparent 70%);
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            filter: blur(20px);
+            animation: moveGlow 10s infinite alternate ease-in-out;
+        }
+        
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .particle {
+            position: absolute;
+            background-color: rgba(46, 204, 113, 0.4);
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { 
+                transform: scale(1);
+            }
+            50% { 
+                transform: scale(1.03);
+            }
+        }
+        
+        @keyframes moveGlow {
+            0% {
+                left: -100px;
+                top: -100px;
+            }
+            25% {
+                left: 400px;
+                top: 50px;
+            }
+            50% {
+                left: 200px;
+                top: 300px;
+            }
+            75% {
+                left: -50px;
+                top: 250px;
+            }
+            100% {
+                left: 100px;
+                top: -50px;
+            }
+        }
+        
+        @keyframes blink {
+            0%, 100% { 
+                transform: scaleY(1);
+            }
+            50% { 
+                transform: scaleY(0.1);
+            }
+        }
+        
+        @keyframes glowBorder {
+            0% {
+                box-shadow: 0 0 20px rgba(46, 204, 113, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 30px rgba(46, 204, 113, 0.5);
+            }
+            100% {
+                box-shadow: 0 0 20px rgba(46, 204, 113, 0.3);
+            }
+        }
+
+        /* Post border glow effect */
+        .instagram-post::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #2ecc71, transparent, #2ecc71);
+            z-index: -1;
+            border-radius: 10px;
+            animation: borderGlow 6s linear infinite;
+        }
+
+        @keyframes borderGlow {
+            0% {
+                background-position: 0 0;
+            }
+            50% {
+                background-position: 400% 0;
+            }
+            100% {
+                background-position: 0 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="instagram-post">
+        <div class="visual-section">
+            <h1 class="title"></h1>
+            <p class="subtitle"></p>
+            <div class="robot-face">
+                <div class="face"></div>
+                <div class="eyes">
+                    <div class="eye" id="leftEye">
+                        <div class="eye-pupil" id="leftPupil"></div>
+                    </div>
+                    <div class="eye" id="rightEye">
+                        <div class="eye-pupil" id="rightPupil"></div>
+                    </div>
+                </div>
+                <div class="mouth"></div>
+            </div>
+            <div class="glow-container">
+                <div class="glow"></div>
+            </div>
+            <div class="particles" id="particles"></div>
+        </div>
+        <div class="code-section">
+            <div class="editor-header">
+                <div class="buttons">
+                    <div class="button button-red"></div>
+                    <div class="button button-yellow"></div>
+                    <div class="button button-green"></div>
+                </div>
+                <div class="filename">robot-character.html</div>
+            </div>
+            <div class="code-content">
+                <pre class="code"><span class="tag">&lt;div</span> <span class="attribute">class</span>=<span class="value">"robot-face"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attribute">class</span>=<span class="value">"face"</span><span class="tag">&gt;&lt;/div&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attribute">class</span>=<span class="value">"eyes"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;div</span> <span class="attribute">class</span>=<span class="value">"eye"</span> <span class="attribute">id</span>=<span class="value">"leftEye"</span><span class="tag">&gt;</span>
+            <span class="tag">&lt;div</span> <span class="attribute">class</span>=<span class="value">"eye-pupil"</span> <span class="attribute">id</span>=<span class="value">"leftPupil"</span><span class="tag">&gt;&lt;/div&gt;</span>
+        <span class="tag">&lt;/div&gt;</span>
+        <span class="tag">&lt;div</span> <span class="attribute">class</span>=<span class="value">"eye"</span> <span class="attribute">id</span>=<span class="value">"rightEye"</span><span class="tag">&gt;</span>
+            <span class="tag">&lt;div</span> <span class="attribute">class</span>=<span class="value">"eye-pupil"</span> <span class="attribute">id</span>=<span class="value">"rightPupil"</span><span class="tag">&gt;&lt;/div&gt;</span>
+        <span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attribute">class</span>=<span class="value">"mouth"</span><span class="tag">&gt;&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span>
+
+<span class="tag">&lt;style&gt;</span>
+
+<span class="tag">&lt;/style&gt;</span></pre>
+            </div>
+           
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Eye following cursor
+            const leftPupil = document.getElementById('leftPupil');
+            const rightPupil = document.getElementById('rightPupil');
+            const leftEye = document.getElementById('leftEye');
+            const rightEye = document.getElementById('rightEye');
+            
+            document.addEventListener('mousemove', function(e) {
+                const x = e.clientX;
+                const y = e.clientY;
+                
+                const post = document.querySelector('.instagram-post');
+                const rect = post.getBoundingClientRect();
+                const postX = rect.left + rect.width / 2;
+                const postY = rect.top + rect.height / 3;
+                
+                // Calculate distance and angle
+                const dx = x - postX;
+                const dy = y - postY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                // Eye movement
+                const maxEyeMove = 6;
+                const eyeX = (dx / distance) * maxEyeMove;
+                const eyeY = (dy / distance) * maxEyeMove;
+                
+                
+                leftPupil.style.transform = `translate(${eyeX * 1.5}px, ${eyeY * 1.5}px)`;
+                rightPupil.style.transform = `translate(${eyeX * 1.5}px, ${eyeY * 1.5}px)`;
+                
+                // Subtle eye movement
+                leftEye.style.transform = `translate(${eyeX * 0.5}px, ${eyeY * 0.5}px)`;
+                rightEye.style.transform = `translate(${eyeX * 0.5}px, ${eyeY * 0.5}px)`;
+            });
+            
+            // Create blinking
+            function blink() {
+                const duration = Math.random() * 200 + 100;
+                leftEye.style.animation = `blink ${duration}ms ease-in-out`;
+                rightEye.style.animation = `blink ${duration}ms ease-in-out`;
+                
+                setTimeout(() => {
+                    leftEye.style.animation = '';
+                    rightEye.style.animation = '';
+                }, duration);
+                
+                // Schedule next blink
+                setTimeout(blink, Math.random() * 5000 + 1000);
+            }
+            
+            // Start blinking
+            setTimeout(blink, 2000);
+            
+            // Particles
+            const particlesContainer = document.getElementById('particles');
+            
+            function createParticles() {
+                const particleCount = 30;
+                
+                for (let i = 0; i < particleCount; i++) {
+                    createParticle();
+                }
+            }
+            
+            function createParticle() {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Random size
+                const size = Math.random() * 2 + 1;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                // Random position (only in the visual section)
+                const visualSection = document.querySelector('.visual-section');
+                const sectionWidth = visualSection.offsetWidth;
+                const sectionHeight = visualSection.offsetHeight;
+                
+                const posX = Math.random() * sectionWidth;
+                const posY = Math.random() * sectionHeight;
+                
+                particle.style.left = `${posX}px`;
+                particle.style.top = `${posY}px`;
+                
+                // Random opacity
+                particle.style.opacity = Math.random() * 0.5 + 0.1;
+                
+                // Add to container
+                particlesContainer.appendChild(particle);
+                
+                // Animate
+                animateParticle(particle, sectionWidth, sectionHeight);
+            }
+            
+            function animateParticle(particle, maxWidth, maxHeight) {
+                // Random movement
+                const duration = Math.random() * 30 + 10;
+                const startX = parseFloat(particle.style.left);
+                const startY = parseFloat(particle.style.top);
+                const endX = startX + (Math.random() - 0.5) * 100;
+                const endY = startY + (Math.random() - 0.5) * 100;
+                
+                let startTime = null;
+                
+                function step(timestamp) {
+                    if (!startTime) startTime = timestamp;
+                    const progress = (timestamp - startTime) / (duration * 1000);
+                    
+                    if (progress < 1) {
+                        const currentX = startX + (endX - startX) * progress;
+                        const currentY = startY + (endY - startY) * progress;
+                        
+                        particle.style.left = `${currentX}px`;
+                        particle.style.top = `${currentY}px`;
+                        
+                        requestAnimationFrame(step);
+                    } else {
+                        // Regenerate particle
+                        particle.remove();
+                        createParticle();
+                    }
+                }
+                
+                requestAnimationFrame(step);
+            }
+            
+            // Start particle system
+            createParticles();
+        });
+    </script>
+</body>
+</html>

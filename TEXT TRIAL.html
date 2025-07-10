@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Trail Effect</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #271e37;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        .text-trail {
+            width: 100%;
+            height: 100%;
+        }
+        
+        #container {
+            width: 100vw;
+            height: 100vh;
+            cursor: crosshair;
+        }
+        
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div id="container" class="text-trail"></div>
+
+    <script>
+        // Utility functions
+        const hexToRgb = (hex) => {
+            let h = hex.replace("#", "");
+            if (h.length === 3)
+                h = h
+                    .split("")
+                    .map((c) => c + c)
+                    .join("");
+            const n = parseInt(h, 16);
+            return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+        };
+
+        const loadFont = async (fam) => {
+            if ("fonts" in document) await document.fonts.load(`64px "${fam}"`);
+        };
+
+        // Shader code
+        const BASE_VERT = `
+        varying vec2 v_uv;
+        void main(){gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);v_uv=uv;}`;
+
+        const SIMPLEX = `
+        vec3 mod289(vec3 x){return x-floor(x*(1./289.))*289.;}
+        vec4 mod289(vec4 x){return x-floor(x*(1./289.))*289.;}
+        vec4 permute(vec4 x){return mod289(((x*34.)+1.)*x);}
+        float snoise3(vec3 v){
+            const vec2 C=vec2(1./6.,1./3.);
+            const vec4 D=vec4(0.,.5,1.,2.);
+            vec3 i=floor(v+dot(v,C.yyy));
+            vec3 x0=v-i+dot(i,C.xxx);
+            vec3 g=step(x0.yzx,x0.xyz);
+            vec3 l=1.-g;
+            vec3 i1=min(g.xyz,l.zxy);
+            vec3 i2=max(g.xyz,l.zxy);
+            vec3 x1=x0-i1+C.xxx;
+            vec3 x2=x0-i2+C.yyy;
+            vec3 x3=x0-D.yyy;
+            i=mod289(i);
+            vec4 p=permute(permute(permute(i.z+vec4(0.,i1.z,i2.z,1.))+i.y+vec4(0.,i1.y,i2.y,1.))+i.x+vec4(0.,i1.x,i2.x,1.));
+            float n_=1./7.; vec3 ns=n_*D.wyz-D.xzx;
+            vec4 j=p-49.*floor(p*ns.z*ns.z);
+            vec4 x_=floor(j*ns.z);
+            vec4 y_=floor(j-7.*x_);
+            vec4 x=x_*ns.x+ns.yyyy;
+            vec4 y=y_*ns.x+ns.yyyy;
+            vec4 h=1.-abs(x)-abs(y);
+            vec4 b0=vec4(x.xy,y.xy);
+            vec4 b1=vec4(x.zw,y.zw);
+            vec4 s0=floor(b0)*2.+1.;
+            vec4 s1=floor(b1)*2.+1.;
+            vec4 sh=-step(h,vec4(0.));
+            vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy;
+            vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;
+            vec3 p0=vec3(a0.xy,h.x);
+            vec3 p1=vec3(a0.zw,h.y);
+            vec3 p2=vec3(a1.xy,h.z);
+            vec3 p3=vec3(a1.zw,h.w);
+            vec4 norm=inversesqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));
+            p0*=norm.x; p1*=norm.y; p2*=norm.z; p3*=norm.w;
+            vec4 m=max(.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.);
+            m*=m;
+            return 42.*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));
+        }`;
+
+        const PERSIST_FRAG = `
+        uniform sampler2D sampler;
+        uniform float time;
+        uniform vec2 mousePos;
+        uniform float noiseFactor,noiseScale,rgbPersistFactor,alphaPersistFactor;
+        varying vec2 v_uv;
+        ${SIMPLEX}
+        void main(){
+            float a=snoise3(vec3(v_uv*noiseFactor,time*.1))*noiseScale;
+            float b=snoise3(vec3(v_uv*noiseFactor,time*.1+100.))*noiseScale;
+            vec4 t=texture2D(sampler,v_uv+vec2(a,b)+mousePos*.005);
+            gl_FragColor=vec4(t.xyz*rgbPersistFactor,t.a*alphaPersistFactor);
+        }`;
+
+        const TEXT_FRAG = `
+        uniform sampler2D sampler;uniform vec3 color;varying vec2 v_uv;
+        void main(){
+            vec4 t=texture2D(sampler,v_uv);
+            float alpha=smoothstep(0.1,0.9,t.a);
+            if(alpha<0.01)discard;
+            gl_FragColor=vec4(color,alpha);
+        }`;
+
+        class TextTrail {
+            constructor(options = {}) {
+                this.text = options.text || "SHIVA";
+                this.fontFamily = options.fontFamily || "Arial";
+                this.fontWeight = options.fontWeight || "900";
+                this.noiseFactor = options.noiseFactor || 1;
+                this.noiseScale = options.noiseScale || 0.0005;
+                this.rgbPersistFactor = options.rgbPersistFactor || 0.98;
+                this.alphaPersistFactor = options.alphaPersistFactor || 0.95;
+                this.animateColor = options.animateColor !== undefined ? options.animateColor : true;
+                this.startColor = options.startColor || "#ffffff";
+                this.textColor = options.textColor || null;
+                this.backgroundColor = options.backgroundColor || 0x271e37;
+                this.colorCycleInterval = options.colorCycleInterval || 3000;
+                this.supersample = options.supersample || 2;
+                
+                this.container = document.getElementById('container');
+                
+                // Initialize colors
+                if (this.textColor) {
+                    this.persistColor = hexToRgb(this.textColor).map((c) => c / 255);
+                } else {
+                    this.persistColor = hexToRgb(this.startColor).map((c) => c / 255);
+                }
+                this.targetColor = [...this.persistColor];
+                
+                this.mouse = [0, 0];
+                this.target = [0, 0];
+                
+                this.init();
+            }
+
+            init() {
+                this.setupRenderer();
+                this.setupScene();
+                this.setupGeometry();
+                this.setupTexture();
+                this.setupEventListeners();
+                this.setupColorTimer();
+                this.animate();
+            }
+
+            setupRenderer() {
+                const w = this.container.clientWidth;
+                const h = this.container.clientHeight;
+                
+                this.renderer = new THREE.WebGLRenderer({ antialias: true });
+                this.renderer.setClearColor(new THREE.Color(this.backgroundColor), 1);
+                this.renderer.setPixelRatio(window.devicePixelRatio || 1);
+                this.renderer.setSize(w, h);
+                this.container.appendChild(this.renderer.domElement);
+            }
+
+            setupScene() {
+                const w = this.container.clientWidth;
+                const h = this.container.clientHeight;
+                
+                this.scene = new THREE.Scene();
+                this.fluidScene = new THREE.Scene();
+                this.clock = new THREE.Clock();
+                this.camera = new THREE.OrthographicCamera(-w/2, w/2, h/2, -h/2, 0.1, 10);
+                this.camera.position.z = 1;
+
+                this.rt0 = new THREE.WebGLRenderTarget(w, h);
+                this.rt1 = this.rt0.clone();
+            }
+
+            setupGeometry() {
+                const w = this.container.clientWidth;
+                const h = this.container.clientHeight;
+
+                // Fluid quad material
+                this.quadMaterial = new THREE.ShaderMaterial({
+                    uniforms: {
+                        sampler: { value: null },
+                        time: { value: 0 },
+                        mousePos: { value: new THREE.Vector2(-1, 1) },
+                        noiseFactor: { value: this.noiseFactor },
+                        noiseScale: { value: this.noiseScale },
+                        rgbPersistFactor: { value: this.rgbPersistFactor },
+                        alphaPersistFactor: { value: this.alphaPersistFactor },
+                    },
+                    vertexShader: BASE_VERT,
+                    fragmentShader: PERSIST_FRAG,
+                    transparent: true,
+                });
+                
+                this.quad = new THREE.Mesh(new THREE.PlaneGeometry(w, h), this.quadMaterial);
+                this.fluidScene.add(this.quad);
+
+                // Text material
+                this.labelMaterial = new THREE.ShaderMaterial({
+                    uniforms: {
+                        sampler: { value: null },
+                        color: { value: new THREE.Vector3(...this.persistColor) },
+                    },
+                    vertexShader: BASE_VERT,
+                    fragmentShader: TEXT_FRAG,
+                    transparent: true,
+                });
+                
+                this.label = new THREE.Mesh(
+                    new THREE.PlaneGeometry(Math.min(w, h), Math.min(w, h)),
+                    this.labelMaterial
+                );
+                this.scene.add(this.label);
+            }
+
+            setupTexture() {
+                this.texCanvas = document.createElement("canvas");
+                this.ctx = this.texCanvas.getContext("2d", {
+                    alpha: true,
+                    colorSpace: "srgb",
+                });
+                
+                this.drawText();
+            }
+
+            async drawText() {
+                await loadFont(this.fontFamily);
+                
+                const max = Math.min(this.renderer.capabilities.maxTextureSize, 4096);
+                const pixelRatio = (window.devicePixelRatio || 1) * this.supersample;
+                const canvasSize = max * pixelRatio;
+                
+                this.texCanvas.width = canvasSize;
+                this.texCanvas.height = canvasSize;
+                this.texCanvas.style.width = `${max}px`;
+                this.texCanvas.style.height = `${max}px`;
+
+                this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+                this.ctx.scale(pixelRatio, pixelRatio);
+                this.ctx.clearRect(0, 0, max, max);
+                this.ctx.imageSmoothingEnabled = true;
+                this.ctx.imageSmoothingQuality = "high";
+                this.ctx.shadowColor = "rgba(255,255,255,0.3)";
+                this.ctx.shadowBlur = 2;
+                this.ctx.fillStyle = "#fff";
+                this.ctx.textAlign = "center";
+                this.ctx.textBaseline = "middle";
+
+                const refSize = 250;
+                this.ctx.font = `${this.fontWeight} ${refSize}px ${this.fontFamily}`;
+                const width = this.ctx.measureText(this.text).width;
+                this.ctx.font = `${this.fontWeight} ${(refSize * max) / width}px ${this.fontFamily}`;
+
+                const cx = max / 2;
+                const cy = max / 2;
+                const offsets = [
+                    [0, 0],
+                    [0.1, 0],
+                    [-0.1, 0],
+                    [0, 0.1],
+                    [0, -0.1],
+                    [0.1, 0.1],
+                    [-0.1, -0.1],
+                    [0.1, -0.1],
+                    [-0.1, 0.1],
+                ];
+                
+                this.ctx.globalAlpha = 1 / offsets.length;
+                offsets.forEach(([dx, dy]) => {
+                    this.ctx.fillText(this.text, cx + dx, cy + dy);
+                });
+                this.ctx.globalAlpha = 1;
+
+                const texture = new THREE.CanvasTexture(this.texCanvas);
+                texture.generateMipmaps = true;
+                texture.minFilter = THREE.LinearMipmapLinearFilter;
+                texture.magFilter = THREE.LinearFilter;
+                this.labelMaterial.uniforms.sampler.value = texture;
+            }
+
+            setupEventListeners() {
+                this.container.addEventListener("pointermove", (e) => {
+                    const rect = this.container.getBoundingClientRect();
+                    this.target[0] = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+                    this.target[1] = ((rect.top + rect.height - e.clientY) / rect.height) * 2 - 1;
+                });
+
+                window.addEventListener("resize", () => this.handleResize());
+            }
+
+            handleResize() {
+                const w = this.container.clientWidth;
+                const h = this.container.clientHeight;
+                
+                this.renderer.setSize(w, h);
+                this.camera.left = -w / 2;
+                this.camera.right = w / 2;
+                this.camera.top = h / 2;
+                this.camera.bottom = -h / 2;
+                this.camera.updateProjectionMatrix();
+                
+                this.quad.geometry.dispose();
+                this.quad.geometry = new THREE.PlaneGeometry(w, h);
+                this.rt0.setSize(w, h);
+                this.rt1.setSize(w, h);
+                this.label.geometry.dispose();
+                this.label.geometry = new THREE.PlaneGeometry(Math.min(w, h), Math.min(w, h));
+            }
+
+            setupColorTimer() {
+                this.colorTimer = setInterval(() => {
+                    if (!this.textColor && this.animateColor) {
+                        this.targetColor = [Math.random(), Math.random(), Math.random()];
+                    }
+                }, this.colorCycleInterval);
+            }
+
+            animate() {
+                const dt = this.clock.getDelta();
+                
+                // Animate color transitions
+                if (this.animateColor && !this.textColor) {
+                    for (let i = 0; i < 3; i++) {
+                        this.persistColor[i] += (this.targetColor[i] - this.persistColor[i]) * dt;
+                    }
+                }
+                
+                // Mouse smoothing
+                const speed = dt * 5;
+                this.mouse[0] += (this.target[0] - this.mouse[0]) * speed;
+                this.mouse[1] += (this.target[1] - this.mouse[1]) * speed;
+
+                // Update uniforms
+                this.quadMaterial.uniforms.mousePos.value.set(this.mouse[0], this.mouse[1]);
+                this.quadMaterial.uniforms.sampler.value = this.rt1.texture;
+                this.quadMaterial.uniforms.time.value = this.clock.getElapsedTime();
+                this.labelMaterial.uniforms.color.value.set(...this.persistColor);
+
+                // Render
+                this.renderer.autoClearColor = false;
+                this.renderer.setRenderTarget(this.rt0);
+                this.renderer.clearColor();
+                this.renderer.render(this.fluidScene, this.camera);
+                this.renderer.render(this.scene, this.camera);
+                this.renderer.setRenderTarget(null);
+                this.renderer.render(this.fluidScene, this.camera);
+                this.renderer.render(this.scene, this.camera);
+                
+                [this.rt0, this.rt1] = [this.rt1, this.rt0];
+
+                requestAnimationFrame(() => this.animate());
+            }
+
+            destroy() {
+                if (this.colorTimer) clearInterval(this.colorTimer);
+                if (this.renderer) {
+                    this.renderer.dispose();
+                    this.container.removeChild(this.renderer.domElement);
+                }
+                if (this.rt0) this.rt0.dispose();
+                if (this.rt1) this.rt1.dispose();
+                if (this.quadMaterial) this.quadMaterial.dispose();
+                if (this.labelMaterial) this.labelMaterial.dispose();
+                if (this.quad && this.quad.geometry) this.quad.geometry.dispose();
+                if (this.label && this.label.geometry) this.label.geometry.dispose();
+            }
+        }
+
+        // Initialize the effect when page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            // Example 1: Basic usage (like <TextTrail text="Hello World" />)
+            const textTrail = new TextTrail({
+                text: "SHIVA"
+            });
+
+            // Example 2: With all props (like the React examples)
+            /*
+            const textTrail = new TextTrail({
+                text: "React Bits",
+                fontFamily: "Arial",
+                fontWeight: "900",
+                noiseFactor: 1.2,
+                noiseScale: 0.001,
+                rgbPersistFactor: 0.95,
+                alphaPersistFactor: 0.92,
+                animateColor: true,
+                startColor: "#ff6b6b",
+                textColor: "#4ecdc4",
+                backgroundColor: 0x1a1a2e,
+                colorCycleInterval: 2000,
+                supersample: 2
+            });
+            */
+
+            // Example 3: With animated color cycling
+            /*
+            const textTrail = new TextTrail({
+                text: "Colorful",
+                animateColor: true,
+                colorCycleInterval: 1500,
+                noiseFactor: 1.5,
+                noiseScale: 0.002
+            });
+            */
+
+            // Cleanup on page unload
+            window.addEventListener('beforeunload', () => {
+                textTrail.destroy();
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinity Animation</title>
+    <style>
+        body {
+            width: 800px;
+            margin-left: 400px;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            font-family: 'Arial', sans-serif;
+            background-color: #041e15;
+            color: white;
+            overflow: hidden;
+        }
+
+        .top-section {
+            height: 35vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #041e15 0%, #02130c 100%);
+            border-bottom: 1px solid rgba(72, 255, 72, 0.4);
+        }
+
+        .title {
+            font-size: 2rem;
+            letter-spacing: 0.8rem;
+            text-shadow: 0 0 15px rgba(72, 255, 72, 0.9);
+            font-weight: 300;
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+
+        .infinity-container {
+            position: relative;
+            width: 400px;
+            height: 150px;
+        }
+
+        .infinity {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .dot {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #4aff4a;
+            filter: blur(0px);
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            box-shadow: 0 0 8px 2px rgba(72, 255, 72, 0.8);
+        }
+
+        .code-section {
+            flex-grow: 1;
+            background-color: #0d1117;
+            padding: 1rem;
+            position: relative;
+            border-top: 1px solid rgba(72, 255, 72, 0.4);
+            box-shadow: 0 -5px 15px rgba(72, 255, 72, 0.2);
+        }
+
+        .editor-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 6px;
+            margin-right: 15px;
+        }
+
+        .button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .red { background-color: #ff5f56; }
+        .yellow { background-color: #ffbd2e; }
+        .green { background-color: #27c93f; }
+
+        .filename {
+            color: #8b949e;
+            font-size: 0.8rem;
+        }
+
+        .code {
+            color: #c9d1d9;
+            font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+            font-size: 11px;
+            line-height: 1.4;
+            white-space: pre;
+            overflow-x: auto;
+        }
+
+        .tag { color: #7ee787; }
+        .attribute { color: #79c0ff; }
+        .value { color: #a5d6ff; }
+        .comment { color: #8b949e; }
+
+        .hashtags {
+            margin-top: 1.5rem;
+            color: #8b949e;
+            font-size: 0.75rem;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: scale(0.9); }
+            50% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.9); }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-section">
+        <div class="title">I N F I N I T Y</div>
+        <div class="infinity-container" id="infinity-container"></div>
+    </div>
+    <div class="code-section">
+        <div class="editor-header">
+            <div class="buttons">
+                <div class="button red"></div>
+                <div class="button yellow"></div>
+                <div class="button green"></div>
+            </div>
+            <div class="filename">infinity.js</div>
+        </div>
+        <div class="code">
+<span class="tag">const</span> createInfinityAnimation = <span class="attribute">()</span> => {
+  <span class="tag">const</span> container = <span class="attribute">document</span>.getElementById(<span class="value">'infinity-container'</span>);
+  <span class="tag">const</span> dotCount = <span class="value">48</span>;
+  <span class="tag">const</span> animationDuration = <span class="value">3800</span>;
+  
+  <span class="tag">for</span> (<span class="tag">let</span> i = <span class="value">0</span>; i < dotCount; i++) {
+    <span class="tag">const</span> dot = <span class="attribute">document</span>.createElement(<span class="value">'div'</span>);
+    dot.classList.add(<span class="value">'dot'</span>);
+    container.appendChild(dot);
+    
+    <span class="tag">const</span> delay = (i / dotCount) * animationDuration;
+    dot.style.animation = <span class="value">`fadeInOut ${animationDuration}ms infinite ${delay}ms`</span>;
+    
+    updateDotPosition(dot, i, dotCount);
+  }
+};
+
+<span class="tag">const</span> updateDotPosition = <span class="attribute">(dot, index, total)</span> => {
+  <span class="tag">const</span> t = (index / total) * Math.PI * <span class="value">2</span>;
+  <span class="tag">const</span> width = <span class="value">360</span>;
+  <span class="tag">const</span> height = <span class="value">120</span>;
+  
+  <span class="tag">const</span> x = width / <span class="value">2</span> * (Math.sin(t) / (<span class="value">1</span> + Math.pow(Math.cos(t), <span class="value">2</span>)));
+  <span class="tag">const</span> y = height / <span class="value">2</span> * (Math.sin(t) * Math.cos(t) / (<span class="value">1</span> + Math.pow(Math.cos(t), <span class="value">2</span>)));
+  
+  dot.style.left = (width / <span class="value">2</span> + x) + <span class="value">'px'</span>;
+  dot.style.top = (height / <span class="value">2</span> + y) + <span class="value">'px'</span>;
+  
+  <span class="tag">const</span> size = <span class="value">9</span> + Math.sin(t * <span class="value">2</span>) * <span class="value">5</span>;
+  dot.style.width = size + <span class="value">'px'</span>;
+  dot.style.height = size + <span class="value">'px'</span>;
+  dot.style.filter = <span class="value">'none'</span>;
+};
+
+createInfinityAnimation();
+        </div>
+       
+    </div>
+
+    <script>
+        const createInfinityAnimation = () => {
+            const container = document.getElementById('infinity-container');
+            const dotCount = 48;
+            const animationDuration = 3800;
+            
+            for (let i = 0; i < dotCount; i++) {
+                const dot = document.createElement('div');
+                dot.classList.add('dot');
+                container.appendChild(dot);
+                
+                const delay = (i / dotCount) * animationDuration;
+                dot.style.animation = `fadeInOut ${animationDuration}ms infinite ${delay}ms`;
+                
+                updateDotPosition(dot, i, dotCount);
+            }
+        };
+
+        const updateDotPosition = (dot, index, total) => {
+            const t = (index / total) * Math.PI * 2;
+            const width = 360;
+            const height = 120;
+            
+            const x = width / 2 * (Math.sin(t) / (1 + Math.pow(Math.cos(t), 2)));
+            const y = height / 2 * (Math.sin(t) * Math.cos(t) / (1 + Math.pow(Math.cos(t), 2)));
+            
+            dot.style.left = (width / 2 + x) + 'px';
+            dot.style.top = (height / 2 + y) + 'px';
+            
+            const size = 9 + Math.sin(t * 2) * 5;
+            dot.style.width = size + 'px';
+            dot.style.height = size + 'px';
+            dot.style.filter = 'none';
+        };
+
+        createInfinityAnimation();
+    </script>
+</body>
+</html>

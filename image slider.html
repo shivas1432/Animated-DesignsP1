@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>UK Best Places - Interactive Carousel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #1a1a1a;
+            --accent-color: #d4af37;
+            --text-light: #ffffff;
+            --text-dark: #333333;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            color: var(--text-light);
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        /* Custom Cursor */
+        .cursor {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--accent-color);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: all 0.3s ease;
+            mix-blend-mode: difference;
+        }
+
+        .cursor2 {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-color);
+            border: none;
+            transition: all 0.1s ease;
+        }
+
+        .cursor.expand {
+            transform: scale(2);
+            background: rgba(212, 175, 55, 0.2);
+        }
+
+        /* Main Carousel Container */
+        .carousel {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 1200px;
+            overflow: hidden;
+        }
+
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .carousel-item {
+            position: absolute;
+            width: 350px;
+            height: 500px;
+            transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            cursor: pointer;
+        }
+
+        .carousel-box {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+            transition: all 0.6s ease;
+            transform-style: preserve-3d;
+        }
+
+        .carousel-box:hover {
+            transform: translateY(-10px) rotateX(5deg);
+            box-shadow: 0 35px 80px rgba(0, 0, 0, 0.6);
+        }
+
+        .carousel-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: all 0.8s ease;
+            filter: brightness(0.8) contrast(1.1) saturate(1.2);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .carousel-box img[src*="picsum"] {
+            filter: brightness(0.7) contrast(1.2) saturate(1.3) hue-rotate(210deg);
+        }
+
+        .carousel-box:hover img {
+            transform: scale(1.1);
+            filter: brightness(0.9) contrast(1.2) saturate(1.3);
+        }
+
+        /* Loading state for images */
+        .carousel-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 3s ease infinite;
+            z-index: 0;
+        }
+
+        .carousel-box img {
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .title {
+            position: absolute;
+            bottom: 60px;
+            left: 30px;
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--text-light);
+            text-shadow: 2px 2px 20px rgba(0, 0, 0, 0.8);
+            z-index: 3;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .subtitle {
+            position: absolute;
+            bottom: 35px;
+            left: 30px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-shadow: 1px 1px 10px rgba(0, 0, 0, 0.8);
+            z-index: 3;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease 0.1s;
+        }
+
+        .num {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 400;
+            color: var(--accent-color);
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.8);
+            z-index: 3;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.6s ease 0.2s;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.1));
+            z-index: 2;
+            transition: all 0.6s ease;
+        }
+
+        .carousel-box:hover .overlay {
+            background: linear-gradient(45deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.05));
+        }
+
+        /* Active states */
+        .carousel-item.active .title,
+        .carousel-item.active .subtitle,
+        .carousel-item.active .num {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Navigation */
+        .nav-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid var(--accent-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+        }
+
+        .nav-button:hover {
+            background: var(--accent-color);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .nav-button.prev {
+            left: 50px;
+        }
+
+        .nav-button.next {
+            right: 50px;
+        }
+
+        .nav-button::after {
+            content: '';
+            width: 12px;
+            height: 12px;
+            border-top: 2px solid var(--text-light);
+            border-right: 2px solid var(--text-light);
+        }
+
+        .nav-button.prev::after {
+            transform: rotate(-135deg);
+            margin-left: 4px;
+        }
+
+        .nav-button.next::after {
+            transform: rotate(45deg);
+            margin-right: 4px;
+        }
+
+        /* Bottom Info Panel */
+        .info-panel {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 120px;
+            background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.8) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 60px;
+            z-index: 50;
+        }
+
+        .location-info {
+            flex: 1;
+        }
+
+        .location-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-light);
+            margin-bottom: 5px;
+        }
+
+        .location-description {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+            max-width: 400px;
+        }
+
+        .indicators {
+            display: flex;
+            gap: 12px;
+        }
+
+        .indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .indicator.active {
+            background: var(--accent-color);
+            transform: scale(1.2);
+        }
+
+        /* Logo and Social */
+        .logo {
+            position: fixed;
+            top: 40px;
+            left: 60px;
+            width: 50px;
+            height: 50px;
+            background: var(--accent-color);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .social {
+            position: fixed;
+            top: 40px;
+            right: 60px;
+            display: flex;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        .social a {
+            width: 45px;
+            height: 45px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .social a:hover {
+            border-color: var(--accent-color);
+            background: rgba(212, 175, 55, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .social svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--text-light);
+        }
+
+        /* Loading animation for carousel boxes */
+        .carousel-box.loading::before {
+            animation: gradientShift 2s ease infinite;
+        }
+
+        .carousel-box:not(.loading)::before {
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        /* Enhanced hover effects */
+        .carousel-item:hover .carousel-box {
+            transform: translateY(-10px) rotateX(5deg);
+            box-shadow: 0 35px 80px rgba(212, 175, 55, 0.3);
+        }
+
+        /* Better responsive behavior */
+        @media (max-width: 1024px) {
+            .carousel-item {
+                width: 320px;
+                height: 450px;
+            }
+            
+            .info-panel {
+                height: 110px;
+                padding: 0 40px;
+            }
+        }
+            .carousel-item {
+                width: 280px;
+                height: 400px;
+            }
+
+            .nav-button {
+                width: 50px;
+                height: 50px;
+            }
+
+            .nav-button.prev {
+                left: 20px;
+            }
+
+            .nav-button.next {
+                right: 20px;
+            }
+
+            .info-panel {
+                padding: 0 30px;
+                height: 100px;
+            }
+
+            .location-title {
+                font-size: 2rem;
+            }
+
+            .location-description {
+                font-size: 0.9rem;
+            }
+
+            .logo {
+                top: 20px;
+                left: 30px;
+                width: 45px;
+                height: 45px;
+            }
+
+            .social {
+                top: 20px;
+                right: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="carousel">
+        <div class="carousel-container">
+            <!-- Navigation -->
+            <button class="nav-button prev" onclick="prevSlide()"></button>
+            <button class="nav-button next" onclick="nextSlide()"></button>
+
+            <!-- Carousel Items -->
+            <div class="carousel-item active" data-index="0">
+                <div class="carousel-box">
+                    <div class="overlay"></div>
+                    <div class="title">London</div>
+                    <div class="subtitle">England's Historic Capital</div>
+                    <div class="num">01</div>
+                    <img src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80" 
+                         alt="London Big Ben" 
+                         onerror="this.src='https://picsum.photos/800/1200?random=1'" />
+                </div>
+            </div>
+
+            <div class="carousel-item" data-index="1">
+                <div class="carousel-box">
+                    <div class="overlay"></div>
+                    <div class="title">Edinburgh</div>
+                    <div class="subtitle">Scotland's Royal Mile</div>
+                    <div class="num">02</div>
+                    <img src="https://images.unsplash.com/photo-1549918864-48ac978761a4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80" 
+                         alt="Edinburgh Castle" 
+                         onerror="this.src='https://picsum.photos/800/1200?random=2'" />
+                </div>
+            </div>
+
+            <div class="carousel-item" data-index="2">
+                <div class="carousel-box">
+                    <div class="overlay"></div>
+                    <div class="title">Bath</div>
+                    <div class="subtitle">Georgian Architecture</div>
+                    <div class="num">03</div>
+                    <img src="https://images.unsplash.com/photo-1533312593-26ba615c4e54?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80" 
+                         alt="Bath Royal Crescent" 
+                         onerror="this.src='https://picsum.photos/800/1200?random=3'" />
+                </div>
+            </div>
+
+            <div class="carousel-item" data-index="3">
+                <div class="carousel-box">
+                    <div class="overlay"></div>
+                    <div class="title">Cotswolds</div>
+                    <div class="subtitle">English Countryside</div>
+                    <div class="num">04</div>
+                    <img src="https://images.unsplash.com/photo-1546519638-68e109498ffc?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80" 
+                         alt="Cotswolds Village" 
+                         onerror="this.src='https://picsum.photos/800/1200?random=4'" />
+                </div>
+            </div>
+
+            <div class="carousel-item" data-index="4">
+                <div class="carousel-box">
+                    <div class="overlay"></div>
+                    <div class="title">Lake District</div>
+                    <div class="subtitle">Natural Beauty</div>
+                    <div class="num">05</div>
+                    <img src="https://images.unsplash.com/photo-1524338198850-8a2ff63aaceb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80" 
+                         alt="Lake District" 
+                         onerror="this.src='https://picsum.photos/800/1200?random=5'" />
+                </div>
+            </div>
+
+            <div class="carousel-item" data-index="5">
+                <div class="carousel-box">
+                    <div class="overlay"></div>
+                    <div class="title">York</div>
+                    <div class="subtitle">Medieval Marvel</div>
+                    <div class="num">06</div>
+                    <img src="https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80" 
+                         alt="York Minster" 
+                         onerror="this.src='https://picsum.photos/800/1200?random=6'" />
+                </div>
+            </div>
+
+            <div class="carousel-item" data-index="6">
+                <div class="carousel-box">
+                    <div class="overlay"></div>
+                    <div class="title">Cornwall</div>
+                    <div class="subtitle">Coastal Paradise</div>
+                    <div class="num">07</div>
+                    <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80" 
+                         alt="Cornwall Coast" 
+                         onerror="this.src='https://picsum.photos/800/1200?random=7'" />
+                </div>
+            </div>
+
+            <div class="carousel-item" data-index="7">
+                <div class="carousel-box">
+                    <div class="overlay"></div>
+                    <div class="title">Stonehenge</div>
+                    <div class="subtitle">Ancient Wonder</div>
+                    <div class="num">08</div>
+                    <img src="https://images.unsplash.com/photo-1599833975787-5deb9c224576?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80" 
+                         alt="Stonehenge" 
+                         onerror="this.src='https://picsum.photos/800/1200?random=8'" />
+                </div>
+            </div>
+
+            <div class="carousel-item" data-index="8">
+                <div class="carousel-box">
+                    <div class="overlay"></div>
+                    <div class="title">Canterbury</div>
+                    <div class="subtitle">Cathedral City</div>
+                    <div class="num">09</div>
+                    <img src="https://images.unsplash.com/photo-1504020716795-53df7154193e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80" 
+                         alt="Canterbury Cathedral" 
+                         onerror="this.src='https://picsum.photos/800/1200?random=9'" />
+                </div>
+            </div>
+
+            <div class="carousel-item" data-index="9">
+                <div class="carousel-box">
+                    <div class="overlay"></div>
+                    <div class="title">Oxford</div>
+                    <div class="subtitle">City of Dreaming Spires</div>
+                    <div class="num">10</div>
+                    <img src="https://images.unsplash.com/photo-1566299081817-cd74767a7d73?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80" 
+                         alt="Oxford University" 
+                         onerror="this.src='https://picsum.photos/800/1200?random=10'" />
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Panel -->
+        <div class="info-panel">
+            <div class="location-info">
+                <div class="location-title" id="activeTitle">London</div>
+                <div class="location-description" id="activeDescription">Discover the vibrant capital where historic landmarks meet modern innovation</div>
+            </div>
+            <div class="indicators">
+                <div class="indicator active" onclick="goToSlide(0)"></div>
+                <div class="indicator" onclick="goToSlide(1)"></div>
+                <div class="indicator" onclick="goToSlide(2)"></div>
+                <div class="indicator" onclick="goToSlide(3)"></div>
+                <div class="indicator" onclick="goToSlide(4)"></div>
+                <div class="indicator" onclick="goToSlide(5)"></div>
+                <div class="indicator" onclick="goToSlide(6)"></div>
+                <div class="indicator" onclick="goToSlide(7)"></div>
+                <div class="indicator" onclick="goToSlide(8)"></div>
+                <div class="indicator" onclick="goToSlide(9)"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logo -->
+    <a href="#" class="logo">UK</a>
+
+    <!-- Social Links -->
+    <div class="social">
+        <a href="#" target="_blank">
+            <svg viewBox="0 0 24 24">
+                <path d="M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.2-1.95-.5v.03c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.521 8.521 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21 16 21 20.33 14.46 20.33 8.79c0-.19 0-.37-.01-.56.84-.6 1.56-1.36 2.14-2.23z"/>
+            </svg>
+        </a>
+        <a href="#" target="_blank">
+            <svg viewBox="0 0 24 24">
+                <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.174-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.402.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.357-.629-2.846-1.378l-.774 2.958c-.281 1.09-1.030 2.459-1.533 3.294C9.212 23.621 10.583 24 12.017 24c6.624 0 11.99-5.367 11.99-11.987C24.007 5.367 18.641.001 12.017.001z"/>
+            </svg>
+        </a>
+    </div>
+
+    <!-- Custom Cursors -->
+    <div class="cursor"></div>
+    <div class="cursor cursor2"></div>
+
+    <script>
+        let currentIndex = 0;
+        const totalItems = 10;
+        const radius = 300;
+        const angleStep = (2 * Math.PI) / totalItems;
+
+        const descriptions = [
+            "Discover the vibrant capital where historic landmarks meet modern innovation",
+            "Experience Scotland's enchanting capital with its royal castle and festivals",
+            "Marvel at the stunning Georgian architecture and natural hot springs",
+            "Wander through picturesque villages and rolling countryside",
+            "Explore England's most beautiful national park with stunning lakes",
+            "Step back in time through medieval streets and ancient city walls",
+            "Enjoy dramatic coastlines, charming fishing villages, and Celtic heritage",
+            "Visit this mysterious prehistoric monument on Salisbury Plain",
+            "Discover the birthplace of English Christianity and its magnificent cathedral",
+            "Tour the prestigious university city with its dreaming spires"
+        ];
+
+        // Custom Cursor
+        const cursor = document.querySelector('.cursor');
+        const cursor2 = document.querySelector('.cursor2');
+
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            
+            cursor2.style.left = e.clientX + 'px';
+            cursor2.style.top = e.clientY + 'px';
+        });
+
+        document.addEventListener('mouseenter', () => {
+            cursor.style.display = 'block';
+            cursor2.style.display = 'block';
+        });
+
+        // Hover effects for interactive elements
+        const interactiveElements = document.querySelectorAll('.nav-button, .indicator, .logo, .social a, .carousel-item');
+        
+        interactiveElements.forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursor.classList.add('expand');
+            });
+            
+            el.addEventListener('mouseleave', () => {
+                cursor.classList.remove('expand');
+            });
+        });
+
+        // Initialize with better image loading
+        function initializeImages() {
+            const images = document.querySelectorAll('.carousel-box img');
+            
+            images.forEach((img, index) => {
+                // Add loading class
+                img.parentElement.classList.add('loading');
+                
+                // Handle successful load
+                img.addEventListener('load', function() {
+                    this.parentElement.classList.remove('loading');
+                    this.style.opacity = '1';
+                });
+                
+                // Handle error - use fallback images
+                img.addEventListener('error', function() {
+                    console.log(`Image ${index + 1} failed to load, using fallback`);
+                    this.parentElement.classList.remove('loading');
+                    this.style.opacity = '1';
+                });
+                
+                // Set initial opacity
+                img.style.opacity = '0';
+                img.style.transition = 'opacity 0.5s ease';
+                
+                // Force reload if needed
+                if (img.complete) {
+                    img.style.opacity = '1';
+                    img.parentElement.classList.remove('loading');
+                }
+            });
+        }
+
+        // Enhanced carousel functionality
+        function updateCarousel() {
+            const items = document.querySelectorAll('.carousel-item');
+            const indicators = document.querySelectorAll('.indicator');
+            const titleEl = document.getElementById('activeTitle');
+            const descEl = document.getElementById('activeDescription');
+
+            items.forEach((item, index) => {
+                const angle = angleStep * (index - currentIndex);
+                const x = Math.sin(angle) * radius;
+                const z = Math.cos(angle) * radius;
+                const scale = 0.7 + (Math.cos(angle) + 1) * 0.15;
+                const opacity = Math.cos(angle) > -0.5 ? 1 : 0.3;
+                const rotateY = -angle * (180 / Math.PI) * 0.1;
+
+                item.style.transform = `translate3d(${x}px, 0, ${z}px) scale(${scale}) rotateY(${rotateY}deg)`;
+                item.style.opacity = opacity;
+                item.style.zIndex = Math.round((Math.cos(angle) + 1) * 100);
+
+                // Update active class
+                if (index === currentIndex) {
+                    item.classList.add('active');
+                    titleEl.textContent = item.querySelector('.title').textContent;
+                    descEl.textContent = descriptions[index];
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+
+            // Update indicators
+            indicators.forEach((indicator, index) => {
+                indicator.classList.toggle('active', index === currentIndex);
+            });
+        }
+
+        function nextSlide() {
+            currentIndex = (currentIndex + 1) % totalItems;
+            updateCarousel();
+        }
+
+        function prevSlide() {
+            currentIndex = (currentIndex - 1 + totalItems) % totalItems;
+            updateCarousel();
+        }
+
+        function goToSlide(index) {
+            currentIndex = index;
+            updateCarousel();
+        }
+
+        // Auto-play functionality
+        let autoPlayInterval;
+
+        function startAutoPlay() {
+            autoPlayInterval = setInterval(nextSlide, 4000);
+        }
+
+        function stopAutoPlay() {
+            clearInterval(autoPlayInterval);
+        }
+
+        // Carousel item click navigation
+        document.querySelectorAll('.carousel-item').forEach((item, index) => {
+            item.addEventListener('click', () => {
+                if (index !== currentIndex) {
+                    goToSlide(index);
+                }
+            });
+        });
+
+        // Touch/Mouse drag functionality
+        let isDragging = false;
+        let startX = 0;
+        let currentX = 0;
+        let dragThreshold = 50;
+
+        const carousel = document.querySelector('.carousel-container');
+
+        // Mouse events
+        carousel.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.clientX;
+            stopAutoPlay();
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            currentX = e.clientX - startX;
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (!isDragging) return;
+            
+            if (Math.abs(currentX) > dragThreshold) {
+                if (currentX > 0) {
+                    prevSlide();
+                } else {
+                    nextSlide();
+                }
+            }
+            
+            isDragging = false;
+            currentX = 0;
+            startAutoPlay();
+        });
+
+        // Touch events
+        carousel.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            startX = e.touches[0].clientX;
+            stopAutoPlay();
+        });
+
+        carousel.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            currentX = e.touches[0].clientX - startX;
+        });
+
+        carousel.addEventListener('touchend', () => {
+            if (!isDragging) return;
+            
+            if (Math.abs(currentX) > dragThreshold) {
+                if (currentX > 0) {
+                    prevSlide();
+                } else {
+                    nextSlide();
+                }
+            }
+            
+            isDragging = false;
+            currentX = 0;
+            startAutoPlay();
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                prevSlide();
+                stopAutoPlay();
+                setTimeout(startAutoPlay, 1000);
+            } else if (e.key === 'ArrowRight') {
+                nextSlide();
+                stopAutoPlay();
+                setTimeout(startAutoPlay, 1000);
+            }
+        });
+
+        // Pause on hover
+        carousel.addEventListener('mouseenter', stopAutoPlay);
+        carousel.addEventListener('mouseleave', startAutoPlay);
+
+        // Initialize
+        initializeImages();
+        updateCarousel();
+        startAutoPlay();
+
+        // Handle window resize
+        window.addEventListener('resize', updateCarousel);
+
+        // Better performance with requestAnimationFrame
+        let isAnimating = false;
+
+        function smoothNextSlide() {
+            if (isAnimating) return;
+            isAnimating = true;
+            
+            currentIndex = (currentIndex + 1) % totalItems;
+            updateCarousel();
+            
+            setTimeout(() => {
+                isAnimating = false;
+            }, 300);
+        }
+
+        function smoothPrevSlide() {
+            if (isAnimating) return;
+            isAnimating = true;
+            
+            currentIndex = (currentIndex - 1 + totalItems) % totalItems;
+            updateCarousel();
+            
+            setTimeout(() => {
+                isAnimating = false;
+            }, 300);
+        }
+
+        // Update function references
+        function nextSlide() {
+            smoothNextSlide();
+        }
+
+        function prevSlide() {
+            smoothPrevSlide();
+        }
+    </script>
+</body>
+</html>

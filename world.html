@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Miniature World Builder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        #container {
+            width: 100vw;
+            height: 100vh;
+            cursor: crosshair;
+        }
+        
+        .ui {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .ui h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            padding: 8px 12px;
+            background: #4ecdc4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .control-btn:hover {
+            background: #45b7d1;
+            transform: translateY(-2px);
+        }
+        
+        .control-btn.active {
+            background: #ff6b6b;
+        }
+        
+        .stats {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="ui">
+        <h3>🏘️ Miniature World Builder</h3>
+        <div class="controls">
+            <button class="control-btn active" data-type="building">🏢 Building</button>
+            <button class="control-btn" data-type="tree">🌳 Tree</button>
+            <button class="control-btn" data-type="car">🚗 Car</button>
+            <button class="control-btn" data-type="house">🏠 House</button>
+            <button class="control-btn" data-type="person">🚶 Person</button>
+        </div>
+    </div>
+    
+    <div class="stats">
+        <div>Objects: <span id="objectCount">0</span></div>
+        <div>Click anywhere to place objects</div>
+    </div>
+    
+    <div id="container"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        let scene, camera, renderer, raycaster, mouse;
+        let currentObjectType = 'building';
+        let objects = [];
+        let objectCount = 0;
+        
+        // Pastel color palette
+        const colors = {
+            building: [0xffb3ba, 0xffdfba, 0xffffba, 0xbaffc9, 0xbae1ff],
+            tree: [0x90EE90, 0x228B22, 0x32CD32, 0x00FF7F, 0x7CFC00],
+            car: [0xff6b6b, 0x4ecdc4, 0x45b7d1, 0x96ceb4, 0xfeca57],
+            house: [0xffd3a5, 0xff9a9e, 0xfecfef, 0xa8edea, 0xd299c2],
+            person: [0xffb347, 0xff6347, 0x40e0d0, 0x98fb98, 0xdda0dd]
+        };
+        
+        function init() {
+            // Scene setup
+            scene = new THREE.Scene();
+            scene.fog = new THREE.Fog(0xffffff, 10, 50);
+            
+            // Camera (isometric view)
+            camera = new THREE.OrthographicCamera(
+                window.innerWidth / -100,
+                window.innerWidth / 100,
+                window.innerHeight / 100,
+                window.innerHeight / -100,
+                1,
+                1000
+            );
+            camera.position.set(20, 20, 20);
+            camera.lookAt(0, 0, 0);
+            
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x000000, 0);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            document.getElementById('container').appendChild(renderer.domElement);
+            
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(10, 10, 5);
+            directionalLight.castShadow = true;
+            directionalLight.shadow.mapSize.width = 2048;
+            directionalLight.shadow.mapSize.height = 2048;
+            scene.add(directionalLight);
+            
+            // Ground plane
+            const groundGeometry = new THREE.PlaneGeometry(100, 100);
+            const groundMaterial = new THREE.MeshLambertMaterial({ 
+                color: 0xf0f8ff, 
+                transparent: true, 
+                opacity: 0.3 
+            });
+            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            ground.receiveShadow = true;
+            scene.add(ground);
+            
+            // Raycaster for mouse picking
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
+            
+            setupEventListeners();
+            animate();
+        }
+        
+        function createBuilding() {
+            const height = Math.random() * 3 + 1;
+            const geometry = new THREE.BoxGeometry(1, height, 1);
+            const material = new THREE.MeshLambertMaterial({ 
+                color: colors.building[Math.floor(Math.random() * colors.building.length)]
+            });
+            const building = new THREE.Mesh(geometry, material);
+            building.castShadow = true;
+            building.receiveShadow = true;
+            return building;
+        }
+        
+        function createTree() {
+            const group = new THREE.Group();
+            
+            // Trunk
+            const trunkGeometry = new THREE.CylinderGeometry(0.1, 0.15, 1);
+            const trunkMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+            const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+            trunk.position.y = 0.5;
+            group.add(trunk);
+            
+            // Leaves
+            const leavesGeometry = new THREE.SphereGeometry(0.8);
+            const leavesMaterial = new THREE.MeshLambertMaterial({ 
+                color: colors.tree[Math.floor(Math.random() * colors.tree.length)]
+            });
+            const leaves = new THREE.Mesh(leavesGeometry, leavesMaterial);
+            leaves.position.y = 1.5;
+            group.add(leaves);
+            
+            group.castShadow = true;
+            return group;
+        }
+        
+        function createCar() {
+            const group = new THREE.Group();
+            
+            // Body
+            const bodyGeometry = new THREE.BoxGeometry(1.5, 0.5, 0.8);
+            const bodyMaterial = new THREE.MeshLambertMaterial({ 
+                color: colors.car[Math.floor(Math.random() * colors.car.length)]
+            });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = 0.25;
+            group.add(body);
+            
+            // Wheels
+            const wheelGeometry = new THREE.CylinderGeometry(0.2, 0.2, 0.1);
+            const wheelMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
+            
+            const positions = [
+                [-0.6, 0, -0.5],
+                [0.6, 0, -0.5],
+                [-0.6, 0, 0.5],
+                [0.6, 0, 0.5]
+            ];
+            
+            positions.forEach(pos => {
+                const wheel = new THREE.Mesh(wheelGeometry, wheelMaterial);
+                wheel.position.set(...pos);
+                wheel.rotation.z = Math.PI / 2;
+                group.add(wheel);
+            });
+            
+            group.castShadow = true;
+            return group;
+        }
+        
+        function createHouse() {
+            const group = new THREE.Group();
+            
+            // Base
+            const baseGeometry = new THREE.BoxGeometry(2, 1.5, 2);
+            const baseMaterial = new THREE.MeshLambertMaterial({ 
+                color: colors.house[Math.floor(Math.random() * colors.house.length)]
+            });
+            const base = new THREE.Mesh(baseGeometry, baseMaterial);
+            base.position.y = 0.75;
+            group.add(base);
+            
+            // Roof
+            const roofGeometry = new THREE.ConeGeometry(1.5, 1, 4);
+            const roofMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+            const roof = new THREE.Mesh(roofGeometry, roofMaterial);
+            roof.position.y = 2;
+            roof.rotation.y = Math.PI / 4;
+            group.add(roof);
+            
+            group.castShadow = true;
+            return group;
+        }
+        
+        function createPerson() {
+            const group = new THREE.Group();
+            
+            // Body
+            const bodyGeometry = new THREE.CylinderGeometry(0.2, 0.15, 1);
+            const bodyMaterial = new THREE.MeshLambertMaterial({ 
+                color: colors.person[Math.floor(Math.random() * colors.person.length)]
+            });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = 0.5;
+            group.add(body);
+            
+            // Head
+            const headGeometry = new THREE.SphereGeometry(0.2);
+            const headMaterial = new THREE.MeshLambertMaterial({ color: 0xffdbac });
+            const head = new THREE.Mesh(headGeometry, headMaterial);
+            head.position.y = 1.2;
+            group.add(head);
+            
+            group.castShadow = true;
+            return group;
+        }
+        
+        function addObject(x, z) {
+            let object;
+            
+            switch(currentObjectType) {
+                case 'building':
+                    object = createBuilding();
+                    break;
+                case 'tree':
+                    object = createTree();
+                    break;
+                case 'car':
+                    object = createCar();
+                    break;
+                case 'house':
+                    object = createHouse();
+                    break;
+                case 'person':
+                    object = createPerson();
+                    break;
+            }
+            
+            object.position.set(x, 0, z);
+            
+            // Scaling animation
+            object.scale.set(0, 0, 0);
+            const targetScale = 1;
+            
+            function scaleUp() {
+                if (object.scale.x < targetScale) {
+                    object.scale.x += 0.05;
+                    object.scale.y += 0.05;
+                    object.scale.z += 0.05;
+                    requestAnimationFrame(scaleUp);
+                } else {
+                    // Add floating effect
+                    const floatAmount = Math.random() * 0.2;
+                    object.userData.floatOffset = Math.random() * Math.PI * 2;
+                    object.userData.floatAmount = floatAmount;
+                }
+            }
+            
+            scene.add(object);
+            objects.push(object);
+            scaleUp();
+            
+            objectCount++;
+            document.getElementById('objectCount').textContent = objectCount;
+        }
+        
+        function setupEventListeners() {
+            // Object type selection
+            document.querySelectorAll('.control-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.control-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentObjectType = btn.dataset.type;
+                });
+            });
+            
+            // Mouse click to place objects
+            renderer.domElement.addEventListener('click', (event) => {
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+                
+                raycaster.setFromCamera(mouse, camera);
+                
+                // Calculate position on ground plane
+                const planeIntersect = raycaster.ray.intersectPlane(
+                    new THREE.Plane(new THREE.Vector3(0, 1, 0)), 
+                    new THREE.Vector3()
+                );
+                
+                if (planeIntersect) {
+                    addObject(planeIntersect.x, planeIntersect.z);
+                }
+            });
+            
+            window.addEventListener('resize', () => {
+                camera.left = window.innerWidth / -100;
+                camera.right = window.innerWidth / 100;
+                camera.top = window.innerHeight / 100;
+                camera.bottom = window.innerHeight / -100;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Floating animation for objects
+            objects.forEach(object => {
+                if (object.userData.floatAmount !== undefined) {
+                    object.position.y = Math.sin(Date.now() * 0.001 + object.userData.floatOffset) * object.userData.floatAmount;
+                }
+            });
+            
+            // Gentle camera rotation
+            camera.position.x = Math.cos(Date.now() * 0.0005) * 25;
+            camera.position.z = Math.sin(Date.now() * 0.0005) * 25;
+            camera.lookAt(0, 0, 0);
+            
+            renderer.render(scene, camera);
+        }
+        
+        init();
+    </script>
+</body>
+</html>

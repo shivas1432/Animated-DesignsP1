@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glowing Orbiting Dots</title>
+    <style>
+        :root {
+            --glow-intensity: 1;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #0a0a0a;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .post-container {
+            width: 100%;
+            max-width: 600px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.7);
+        }
+
+        .visual-section {
+            background: linear-gradient(135deg, #0a0a0a 0%, #121212 100%);
+            padding: 40px 20px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 40px;
+            text-align: center;
+            color: #fff;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        }
+
+        .dots-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+        }
+
+        .dot {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .dot::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            filter: blur(10px);
+            opacity: 0.7;
+        }
+
+        .magenta {
+            background-color: #ff00ff;
+            box-shadow: 0 0 calc(25px * var(--glow-intensity)) #ff00ff;
+        }
+
+        .magenta::after {
+            background-color: #ff00ff;
+        }
+
+        .green {
+            background-color: #00ff00;
+            box-shadow: 0 0 calc(25px * var(--glow-intensity)) #00ff00;
+        }
+
+        .green::after {
+            background-color: #00ff00;
+        }
+
+        .cyan {
+            background-color: #00ffff;
+            box-shadow: 0 0 calc(25px * var(--glow-intensity)) #00ffff;
+        }
+
+        .cyan::after {
+            background-color: #00ffff;
+        }
+
+        .orbit {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            top: 0;
+            left: 0;
+            animation: orbit 6s linear infinite;
+            will-change: transform;
+        }
+
+        .magenta-orbit {
+            width: 120%;
+            height: 120%;
+            animation-duration: 6s;
+        }
+
+        .green-orbit {
+            width: 90%;
+            height: 90%;
+            animation-duration: 8s;
+            animation-direction: reverse;
+        }
+
+        .cyan-orbit {
+            width: 140%;
+            height: 140%;
+            animation-duration: 10s;
+        }
+
+        .path {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid;
+            opacity: 0.3;
+            box-sizing: border-box;
+        }
+
+        .magenta-path {
+            border-color: #ff00ff;
+        }
+
+        .green-path {
+            border-color: #00ff00;
+        }
+
+        .cyan-path {
+            border-color: #00ffff;
+        }
+
+        @keyframes orbit {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            display: flex;
+            gap: 15px;
+            z-index: 10;
+            background: rgba(20, 20, 20, 0.5);
+            padding: 10px 15px;
+            border-radius: 40px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3), 
+                        inset 0 1px 1px rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .control-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(40, 40, 40, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2),
+                        inset 0 1px 1px rgba(255, 255, 255, 0.1);
+        }
+
+        .control-btn:hover {
+            background: rgba(60, 60, 60, 0.7);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3),
+                        inset 0 1px 1px rgba(255, 255, 255, 0.2);
+        }
+
+        .control-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .code-section {
+            background-color: #0d1117;
+            border-top: none;
+            padding: 0;
+            border-radius: 0 0 12px 12px;
+        }
+
+        .editor-header {
+            background-color: #161b22;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            border-radius: 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .buttons {
+            display: flex;
+            gap: 6px;
+            margin-right: 16px;
+        }
+
+        .button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .red { background-color: #ff5f56; }
+        .yellow { background-color: #ffbd2e; }
+        .green-btn { background-color: #27c93f; }
+
+        .filename {
+            color: #c9d1d9;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .code-content {
+            padding: 16px;
+            line-height: 1.4;
+            font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+            font-size: 11px;
+            white-space: pre;
+            overflow-x: auto;
+            color: #c9d1d9;
+        }
+
+        .tag { color: #7ee787; }
+        .attr { color: #79c0ff; }
+        .value { color: #a5d6ff; }
+
+        .hashtags {
+            padding: 16px;
+            font-size: 14px;
+            color: #8b949e;
+        }
+
+        .hashtag {
+            color: #58a6ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="post-container">
+        <div class="visual-section">
+            <h1 class="title">GLOWING ORBITING DOTS</h1>
+            
+            <div class="dots-container">
+                <div class="orbit magenta-orbit">
+                    <div class="dot magenta" style="top: 0; left: 50%;"></div>
+                </div>
+                <div class="path magenta-path"></div>
+                
+                <div class="orbit green-orbit">
+                    <div class="dot green" style="bottom: 15%; left: 15%;"></div>
+                </div>
+                <div class="path green-path"></div>
+                
+                <div class="orbit cyan-orbit">
+                    <div class="dot cyan" style="bottom: 15%; right: 15%;"></div>
+                </div>
+                <div class="path cyan-path"></div>
+            </div>
+            <div class="controls">
+                <div class="control-btn" id="pause-btn">II</div>
+                <div class="control-btn" id="speed-btn">×</div>
+                <div class="control-btn" id="glow-btn">+</div>
+            </div>
+        </div>
+        
+        <div class="code-section">
+            <div class="editor-header">
+                <div class="buttons">
+                    <div class="button red"></div>
+                    <div class="button yellow"></div>
+                    <div class="button green-btn"></div>
+                </div>
+                <div class="filename">index.html</div>
+            </div>
+            <div class="code-content">
+<span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"dots-container"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"orbit magenta-orbit"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"dot magenta"</span><span class="tag">&gt;&lt;/div&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"path magenta-path"</span><span class="tag">&gt;&lt;/div&gt;</span>
+    
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"orbit green-orbit"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"dot green"</span><span class="tag">&gt;&lt;/div&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"path green-path"</span><span class="tag">&gt;&lt;/div&gt;</span>
+    
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"orbit cyan-orbit"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"dot cyan"</span><span class="tag">&gt;&lt;/div&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"path cyan-path"</span><span class="tag">&gt;&lt;/div&gt;</span>
+    
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"controls"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"control-btn"</span> <span class="attr">id</span>=<span class="value">"pause-btn"</span><span class="tag">&gt;</span>II<span class="tag">&lt;/div&gt;</span>
+        <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"control-btn"</span> <span class="attr">id</span>=<span class="value">"speed-btn"</span><span class="tag">&gt;</span>×<span class="tag">&lt;/div&gt;</span>
+        <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"control-btn"</span> <span class="attr">id</span>=<span class="value">"glow-btn"</span><span class="tag">&gt;</span>+<span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span>
+            </div>
+        
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let isPaused = false;
+            let speed = 1;
+            let glowIntensity = 1;
+            const root = document.documentElement;
+            
+            const orbits = document.querySelectorAll('.orbit');
+            
+            const pauseBtn = document.getElementById('pause-btn');
+            const speedBtn = document.getElementById('speed-btn');
+            const glowBtn = document.getElementById('glow-btn');
+            
+            pauseBtn.addEventListener('click', function() {
+                if (isPaused) {
+                    orbits.forEach(orbit => {
+                        orbit.style.animationPlayState = 'running';
+                    });
+                    pauseBtn.innerHTML = 'II';
+                    isPaused = false;
+                } else {
+                    orbits.forEach(orbit => {
+                        orbit.style.animationPlayState = 'paused';
+                    });
+                    pauseBtn.innerHTML = '▶';
+                    isPaused = true;
+                }
+            });
+            
+            speedBtn.addEventListener('click', function() {
+                speed = (speed === 1) ? 0.5 : ((speed === 0.5) ? 2 : 1);
+                
+                document.querySelector('.magenta-orbit').style.animationDuration = `${6 / speed}s`;
+                document.querySelector('.green-orbit').style.animationDuration = `${8 / speed}s`;
+                document.querySelector('.cyan-orbit').style.animationDuration = `${10 / speed}s`;
+                
+                speedBtn.innerHTML = (speed === 0.5) ? '½×' : ((speed === 1) ? '×' : '2×');
+            });
+            
+            glowBtn.addEventListener('click', function() {
+                glowIntensity = (glowIntensity === 1) ? 1.5 : ((glowIntensity === 1.5) ? 0.5 : 1);
+                root.style.setProperty('--glow-intensity', glowIntensity);
+                glowBtn.innerHTML = (glowIntensity === 0.5) ? '-' : ((glowIntensity === 1) ? '+' : '++');
+            });
+        });
+    </script>
+</body>
+</html>

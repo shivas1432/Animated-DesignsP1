@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Viral Robot Animation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .robot {
+            position: relative;
+            animation: robotFloat 3s ease-in-out infinite;
+        }
+
+        .robot-head {
+            width: 180px;
+            height: 140px;
+            background: linear-gradient(145deg, #ffffff, #e6e6e6);
+            border-radius: 40px;
+            position: relative;
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.2),
+                inset 0 2px 4px rgba(255, 255, 255, 0.3);
+            margin-bottom: 10px;
+        }
+
+        .robot-visor {
+            position: absolute;
+            top: 25px;
+            left: 20px;
+            right: 20px;
+            height: 70px;
+            background: linear-gradient(145deg, #2c2c2c, #1a1a1a);
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .robot-eyes {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            gap: 30px;
+        }
+
+        .eye {
+            width: 20px;
+            height: 40px;
+            background: #00ff88;
+            border-radius: 10px;
+            animation: eyeGlow 2s ease-in-out infinite alternate;
+            box-shadow: 
+                0 0 20px #00ff88,
+                0 0 40px #00ff88,
+                inset 0 2px 4px rgba(255, 255, 255, 0.3);
+        }
+
+        .eye.left {
+            animation-delay: 0.2s;
+        }
+
+        .antenna {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 3px;
+            height: 25px;
+            background: linear-gradient(180deg, #cccccc, #999999);
+            border-radius: 2px;
+            animation: antennaWave 4s ease-in-out infinite;
+        }
+
+        .antenna::after {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 12px;
+            background: radial-gradient(circle, #ffffff, #e6e6e6);
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .robot-body {
+            width: 120px;
+            height: 80px;
+            background: linear-gradient(145deg, #f0f0f0, #d9d9d9);
+            border-radius: 20px;
+            position: relative;
+            box-shadow: 
+                0 15px 30px rgba(0, 0, 0, 0.2),
+                inset 0 2px 4px rgba(255, 255, 255, 0.3);
+        }
+
+        .robot-arms {
+            position: absolute;
+            top: 15px;
+        }
+
+        .arm {
+            width: 25px;
+            height: 50px;
+            background: linear-gradient(145deg, #e6e6e6, #cccccc);
+            border-radius: 15px;
+            position: absolute;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .arm.left {
+            left: -35px;
+            animation: armReachLeft 2s ease-in-out infinite;
+        }
+
+        .arm.right {
+            right: -35px;
+            animation: armReachRight 2s ease-in-out infinite;
+        }
+
+        .floating-orb {
+            position: absolute;
+            border-radius: 50%;
+            animation: orbFloat 4s ease-in-out infinite;
+        }
+
+        .ball {
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle at 30% 30%, #ff6b6b, #e74c3c);
+            top: -80px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 
+                0 10px 25px rgba(231, 76, 60, 0.4),
+                0 0 40px rgba(231, 76, 60, 0.2),
+                inset 2px 2px 8px rgba(255, 255, 255, 0.3);
+            animation: ballBounce 2s ease-in-out infinite;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .ball::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 12px;
+            width: 15px;
+            height: 15px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.8), transparent);
+            border-radius: 50%;
+        }
+
+        .orb-small-1 {
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle at 30% 30%, #ffffff, #e6e6e6);
+            top: 80px;
+            right: -60px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            animation-delay: 1s;
+        }
+
+        .orb-small-2 {
+            width: 15px;
+            height: 15px;
+            background: radial-gradient(circle at 30% 30%, #ddd, #bbb);
+            top: 200px;
+            left: -50px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+            animation-delay: 2s;
+        }
+
+        .orb-small-3 {
+            width: 18px;
+            height: 18px;
+            background: radial-gradient(circle at 30% 30%, #f8f8f8, #d0d0d0);
+            top: 220px;
+            right: -40px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+            animation-delay: 2.5s;
+        }
+
+        .sparkles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #ffffff;
+            border-radius: 50%;
+            animation: sparkleAnim 3s ease-in-out infinite;
+            opacity: 0;
+        }
+
+        .sparkle:nth-child(1) {
+            top: 20%;
+            left: 15%;
+            animation-delay: 0s;
+        }
+
+        .sparkle:nth-child(2) {
+            top: 60%;
+            right: 20%;
+            animation-delay: 1s;
+        }
+
+        .sparkle:nth-child(3) {
+            bottom: 30%;
+            left: 25%;
+            animation-delay: 2s;
+        }
+
+        .sparkle:nth-child(4) {
+            top: 40%;
+            right: 15%;
+            animation-delay: 1.5s;
+        }
+
+        .sparkle:nth-child(5) {
+            bottom: 20%;
+            right: 30%;
+            animation-delay: 0.5s;
+        }
+
+        /* Interactive elements */
+        .robot:hover .eye {
+            animation-duration: 0.3s;
+            background: #00ffff;
+            box-shadow: 
+                0 0 25px #00ffff,
+                0 0 50px #00ffff,
+                inset 0 2px 4px rgba(255, 255, 255, 0.3);
+        }
+
+        .robot:hover {
+            animation-duration: 1s;
+        }
+
+        .ball:hover {
+            animation-duration: 0.5s;
+            transform: translateX(-50%) scale(1.1);
+        }
+
+        .playing .robot-head {
+            animation: headTrackBall 2s ease-in-out infinite;
+        }
+
+        .playing .eye {
+            background: #ffeb3b;
+            box-shadow: 
+                0 0 20px #ffeb3b,
+                0 0 40px #ffeb3b,
+                inset 0 2px 4px rgba(255, 255, 255, 0.3);
+        }
+
+        /* Keyframe animations */
+        @keyframes robotFloat {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        @keyframes eyeGlow {
+            0% {
+                opacity: 1;
+                filter: brightness(1);
+            }
+            100% {
+                opacity: 0.7;
+                filter: brightness(1.3);
+            }
+        }
+
+        @keyframes antennaWave {
+            0%, 100% {
+                transform: translateX(-50%) rotate(0deg);
+            }
+            25% {
+                transform: translateX(-50%) rotate(5deg);
+            }
+            75% {
+                transform: translateX(-50%) rotate(-5deg);
+            }
+        }
+
+        @keyframes armReachLeft {
+            0%, 100% {
+                transform: rotate(0deg);
+            }
+            50% {
+                transform: rotate(-45deg) translateY(-10px);
+            }
+        }
+
+        @keyframes armReachRight {
+            0%, 100% {
+                transform: rotate(0deg);
+            }
+            50% {
+                transform: rotate(45deg) translateY(-10px);
+            }
+        }
+
+        @keyframes ballBounce {
+            0% {
+                transform: translateX(-50%) translateY(0px);
+            }
+            25% {
+                transform: translateX(-30%) translateY(-20px) rotate(90deg);
+            }
+            50% {
+                transform: translateX(-50%) translateY(-40px) rotate(180deg);
+            }
+            75% {
+                transform: translateX(-70%) translateY(-20px) rotate(270deg);
+            }
+            100% {
+                transform: translateX(-50%) translateY(0px) rotate(360deg);
+            }
+        }
+
+        @keyframes headTrackBall {
+            0%, 100% {
+                transform: rotate(0deg);
+            }
+            25% {
+                transform: rotate(10deg);
+            }
+            75% {
+                transform: rotate(-10deg);
+            }
+        }
+
+        @keyframes ballThrow {
+            0% {
+                transform: translateX(-50%) translateY(0px) scale(1);
+            }
+            25% {
+                transform: translateX(-20%) translateY(-60px) scale(0.8);
+            }
+            50% {
+                transform: translateX(50%) translateY(-100px) scale(0.6);
+            }
+            75% {
+                transform: translateX(120%) translateY(-60px) scale(0.8);
+            }
+            100% {
+                transform: translateX(200%) translateY(0px) scale(1);
+                opacity: 0;
+            }
+        }
+
+        @keyframes ballReturn {
+            0% {
+                transform: translateX(-200%) translateY(0px) scale(1);
+                opacity: 0;
+            }
+            25% {
+                transform: translateX(-120%) translateY(-60px) scale(0.8);
+                opacity: 1;
+            }
+            50% {
+                transform: translateX(-50%) translateY(-100px) scale(0.6);
+            }
+            75% {
+                transform: translateX(20%) translateY(-60px) scale(0.8);
+            }
+            100% {
+                transform: translateX(-50%) translateY(0px) scale(1);
+            }
+        }
+
+        @keyframes orbFloat {
+            0%, 100% {
+                transform: translateY(0px) translateX(0px);
+            }
+            25% {
+                transform: translateY(-10px) translateX(5px);
+            }
+            50% {
+                transform: translateY(-20px) translateX(0px);
+            }
+            75% {
+                transform: translateY(-10px) translateX(-5px);
+            }
+        }
+
+        @keyframes sparkleAnim {
+            0%, 100% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+        }
+
+        /* Pulse effect for social media appeal */
+        .robot::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            right: -20px;
+            bottom: -20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            animation: pulseRing 4s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        @keyframes pulseRing {
+            0% {
+                transform: scale(0.8);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.2);
+                opacity: 0;
+            }
+        }
+
+        /* Click interaction */
+        .robot {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .robot.clicked {
+            animation: robotExcited 0.8s ease-in-out;
+        }
+
+        @keyframes robotExcited {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            25% { transform: translateY(-20px) scale(1.05); }
+            50% { transform: translateY(-10px) scale(1.1); }
+            75% { transform: translateY(-25px) scale(1.05); }
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 480px) {
+            .container {
+                width: 300px;
+                height: 300px;
+            }
+            
+            .robot-head {
+                width: 140px;
+                height: 110px;
+            }
+            
+            .robot-body {
+                width: 100px;
+                height: 65px;
+            }
+            
+            .orb-blue {
+                width: 30px;
+                height: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="robot" onclick="exciteRobot()">
+            <div class="antenna"></div>
+            
+            <div class="robot-head">
+                <div class="robot-visor">
+                    <div class="robot-eyes">
+                        <div class="eye left"></div>
+                        <div class="eye right"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="robot-body">
+                <div class="robot-arms">
+                    <div class="arm left"></div>
+                    <div class="arm right"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Playing ball -->
+        <div class="floating-orb ball" onclick="throwBall()"></div>
+        <div class="floating-orb orb-small-1"></div>
+        <div class="floating-orb orb-small-2"></div>
+        <div class="floating-orb orb-small-3"></div>
+
+        <!-- Sparkle effects -->
+        <div class="sparkles">
+            <div class="sparkle"></div>
+            <div class="sparkle"></div>
+            <div class="sparkle"></div>
+            <div class="sparkle"></div>
+            <div class="sparkle"></div>
+        </div>
+    </div>
+
+    <script>
+        let isPlaying = false;
+        let ballCount = 0;
+
+        function exciteRobot() {
+            const robot = document.querySelector('.robot');
+            robot.classList.add('clicked');
+            
+            // Remove the class after animation completes
+            setTimeout(() => {
+                robot.classList.remove('clicked');
+            }, 800);
+            
+            // Add some random sparkle bursts
+            createSparklesBurst();
+        }
+
+        function throwBall() {
+            const ball = document.querySelector('.ball');
+            const container = document.querySelector('.container');
+            const robot = document.querySelector('.robot');
+            
+            if (isPlaying) return; // Prevent multiple throws
+            
+            isPlaying = true;
+            ballCount++;
+            
+            // Robot gets excited and starts playing
+            robot.classList.add('playing');
+            
+            // Throw animation
+            ball.style.animation = 'ballThrow 2s ease-in-out forwards';
+            
+            // Create sparkle burst at throw
+            createSparklesBurst();
+            
+            setTimeout(() => {
+                // Ball returns
+                ball.style.animation = 'ballReturn 2s ease-in-out forwards';
+                
+                setTimeout(() => {
+                    // Reset to normal bouncing
+                    ball.style.animation = 'ballBounce 2s ease-in-out infinite';
+                    isPlaying = false;
+                    
+                    // Robot calms down after a while
+                    setTimeout(() => {
+                        robot.classList.remove('playing');
+                    }, 1000);
+                }, 2000);
+            }, 2000);
+        }
+
+        function createSparklesBurst() {
+            const container = document.querySelector('.container');
+            
+            for (let i = 0; i < 12; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'sparkle';
+                sparkle.style.position = 'absolute';
+                sparkle.style.top = Math.random() * 100 + '%';
+                sparkle.style.left = Math.random() * 100 + '%';
+                sparkle.style.animationDelay = Math.random() * 1 + 's';
+                sparkle.style.opacity = '1';
+                sparkle.style.background = `hsl(${Math.random() * 360}, 70%, 70%)`;
+                
+                container.appendChild(sparkle);
+                
+                // Remove sparkle after animation
+                setTimeout(() => {
+                    if (sparkle.parentNode) {
+                        sparkle.parentNode.removeChild(sparkle);
+                    }
+                }, 3000);
+            }
+        }
+
+        // Auto-play demonstration
+        setInterval(() => {
+            if (Math.random() < 0.4 && !isPlaying) { // 40% chance every 6 seconds
+                throwBall();
+            }
+        }, 6000);
+
+        // Eye blink effect
+        setInterval(() => {
+            const eyes = document.querySelectorAll('.eye');
+            const robot = document.querySelector('.robot');
+            
+            if (!robot.classList.contains('playing')) {
+                eyes.forEach(eye => {
+                    eye.style.height = '2px';
+                    setTimeout(() => {
+                        eye.style.height = '40px';
+                    }, 150);
+                });
+            }
+        }, 4000 + Math.random() * 3000); // Random blinking
+
+        // Mobile touch optimization
+        if ('ontouchstart' in window) {
+            document.querySelector('.robot').addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                exciteRobot();
+            });
+            
+            document.querySelector('.ball').addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                throwBall();
+            });
+        }
+
+        // Add floating text when ball is clicked multiple times
+        let clickMessages = [
+            "Weeee! 🤖",
+            "I love this game! ⚽",
+            "Catch me if you can! 🎾",
+            "Best friends forever! 💕",
+            "Let's play more! 🎮"
+        ];
+
+        function showPlayMessage() {
+            if (ballCount > 0 && ballCount <= clickMessages.length) {
+                const message = document.createElement('div');
+                message.textContent = clickMessages[ballCount - 1];
+                message.style.position = 'absolute';
+                message.style.top = '20px';
+                message.style.left = '50%';
+                message.style.transform = 'translateX(-50%)';
+                message.style.background = 'rgba(255, 255, 255, 0.9)';
+                message.style.padding = '8px 16px';
+                message.style.borderRadius = '20px';
+                message.style.fontSize = '14px';
+                message.style.fontWeight = 'bold';
+                message.style.color = '#333';
+                message.style.animation = 'messageFloat 3s ease-out forwards';
+                message.style.zIndex = '100';
+                message.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
+                
+                document.querySelector('.container').appendChild(message);
+                
+                setTimeout(() => {
+                    if (message.parentNode) {
+                        message.parentNode.removeChild(message);
+                    }
+                }, 3000);
+            }
+        }
+
+        // Add message float animation via JavaScript since we can't modify CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes messageFloat {
+                0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+                20% { opacity: 1; transform: translateX(-50%) translateY(0px); }
+                80% { opacity: 1; transform: translateX(-50%) translateY(0px); }
+                100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Show message when ball is thrown
+        document.querySelector('.ball').addEventListener('click', () => {
+            setTimeout(showPlayMessage, 500);
+        });
+    </script>
+</body>
+</html>

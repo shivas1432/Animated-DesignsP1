@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Code Post</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'SF Mono', 'Menlo', Monaco, 'Courier New', monospace;
+        }
+        
+        body {
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        .instagram-post {
+            width: 1080px;
+            height: 1080px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 40px rgba(79, 70, 229, 0.15);
+        }
+        
+        .demo-section {
+            height: 65%;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .code-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 90%;
+            position: relative;
+        }
+        
+        .code-line-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+        
+        .code-line {
+            font-size: 32px;
+            height: 60px;
+            margin: 10px 0;
+            color: white;
+            white-space: nowrap;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .keyword {
+            color: #FF8E3C;
+        }
+        
+        .function {
+            color: #9D68CB;
+        }
+        
+        .parameter {
+            color: #FFFFFF;
+        }
+        
+        .punctuation {
+            color: #E5E5E5;
+        }
+        
+        .method {
+            color: #61DAFB;
+        }
+        
+        .glow-effect {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(99, 102, 241, 0) 70%);
+            opacity: 0.8;
+            pointer-events: none;
+        }
+        
+        .glow-1 {
+            top: -10%;
+            left: 60%;
+            transform: scale(1.5);
+        }
+        
+        .glow-2 {
+            bottom: -10%;
+            left: 30%;
+            transform: scale(2);
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, rgba(168, 85, 247, 0) 70%);
+        }
+        
+        .cursor {
+            display: inline-block;
+            width: 12px;
+            height: 32px;
+            background-color: #fff;
+            animation: blink 1s infinite;
+            position: absolute;
+            margin-left: 4px;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        .success-message {
+            color: #4ADE80;
+            font-size: 32px;
+            text-align: center;
+            width: 100%;
+            opacity: 0;
+            transition: opacity 1s ease;
+            text-shadow: 0 0 15px rgba(74, 222, 128, 0.3);
+            font-weight: 600;
+            letter-spacing: 2px;
+            margin-top: 30px;
+        }
+        
+        .code-editor {
+            height: 35%;
+            background-color: #0d1117;
+            padding: 15px;
+            position: relative;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .editor-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .window-buttons {
+            display: flex;
+            gap: 6px;
+            margin-right: 15px;
+        }
+        
+        .button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .button-red {
+            background-color: #ff5f57;
+        }
+        
+        .button-yellow {
+            background-color: #febc2e;
+        }
+        
+        .button-green {
+            background-color: #28c840;
+        }
+        
+        .file-name {
+            color: #8b949e;
+            font-size: 14px;
+        }
+        
+        .code-content {
+            height: calc(100% - 35px);
+            overflow: hidden;
+        }
+        
+        .code-line-editor {
+            color: #e6edf3;
+            font-size: 11px;
+            line-height: 1.4;
+            margin-bottom: 3px;
+            white-space: pre;
+        }
+        
+        .html-tag {
+            color: #7ee787;
+        }
+        
+        .html-attr {
+            color: #79c0ff;
+        }
+        
+        .html-value {
+            color: #a5d6ff;
+        }
+        
+        .js-keyword {
+            color: #ff7b72;
+        }
+        
+        .js-method {
+            color: #79c0ff;
+        }
+        
+        .js-string {
+            color: #a5d6ff;
+        }
+        
+        .js-comment {
+            color: #8b949e;
+        }
+        
+        .indent-1 {
+            margin-left: 20px;
+        }
+        
+        .indent-2 {
+            margin-left: 40px;
+        }
+        
+        .indent-3 {
+            margin-left: 60px;
+        }
+        
+        .code-watermark {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            color: rgba(255, 255, 255, 0.1);
+            font-size: 14px;
+            pointer-events: none;
+        }
+        
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="instagram-post">
+        <div class="demo-section">
+            <div class="glow-effect glow-1"></div>
+            <div class="glow-effect glow-2"></div>
+            
+            <div class="code-container">
+                <div class="code-line-container">
+                    <div class="code-line" id="line1"></div>
+                    <div class="code-line" id="line2"></div>
+                    <div class="code-line" id="line3"></div>
+                </div>
+                <div class="cursor" id="cursor"></div>
+                <div class="success-message" id="success-message">SUCCESS ACHIEVED</div>
+            </div>
+        </div>
+        
+        <div class="code-editor">
+            <div class="editor-header">
+                <div class="window-buttons">
+                    <div class="button button-red"></div>
+                    <div class="button button-yellow"></div>
+                    <div class="button button-green"></div>
+                </div>
+                <div class="file-name">script.js</div>
+            </div>
+            
+            <div class="code-content">
+                <div class="code-line-editor"><span class="js-keyword">function</span> <span class="js-method">typeCode</span>() {</div>
+                <div class="code-line-editor indent-1"><span class="js-keyword">const</span> lines = [</div>
+                <div class="code-line-editor indent-2">{text: <span class="js-string">'let vision = define(goal);'</span>, id: <span class="js-string">'line1'</span>},</div>
+                <div class="code-line-editor indent-2">{text: <span class="js-string">'let plan = breakDown(vision);'</span>, id: <span class="js-string">'line2'</span>},</div>
+                <div class="code-line-editor indent-2">{text: <span class="js-string">'execute(plan).daily().until(achieved);'</span>, id: <span class="js-string">'line3'</span>}</div>
+                <div class="code-line-editor indent-1">];</div>
+                <div class="code-line-editor indent-1">lines.forEach(<span class="js-keyword">async</span> (line, i) => {</div>
+                <div class="code-line-editor indent-2"><span class="js-keyword">await</span> <span class="js-method">typeLine</span>(line.text, line.id, i * 800);</div>
+                <div class="code-line-editor indent-1">});</div>
+                <div class="code-line-editor indent-1"><span class="js-method">showSuccess</span>();</div>
+                <div class="code-line-editor">}</div>
+                <div class="code-line-editor"></div>
+                <div class="code-line-editor"><span class="js-method">typeCode</span>();</div>
+            </div>
+            
+            <div class="code-watermark">@yourcodewizard</div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const codeLines = [
+                [
+                    { text: 'let', class: 'keyword' },
+                    { text: ' ', class: 'text' },
+                    { text: 'vision', class: 'parameter' },
+                    { text: ' ', class: 'text' },
+                    { text: '=', class: 'punctuation' },
+                    { text: ' ', class: 'text' },
+                    { text: 'define', class: 'function' },
+                    { text: '(', class: 'punctuation' },
+                    { text: 'goal', class: 'parameter' },
+                    { text: ');', class: 'punctuation' }
+                ],
+                [
+                    { text: 'let', class: 'keyword' },
+                    { text: ' ', class: 'text' },
+                    { text: 'plan', class: 'parameter' },
+                    { text: ' ', class: 'text' },
+                    { text: '=', class: 'punctuation' },
+                    { text: ' ', class: 'text' },
+                    { text: 'breakDown', class: 'function' },
+                    { text: '(', class: 'punctuation' },
+                    { text: 'vision', class: 'parameter' },
+                    { text: ');', class: 'punctuation' }
+                ],
+                [
+                    { text: 'execute', class: 'function' },
+                    { text: '(', class: 'punctuation' },
+                    { text: 'plan', class: 'parameter' },
+                    { text: ').', class: 'punctuation' },
+                    { text: 'daily', class: 'method' },
+                    { text: '(', class: 'punctuation' },
+                    { text: ')', class: 'punctuation' },
+                    { text: '.', class: 'punctuation' },
+                    { text: 'until', class: 'method' },
+                    { text: '(', class: 'punctuation' },
+                    { text: 'achieved', class: 'parameter' },
+                    { text: ');', class: 'punctuation' }
+                ]
+            ];
+            
+            const line1El = document.getElementById('line1');
+            const line2El = document.getElementById('line2');
+            const line3El = document.getElementById('line3');
+            const lineElements = [line1El, line2El, line3El];
+            
+            const cursor = document.getElementById('cursor');
+            const successMessage = document.getElementById('success-message');
+            
+            function typeText(lineIndex, callback) {
+                const lineEl = lineElements[lineIndex];
+                const lineData = codeLines[lineIndex];
+                let currentPartIndex = 0;
+                let currentCharIndex = 0;
+                
+                lineEl.innerHTML = '';
+                
+                function typingLoop() {
+                    if (currentPartIndex >= lineData.length) {
+                        if (callback) setTimeout(callback, 500);
+                        return;
+                    }
+                    
+                    const currentPart = lineData[currentPartIndex];
+                    
+                    if (currentCharIndex === 0) {
+                        const span = document.createElement('span');
+                        span.className = currentPart.class;
+                        span.id = `line${lineIndex + 1}-part${currentPartIndex}`;
+                        span.textContent = '';
+                        lineEl.appendChild(span);
+                    }
+                    
+                    const span = document.getElementById(`line${lineIndex + 1}-part${currentPartIndex}`);
+                    
+                    span.textContent += currentPart.text[currentCharIndex];
+                    currentCharIndex++;
+                    
+                    positionCursor(lineEl);
+                    
+                    if (currentCharIndex >= currentPart.text.length) {
+                        currentPartIndex++;
+                        currentCharIndex = 0;
+                    }
+                    
+                    setTimeout(typingLoop, 50);
+                }
+                
+                typingLoop();
+            }
+            
+            function positionCursor(lineEl) {
+                const rect = lineEl.getBoundingClientRect();
+                
+                cursor.style.left = rect.right + 'px';
+                cursor.style.top = rect.top + 'px';
+            }
+            
+            function createParticles() {
+                const colors = ['#61DAFB', '#9D68CB', '#FF8E3C', '#4EC9B0'];
+                
+                for (let i = 0; i < 50; i++) {
+                    const particle = document.createElement('div');
+                    particle.classList.add('particle');
+                    
+                    const x = Math.random() * 800 + 140;
+                    const y = Math.random() * 100 + 400;
+                    
+                    const size = Math.random() * 6 + 2;
+                    
+                    const color = colors[Math.floor(Math.random() * colors.length)];
+                    
+                    particle.style.width = `${size}px`;
+                    particle.style.height = `${size}px`;
+                    particle.style.left = `${x}px`;
+                    particle.style.top = `${y}px`;
+                    particle.style.backgroundColor = color;
+                    
+                    document.querySelector('.demo-section').appendChild(particle);
+                    
+                    setTimeout(() => {
+                        particle.style.opacity = '1';
+                        particle.style.transform = `translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 150}px)`;
+                        particle.style.transition = `opacity 0.5s ease, transform ${Math.random() * 2 + 1}s ease`;
+                        
+                        setTimeout(() => {
+                            particle.style.opacity = '0';
+                            setTimeout(() => {
+                                particle.remove();
+                            }, 1000);
+                        }, 1000);
+                    }, Math.random() * 1000);
+                }
+            }
+            
+            function startAnimation() {
+                cursor.style.opacity = '1';
+                
+                typeText(0, () => {
+                    typeText(1, () => {
+                        typeText(2, () => {
+                            setTimeout(() => {
+                                cursor.style.opacity = '0';
+                                successMessage.style.opacity = '1';
+                                
+                                createParticles();
+                                
+                                setTimeout(() => {
+                                    resetAnimation();
+                                }, 8000);
+                            }, 1500);
+                        });
+                    });
+                });
+            }
+            
+            function resetAnimation() {
+                lineElements.forEach(el => {
+                    el.innerHTML = '';
+                });
+                
+                successMessage.style.opacity = '0';
+                
+                setTimeout(startAnimation, 1000);
+            }
+            
+            startAnimation();
+        });
+    </script>
+</body>
+</html>

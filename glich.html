@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glitch Art Portrait Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #000;
+            font-family: 'Courier New', monospace;
+            color: #00ff00;
+            overflow: hidden;
+        }
+        
+        .container {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        .controls {
+            width: 300px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            border-right: 2px solid #00ff00;
+            overflow-y: auto;
+        }
+        
+        .canvas-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle, #ff00ff, #00ffff, #ffff00);
+            background-size: 400% 400%;
+            animation: gradientShift 3s ease infinite;
+        }
+        
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        canvas {
+            max-width: 90%;
+            max-height: 90%;
+            border: 3px solid #00ff00;
+            box-shadow: 0 0 30px #00ff00;
+        }
+        
+        .upload-area {
+            border: 2px dashed #00ff00;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-area:hover {
+            background: rgba(0, 255, 0, 0.1);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+        
+        .control-group {
+            margin-bottom: 20px;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        
+        .slider {
+            width: 100%;
+            background: #333;
+            outline: none;
+            height: 5px;
+            border-radius: 5px;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 15px;
+            height: 15px;
+            background: #00ff00;
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #00ff00;
+        }
+        
+        .effect-btn {
+            background: transparent;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 8px 15px;
+            margin: 5px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+        
+        .effect-btn:hover {
+            background: #00ff00;
+            color: #000;
+            box-shadow: 0 0 20px #00ff00;
+        }
+        
+        .effect-btn.active {
+            background: #ff00ff;
+            border-color: #ff00ff;
+            box-shadow: 0 0 20px #ff00ff;
+        }
+        
+        #fileInput {
+            display: none;
+        }
+        
+        .glitch-text {
+            animation: glitch 2s infinite;
+        }
+        
+        @keyframes glitch {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="controls">
+            <h2 class="glitch-text">🌈 GLITCH GENERATOR</h2>
+            
+            <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                <div>📁 UPLOAD IMAGE</div>
+                <div style="font-size: 10px; margin-top: 10px;">Click or drag image here</div>
+            </div>
+            <input type="file" id="fileInput" accept="image/*">
+            
+            <div class="control-group">
+                <label>RGB Shift Intensity</label>
+                <input type="range" id="rgbShift" class="slider" min="0" max="50" value="10">
+            </div>
+            
+            <div class="control-group">
+                <label>Pixelation Level</label>
+                <input type="range" id="pixelation" class="slider" min="1" max="20" value="1">
+            </div>
+            
+            <div class="control-group">
+                <label>Noise Amount</label>
+                <input type="range" id="noise" class="slider" min="0" max="100" value="20">
+            </div>
+            
+            <div class="control-group">
+                <label>Scan Lines</label>
+                <input type="range" id="scanlines" class="slider" min="0" max="10" value="2">
+            </div>
+            
+            <div class="control-group">
+                <label>Data Moshing</label>
+                <input type="range" id="datamosh" class="slider" min="0" max="100" value="0">
+            </div>
+            
+            <div style="margin-top: 30px;">
+                <div>PRESETS:</div>
+                <button class="effect-btn" data-preset="vintage">VINTAGE</button>
+                <button class="effect-btn" data-preset="cyberpunk">CYBERPUNK</button>
+                <button class="effect-btn" data-preset="vaporwave">VAPORWAVE</button>
+                <button class="effect-btn" data-preset="corrupt">CORRUPT</button>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <button class="effect-btn" id="randomize">RANDOMIZE</button>
+                <button class="effect-btn" id="reset">RESET</button>
+            </div>
+        </div>
+        
+        <div class="canvas-container">
+            <canvas id="canvas"></canvas>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const fileInput = document.getElementById('fileInput');
+        
+        let originalImage = null;
+        let imageData = null;
+        
+        // Default image creation
+        function createDefaultImage() {
+            canvas.width = 400;
+            canvas.height = 400;
+            
+            // Create colorful default pattern
+            const gradient = ctx.createRadialGradient(200, 200, 0, 200, 200, 200);
+            gradient.addColorStop(0, '#ff00ff');
+            gradient.addColorStop(0.5, '#00ffff');
+            gradient.addColorStop(1, '#ffff00');
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 400, 400);
+            
+            // Add some geometric shapes
+            for (let i = 0; i < 10; i++) {
+                ctx.fillStyle = `hsl(${Math.random() * 360}, 70%, 50%)`;
+                ctx.fillRect(
+                    Math.random() * 300,
+                    Math.random() * 300,
+                    50 + Math.random() * 100,
+                    50 + Math.random() * 100
+                );
+            }
+            
+            originalImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            applyEffects();
+        }
+        
+        function loadImage(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    // Resize canvas to fit image
+                    const maxSize = 600;
+                    let { width, height } = img;
+                    
+                    if (width > height) {
+                        if (width > maxSize) {
+                            height = (height * maxSize) / width;
+                            width = maxSize;
+                        }
+                    } else {
+                        if (height > maxSize) {
+                            width = (width * maxSize) / height;
+                            height = maxSize;
+                        }
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    originalImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    applyEffects();
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function applyEffects() {
+            if (!originalImage) return;
+            
+            // Start with original image
+            imageData = new ImageData(
+                new Uint8ClampedArray(originalImage.data),
+                originalImage.width,
+                originalImage.height
+            );
+            
+            const rgbShift = parseInt(document.getElementById('rgbShift').value);
+            const pixelation = parseInt(document.getElementById('pixelation').value);
+            const noise = parseInt(document.getElementById('noise').value);
+            const scanlines = parseInt(document.getElementById('scanlines').value);
+            const datamosh = parseInt(document.getElementById('datamosh').value);
+            
+            // Apply pixelation
+            if (pixelation > 1) {
+                applyPixelation(pixelation);
+            }
+            
+            // Apply RGB channel shift
+            if (rgbShift > 0) {
+                applyRGBShift(rgbShift);
+            }
+            
+            // Apply noise
+            if (noise > 0) {
+                applyNoise(noise);
+            }
+            
+            // Apply scanlines
+            if (scanlines > 0) {
+                applyScanlines(scanlines);
+            }
+            
+            // Apply data moshing
+            if (datamosh > 0) {
+                applyDataMoshing(datamosh);
+            }
+            
+            ctx.putImageData(imageData, 0, 0);
+        }
+        
+        function applyRGBShift(intensity) {
+            const data = imageData.data;
+            const width = imageData.width;
+            const height = imageData.height;
+            
+            const tempData = new Uint8ClampedArray(data);
+            
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const idx = (y * width + x) * 4;
+                    
+                    // Shift red channel
+                    const redX = Math.max(0, Math.min(width - 1, x + intensity));
+                    const redIdx = (y * width + redX) * 4;
+                    
+                    // Shift blue channel
+                    const blueX = Math.max(0, Math.min(width - 1, x - intensity));
+                    const blueIdx = (y * width + blueX) * 4;
+                    
+                    data[idx] = tempData[redIdx];         // Red from shifted position
+                    data[idx + 1] = tempData[idx + 1];   // Green stays
+                    data[idx + 2] = tempData[blueIdx + 2]; // Blue from shifted position
+                }
+            }
+        }
+        
+        function applyPixelation(level) {
+            const width = imageData.width;
+            const height = imageData.height;
+            const data = imageData.data;
+            
+            for (let y = 0; y < height; y += level) {
+                for (let x = 0; x < width; x += level) {
+                    const idx = (y * width + x) * 4;
+                    const r = data[idx];
+                    const g = data[idx + 1];
+                    const b = data[idx + 2];
+                    
+                    // Fill block with average color
+                    for (let dy = 0; dy < level && y + dy < height; dy++) {
+                        for (let dx = 0; dx < level && x + dx < width; dx++) {
+                            const blockIdx = ((y + dy) * width + (x + dx)) * 4;
+                            data[blockIdx] = r;
+                            data[blockIdx + 1] = g;
+                            data[blockIdx + 2] = b;
+                        }
+                    }
+                }
+            }
+        }
+        
+        function applyNoise(intensity) {
+            const data = imageData.data;
+            
+            for (let i = 0; i < data.length; i += 4) {
+                if (Math.random() < intensity / 100) {
+                    const noiseValue = (Math.random() - 0.5) * 255;
+                    data[i] = Math.max(0, Math.min(255, data[i] + noiseValue));
+                    data[i + 1] = Math.max(0, Math.min(255, data[i + 1] + noiseValue));
+                    data[i + 2] = Math.max(0, Math.min(255, data[i + 2] + noiseValue));
+                }
+            }
+        }
+        
+        function applyScanlines(intensity) {
+            const data = imageData.data;
+            const width = imageData.width;
+            const height = imageData.height;
+            
+            for (let y = 0; y < height; y += intensity) {
+                for (let x = 0; x < width; x++) {
+                    const idx = (y * width + x) * 4;
+                    data[idx] *= 0.3;     // Darken red
+                    data[idx + 1] *= 0.3; // Darken green
+                    data[idx + 2] *= 0.3; // Darken blue
+                }
+            }
+        }
+        
+        function applyDataMoshing(intensity) {
+            const data = imageData.data;
+            const corruptionChance = intensity / 100;
+            
+            for (let i = 0; i < data.length; i += 4) {
+                if (Math.random() < corruptionChance) {
+                    // Randomly corrupt pixel data
+                    const sourceIdx = Math.floor(Math.random() * (data.length / 4)) * 4;
+                    data[i] = data[sourceIdx];
+                    data[i + 1] = data[sourceIdx + 1];
+                    data[i + 2] = data[sourceIdx + 2];
+                }
+            }
+        }
+        
+        // Event listeners
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files[0]) {
+                loadImage(e.target.files[0]);
+            }
+        });
+        
+        // Real-time slider updates
+        document.querySelectorAll('.slider').forEach(slider => {
+            slider.addEventListener('input', applyEffects);
+        });
+        
+        // Preset buttons
+        document.querySelectorAll('[data-preset]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const preset = btn.dataset.preset;
+                
+                switch(preset) {
+                    case 'vintage':
+                        document.getElementById('rgbShift').value = 15;
+                        document.getElementById('pixelation').value = 2;
+                        document.getElementById('noise').value = 30;
+                        document.getElementById('scanlines').value = 3;
+                        document.getElementById('datamosh').value = 5;
+                        break;
+                    case 'cyberpunk':
+                        document.getElementById('rgbShift').value = 25;
+                        document.getElementById('pixelation').value = 1;
+                        document.getElementById('noise').value = 40;
+                        document.getElementById('scanlines').value = 2;
+                        document.getElementById('datamosh').value = 15;
+                        break;
+                    case 'vaporwave':
+                        document.getElementById('rgbShift').value = 20;
+                        document.getElementById('pixelation').value = 3;
+                        document.getElementById('noise').value = 10;
+                        document.getElementById('scanlines').value = 4;
+                        document.getElementById('datamosh').value = 8;
+                        break;
+                    case 'corrupt':
+                        document.getElementById('rgbShift').value = 35;
+                        document.getElementById('pixelation').value = 6;
+                        document.getElementById('noise').value = 60;
+                        document.getElementById('scanlines').value = 5;
+                        document.getElementById('datamosh').value = 40;
+                        break;
+                }
+                applyEffects();
+            });
+        });
+        
+        // Randomize button
+        document.getElementById('randomize').addEventListener('click', () => {
+            document.getElementById('rgbShift').value = Math.floor(Math.random() * 50);
+            document.getElementById('pixelation').value = Math.floor(Math.random() * 15) + 1;
+            document.getElementById('noise').value = Math.floor(Math.random() * 80);
+            document.getElementById('scanlines').value = Math.floor(Math.random() * 8);
+            document.getElementById('datamosh').value = Math.floor(Math.random() * 60);
+            applyEffects();
+        });
+        
+        // Reset button
+        document.getElementById('reset').addEventListener('click', () => {
+            document.getElementById('rgbShift').value = 10;
+            document.getElementById('pixelation').value = 1;
+            document.getElementById('noise').value = 20;
+            document.getElementById('scanlines').value = 2;
+            document.getElementById('datamosh').value = 0;
+            applyEffects();
+        });
+        
+        // Initialize with default image
+        createDefaultImage();
+    </script>
+</body>
+</html>

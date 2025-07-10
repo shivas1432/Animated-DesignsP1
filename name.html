@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Typing Animation - Viral Ready</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Cinzel:wght@400;600;700&family=Audiowide:wght@400&family=Teko:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Orbitron', monospace;
+            background: linear-gradient(135deg, #f0f0f3 0%, #ffffff 50%, #f5f5f7 100%);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-left: 400px;
+            width: 700px;
+        }
+
+        .geometric-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(200, 200, 220, 0.623) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(220, 200, 240, 0.116) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgb(200, 220, 255) 0%, transparent 50%);
+        }
+
+        .matrix-rain {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.03;
+        }
+
+        .input-container {
+            position: relative;
+            margin-bottom: 80px;
+            z-index: 10;
+        }
+
+        .premium-input {
+            background: #f0f0f3;
+            border: none;
+            border-radius: 25px;
+            padding: 20px 35px;
+            font-size: 20px;
+            font-family: 'Orbitron', monospace;
+            color: #333;
+            text-align: center;
+            width: 400px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            letter-spacing: 2px;
+            position: relative;
+            box-shadow: 
+                8px 8px 16px rgba(163, 177, 198, 0.6),
+                -8px -8px 16px rgba(255, 255, 255, 0.8);
+        }
+
+        .premium-input::before {
+            display: none;
+        }
+
+        .premium-input:focus {
+            outline: none;
+            transform: scale(1.02);
+            box-shadow: 
+                inset 8px 8px 16px rgba(163, 177, 198, 0.4),
+                inset -8px -8px 16px rgba(255, 255, 255, 0.8),
+                0 0 20px rgba(100, 150, 255, 0.3);
+        }
+
+        .premium-input::placeholder {
+            color: rgba(100, 100, 100, 0.7);
+            font-weight: 300;
+        }
+
+        .display-area {
+            position: relative;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 1000px;
+            width: 100%;
+        }
+
+        .text-display {
+            font-size: 120px;
+            font-weight: 900;
+            text-align: center;
+            position: relative;
+            font-family: 'Orbitron', monospace;
+            transform-style: preserve-3d;
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            width: 90%;
+        }
+
+        .letter {
+            display: inline-block;
+            opacity: 1;
+            transform: translateY(0) rotateX(0deg) scale(1);
+            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+            margin: 0 3px;
+        }
+
+        .letter.typing-in {
+            animation: letterTypingIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        }
+
+        .letter.typing-out {
+            animation: letterTypingOut 0.3s ease-in forwards;
+        }
+
+        @keyframes letterTypingIn {
+            0% {
+                opacity: 0;
+                transform: translateY(-50px) rotateX(90deg) scale(0.3);
+            }
+            50% {
+                opacity: 0.8;
+                transform: translateY(5px) rotateX(45deg) scale(1.1);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) rotateX(0deg) scale(1);
+            }
+        }
+
+        @keyframes letterTypingOut {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(20px) scale(0.8);
+            }
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 4px;
+            height: 1em;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            animation: blink 1s infinite, cursor-glow 2s ease-in-out infinite alternate;
+            margin-left: 8px;
+            border-radius: 2px;
+            vertical-align: baseline;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        @keyframes cursor-glow {
+            from { box-shadow: 0 0 5px rgba(102, 126, 234, 0.5); }
+            to { box-shadow: 0 0 10px rgba(118, 75, 162, 0.5); }
+        }
+
+        /* Premium Font Styles */
+        .font-orbitron { font-family: 'Orbitron', monospace; }
+        .font-cinzel { font-family: 'Cinzel', serif; }
+        .font-audiowide { font-family: 'Audiowide', cursive; }
+        .font-teko { font-family: 'Teko', sans-serif; font-weight: 600; }
+
+        /* Premium Effects with Subtle Glow - Neumorphic */
+        .effect-cyber {
+            color: #2c5aa0;
+            text-shadow: 
+                0 0 2px rgba(44, 90, 160, 0.6),
+                0 0 6px rgba(44, 90, 160, 0.4),
+                0 0 10px rgba(44, 90, 160, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .effect-elegant {
+            color: #8b7355;
+            text-shadow: 
+                0 0 2px rgba(139, 115, 85, 0.6),
+                0 0 6px rgba(139, 115, 85, 0.4),
+                0 0 10px rgba(139, 115, 85, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .effect-retro {
+            color: #a0457b;
+            text-shadow: 
+                0 0 2px rgba(160, 69, 123, 0.6),
+                0 0 6px rgba(160, 69, 123, 0.4),
+                0 0 10px rgba(160, 69, 123, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .effect-bold {
+            color: #b83c3c;
+            text-shadow: 
+                0 0 2px rgba(184, 60, 60, 0.6),
+                0 0 6px rgba(184, 60, 60, 0.4),
+                0 0 10px rgba(184, 60, 60, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .effect-minimal {
+            color: #555555;
+            text-shadow: 
+                0 0 2px rgba(85, 85, 85, 0.4),
+                0 0 6px rgba(85, 85, 85, 0.2),
+                0 0 10px rgba(85, 85, 85, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .floating-particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 50%;
+            animation: float-up 4s linear infinite;
+        }
+
+        @keyframes float-up {
+            0% {
+                opacity: 0;
+                transform: translateY(100vh) scale(0);
+            }
+            10% {
+                opacity: 1;
+                transform: translateY(90vh) scale(1);
+            }
+            90% {
+                opacity: 1;
+                transform: translateY(10vh) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(0) scale(0);
+            }
+        }
+
+        .style-selector {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            z-index: 100;
+        }
+
+        .style-btn {
+            background: #f0f0f3;
+            border: none;
+            color: #666;
+            padding: 10px 18px;
+            margin: 4px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 
+                6px 6px 12px rgba(163, 177, 198, 0.5),
+                -6px -6px 12px rgba(255, 255, 255, 0.8);
+        }
+
+        .style-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                8px 8px 16px rgba(163, 177, 198, 0.6),
+                -8px -8px 16px rgba(255, 255, 255, 0.9);
+        }
+
+        .style-btn.active {
+            background: #e6e6ea;
+            color: #333;
+            box-shadow: 
+                inset 6px 6px 12px rgba(163, 177, 198, 0.4),
+                inset -6px -6px 12px rgba(255, 255, 255, 0.8);
+            transform: scale(0.98);
+        }
+
+        .instructions {
+            position: absolute;
+            bottom: 30px;
+            color: rgba(100, 100, 100, 0.8);
+            font-size: 14px;
+            text-align: center;
+            z-index: 10;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .social-badge {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: #f0f0f3;
+            color: #333;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 12px;
+            font-weight: bold;
+            box-shadow: 
+                8px 8px 16px rgba(163, 177, 198, 0.6),
+                -8px -8px 16px rgba(255, 255, 255, 0.8);
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { 
+                box-shadow: 
+                    8px 8px 16px rgba(163, 177, 198, 0.6),
+                    -8px -8px 16px rgba(255, 255, 255, 0.8);
+            }
+            50% { 
+                box-shadow: 
+                    10px 10px 20px rgba(163, 177, 198, 0.7),
+                    -10px -10px 20px rgba(255, 255, 255, 0.9);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .premium-input {
+                width: 300px;
+                font-size: 16px;
+                padding: 15px 25px;
+            }
+            
+            .text-display {
+                font-size: 50px;
+            }
+            
+            .style-selector {
+                position: relative;
+                top: auto;
+                left: auto;
+                margin-bottom: 20px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="geometric-bg"></div>
+    <canvas class="matrix-rain" id="matrixCanvas"></canvas>
+    <div class="floating-particles" id="particles"></div>
+    
+   
+
+    <div class="style-selector">
+        <button class="style-btn active" data-font="orbitron" data-effect="cyber" data-name="CYBER">CYBER</button>
+        <button class="style-btn" data-font="cinzel" data-effect="elegant" data-name="ELEGANT">ELEGANT</button>
+        <button class="style-btn" data-font="audiowide" data-effect="retro" data-name="RETRO">RETRO</button>
+        <button class="style-btn" data-font="teko" data-effect="bold" data-name="BOLD">BOLD</button>
+        <button class="style-btn" data-font="orbitron" data-effect="minimal" data-name="MINIMAL">MINIMAL</button>
+    </div>
+
+    <div class="input-container">
+        <input type="text" class="premium-input" id="nameInput" placeholder="TYPE YOUR NAME..." maxlength="15">
+    </div>
+
+    <div class="display-area">
+        <div class="text-display font-orbitron effect-cyber" id="textDisplay">
+            <span class="cursor" id="cursor"></span>
+        </div>
+    </div>
+
+    <div class="instructions">
+        ✨ TYPE YOUR NAME • CHOOSE A STYLE  ✨<br>
+      
+    </div>
+
+    <script>
+        class PremiumTypingAnimator {
+            constructor() {
+                this.textDisplay = document.getElementById('textDisplay');
+                this.nameInput = document.getElementById('nameInput');
+                this.cursor = document.getElementById('cursor');
+                
+                this.displayedText = '';
+                this.targetText = '';
+                this.isAnimating = false;
+                
+                this.currentEffect = 'cyber';
+                this.currentFont = 'orbitron';
+                
+                this.setupEventListeners();
+                this.createFloatingParticles();
+                this.setupMatrixRain();
+                this.startDemo();
+            }
+
+            setupEventListeners() {
+                this.nameInput.addEventListener('input', (e) => {
+                    const newText = e.target.value.toUpperCase();
+                    this.updateText(newText);
+                });
+
+                // Style selector buttons
+                document.querySelectorAll('.style-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        
+                        this.currentFont = e.target.dataset.font;
+                        this.currentEffect = e.target.dataset.effect;
+                        this.updateTextStyle();
+                        
+                        // Create particles when switching styles
+                        this.createStyleParticles();
+                    });
+                });
+            }
+
+            updateText(newText) {
+                this.targetText = newText;
+                if (!this.isAnimating) {
+                    this.animateToTarget();
+                }
+            }
+
+            async animateToTarget() {
+                this.isAnimating = true;
+                
+                // First, remove letters that don't match
+                while (this.displayedText.length > 0 && 
+                       (this.displayedText.length > this.targetText.length || 
+                        this.displayedText[this.displayedText.length - 1] !== this.targetText[this.displayedText.length - 1])) {
+                    
+                    await this.removeLetter();
+                }
+                
+                // Then, add new letters
+                while (this.displayedText.length < this.targetText.length) {
+                    await this.addLetter();
+                }
+                
+                this.isAnimating = false;
+            }
+
+            async removeLetter() {
+                if (this.displayedText.length > 0) {
+                    // Mark last letter for removal animation
+                    const letters = this.textDisplay.querySelectorAll('.letter');
+                    const lastLetter = letters[letters.length - 1];
+                    if (lastLetter) {
+                        lastLetter.classList.add('typing-out');
+                        await this.wait(200);
+                    }
+                    
+                    this.displayedText = this.displayedText.slice(0, -1);
+                    this.renderText();
+                    await this.wait(50);
+                }
+            }
+
+            async addLetter() {
+                if (this.displayedText.length < this.targetText.length) {
+                    this.displayedText += this.targetText[this.displayedText.length];
+                    this.renderText();
+                    
+                    // Trigger typing animation for the new letter
+                    const letters = this.textDisplay.querySelectorAll('.letter');
+                    const newLetter = letters[letters.length - 1];
+                    if (newLetter) {
+                        newLetter.classList.add('typing-in');
+                    }
+                    
+                    // Create particles for new letter
+                    this.createTypeParticles();
+                    await this.wait(120);
+                }
+            }
+
+            renderText() {
+                const letters = this.displayedText.split('').map((letter, index) => {
+                    return `<span class="letter">${letter === ' ' ? '&nbsp;' : letter}</span>`;
+                }).join('');
+                
+                this.textDisplay.innerHTML = letters + '<span class="cursor" id="cursor"></span>';
+                this.updateTextStyle();
+            }
+
+            updateTextStyle() {
+                // Remove all existing classes
+                this.textDisplay.className = '';
+                // Add new classes
+                this.textDisplay.classList.add('text-display', `font-${this.currentFont}`, `effect-${this.currentEffect}`);
+            }
+
+            createTypeParticles() {
+                for (let i = 0; i < 3; i++) {
+                    setTimeout(() => {
+                        const particle = document.createElement('div');
+                        particle.className = 'particle';
+                        particle.style.left = (45 + Math.random() * 10) + '%';
+                        particle.style.bottom = (45 + Math.random() * 10) + '%';
+                        particle.style.animationDelay = '0s';
+                        document.getElementById('particles').appendChild(particle);
+                        
+                        setTimeout(() => {
+                            if (particle.parentNode) {
+                                particle.parentNode.removeChild(particle);
+                            }
+                        }, 4000);
+                    }, i * 50);
+                }
+            }
+
+            createStyleParticles() {
+                for (let i = 0; i < 10; i++) {
+                    setTimeout(() => {
+                        const particle = document.createElement('div');
+                        particle.className = 'particle';
+                        particle.style.left = Math.random() * 100 + '%';
+                        particle.style.bottom = Math.random() * 100 + '%';
+                        particle.style.animationDelay = '0s';
+                        document.getElementById('particles').appendChild(particle);
+                        
+                        setTimeout(() => {
+                            if (particle.parentNode) {
+                                particle.parentNode.removeChild(particle);
+                            }
+                        }, 4000);
+                    }, i * 30);
+                }
+            }
+
+            createFloatingParticles() {
+                setInterval(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.animationDelay = '0s';
+                    document.getElementById('particles').appendChild(particle);
+                    
+                    setTimeout(() => {
+                        if (particle.parentNode) {
+                            particle.parentNode.removeChild(particle);
+                        }
+                    }, 4000);
+                }, 800);
+            }
+
+            setupMatrixRain() {
+                const canvas = document.getElementById('matrixCanvas');
+                const ctx = canvas.getContext('2d');
+                
+                const resizeCanvas = () => {
+                    canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight;
+                };
+                
+                resizeCanvas();
+                window.addEventListener('resize', resizeCanvas);
+                
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()';
+                const fontSize = 14;
+                let columns = Math.floor(canvas.width / fontSize);
+                let drops = Array(columns).fill(1);
+                
+                const drawMatrix = () => {
+                    ctx.fillStyle = 'rgba(240, 240, 243, 0.05)';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    
+                    ctx.fillStyle = '#c0c0c0';
+                    ctx.font = fontSize + 'px monospace';
+                    
+                    for (let i = 0; i < drops.length; i++) {
+                        const text = chars[Math.floor(Math.random() * chars.length)];
+                        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                        
+                        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                            drops[i] = 0;
+                        }
+                        drops[i]++;
+                    }
+                };
+                
+                setInterval(drawMatrix, 50);
+            }
+
+            async startDemo() {
+                await this.wait(1000);
+                
+                
+                this.nameInput.value = '';
+                const demoText = 'NAME';
+                
+                for (let i = 0; i <= demoText.length; i++) {
+                    this.nameInput.value = demoText.substring(0, i);
+                    this.updateText(demoText.substring(0, i));
+                    await this.wait(300);
+                }
+                
+                // Remove auto cycle -manual only
+            }
+
+            wait(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+        }
+
+        // Initialize the animator
+        const animator = new PremiumTypingAnimator();
+    </script>
+</body>
+</html>

@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liquid Button - Advanced Fluid Dynamics</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, 
+                #0c0c0c 0%, 
+                #1a1a2e 25%, 
+                #16213e 50%, 
+                #0f0f23 75%, 
+                #000000 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Fluid Background Animation */
+        .fluid-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at 20% 30%, rgba(255, 0, 150, 0.15) 0%, transparent 50%),
+                        radial-gradient(ellipse at 80% 70%, rgba(0, 255, 255, 0.15) 0%, transparent 50%),
+                        radial-gradient(ellipse at 50% 50%, rgba(150, 255, 0, 0.1) 0%, transparent 50%);
+            animation: fluid-wave 15s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        @keyframes fluid-wave {
+            0%, 100% { 
+                transform: scale(1) rotate(0deg);
+                filter: blur(0px);
+            }
+            25% { 
+                transform: scale(1.1) rotate(90deg);
+                filter: blur(2px);
+            }
+            50% { 
+                transform: scale(0.9) rotate(180deg);
+                filter: blur(1px);
+            }
+            75% { 
+                transform: scale(1.05) rotate(270deg);
+                filter: blur(3px);
+            }
+        }
+
+        /* Liquid Drops */
+        .liquid-drop {
+            position: absolute;
+            border-radius: 50% 50% 50% 70%;
+            background: linear-gradient(45deg, rgba(0, 255, 255, 0.3), rgba(255, 0, 150, 0.3));
+            animation: drop-fall 8s ease-in-out infinite;
+            pointer-events: none;
+            filter: blur(1px);
+        }
+
+        .liquid-drop:nth-child(1) {
+            width: 20px;
+            height: 30px;
+            top: -10%;
+            left: 20%;
+            animation-delay: 0s;
+            transform: rotate(45deg);
+        }
+
+        .liquid-drop:nth-child(2) {
+            width: 15px;
+            height: 25px;
+            top: -10%;
+            left: 60%;
+            animation-delay: 3s;
+            transform: rotate(-30deg);
+        }
+
+        .liquid-drop:nth-child(3) {
+            width: 25px;
+            height: 35px;
+            top: -10%;
+            left: 80%;
+            animation-delay: 6s;
+            transform: rotate(60deg);
+        }
+
+        @keyframes drop-fall {
+            0% {
+                transform: translateY(-100px) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+                transform: translateY(0px) scale(1);
+            }
+            90% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(120vh) scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        /* Main Container */
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 60px;
+            z-index: 10;
+        }
+
+        .title {
+            color: #fff;
+            font-size: 4rem;
+            font-weight: 100;
+            text-align: center;
+            text-shadow: 0 0 50px rgba(0, 255, 255, 0.7);
+            letter-spacing: 10px;
+            margin-bottom: 20px;
+            animation: title-flow 4s ease-in-out infinite;
+        }
+
+        @keyframes title-flow {
+            0%, 100% {
+                text-shadow: 0 0 50px rgba(0, 255, 255, 0.7);
+                transform: scale(1);
+            }
+            50% {
+                text-shadow: 0 0 70px rgba(255, 0, 150, 0.9), 0 0 100px rgba(0, 255, 255, 0.5);
+                transform: scale(1.02);
+            }
+        }
+
+        /* Button Container */
+        .button-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+        }
+
+        /* Liquid Button */
+        .liquid-button {
+            position: relative;
+            width: 280px;
+            height: 80px;
+            border: none;
+            border-radius: 40px;
+            background: linear-gradient(45deg, #ff0096, #00ffff, #ff0096);
+            background-size: 300% 300%;
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            transform-style: preserve-3d;
+            animation: liquid-gradient 6s ease-in-out infinite;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes liquid-gradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        /* Liquid Surface Effect */
+        .liquid-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.4), 
+                transparent);
+            transition: all 0.6s ease;
+            z-index: 2;
+        }
+
+        .liquid-button:hover::before {
+            left: 100%;
+        }
+
+        /* Bubble Effect */
+        .liquid-button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.6), transparent 70%);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+            z-index: 1;
+        }
+
+        .liquid-button:active::after {
+            width: 600px;
+            height: 600px;
+            opacity: 0;
+        }
+
+        /* Button Content */
+        .liquid-content {
+            position: relative;
+            z-index: 3;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .liquid-text {
+            font-size: 20px;
+            margin-bottom: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .liquid-subtext {
+            font-size: 11px;
+            opacity: 0.9;
+            font-weight: 300;
+            letter-spacing: 4px;
+        }
+
+        /* Hover States */
+        .liquid-button:hover {
+            transform: translateY(-8px) rotateX(15deg) scale(1.05);
+            box-shadow: 0 25px 50px rgba(255, 0, 150, 0.4);
+            filter: brightness(1.2) saturate(1.3);
+        }
+
+        .liquid-button:hover .liquid-text {
+            transform: translateY(-2px);
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
+        }
+
+        /* Active State */
+        .liquid-button:active {
+            transform: translateY(-5px) rotateX(10deg) scale(1.02);
+        }
+
+        /* Liquid Waves */
+        .liquid-waves {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            border-radius: 40px;
+            z-index: 1;
+        }
+
+        .wave {
+            position: absolute;
+            bottom: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, 
+                rgba(255, 255, 255, 0.1), 
+                rgba(0, 255, 255, 0.2), 
+                rgba(255, 0, 150, 0.1));
+            border-radius: 45%;
+            animation: wave-motion 4s linear infinite;
+            transform-origin: center bottom;
+        }
+
+        .wave:nth-child(1) {
+            animation-delay: 0s;
+            opacity: 0.3;
+        }
+
+        .wave:nth-child(2) {
+            animation-delay: 2s;
+            opacity: 0.5;
+        }
+
+        @keyframes wave-motion {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Particle Effects */
+        .particle-system {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            border-radius: 40px;
+            z-index: 2;
+        }
+
+        .liquid-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            animation: particle-bubble 3s ease-out infinite;
+        }
+
+        @keyframes particle-bubble {
+            0% {
+                transform: translateY(100px) scale(0);
+                opacity: 0;
+            }
+            20% {
+                opacity: 1;
+                transform: translateY(80px) scale(1);
+            }
+            80% {
+                opacity: 1;
+                transform: translateY(-20px) scale(1.2);
+            }
+            100% {
+                transform: translateY(-40px) scale(0);
+                opacity: 0;
+            }
+        }
+
+        /* Control Panel */
+        .control-panel {
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        .control-btn {
+            padding: 15px 25px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 25px;
+            color: #00ffff;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            backdrop-filter: blur(15px);
+            font-size: 13px;
+            font-weight: 400;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .control-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.2), transparent);
+            transition: all 0.5s ease;
+        }
+
+        .control-btn:hover::before {
+            left: 100%;
+        }
+
+        .control-btn:hover {
+            background: rgba(0, 255, 255, 0.1);
+            border-color: rgba(0, 255, 255, 0.8);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(0, 255, 255, 0.3);
+            color: #fff;
+        }
+
+        .control-btn:active {
+            transform: translateY(-1px);
+        }
+
+        /* Effect Indicators */
+        .effect-indicator {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            font-size: 14px;
+            opacity: 0.8;
+            letter-spacing: 2px;
+            text-align: center;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .liquid-button {
+                width: 240px;
+                height: 70px;
+            }
+            
+            .title {
+                font-size: 2.8rem;
+            }
+            
+            .liquid-text {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="fluid-background"></div>
+    
+    <div class="liquid-drop"></div>
+    <div class="liquid-drop"></div>
+    <div class="liquid-drop"></div>
+    
+    <div class="main-container">
+        <h1 class="title">LIQUID INTERFACE</h1>
+        
+        <div class="button-container">
+            <div class="effect-indicator" id="effectIndicator">FLUID DYNAMICS ACTIVE</div>
+            
+            <button class="liquid-button" id="liquidButton">
+                <div class="liquid-waves">
+                    <div class="wave"></div>
+                    <div class="wave"></div>
+                </div>
+                
+                <div class="particle-system" id="particleSystem">
+                    <!-- Particles will be generated here -->
+                </div>
+                
+                <div class="liquid-content">
+                    <div class="liquid-text">ACTIVATE</div>
+                    <div class="liquid-subtext">LIQUID STATE</div>
+                </div>
+            </button>
+        </div>
+        
+        <div class="control-panel">
+            <button class="control-btn" onclick="changeViscosity('low')">LOW VISCOSITY</button>
+            <button class="control-btn" onclick="changeViscosity('normal')">NORMAL FLOW</button>
+            <button class="control-btn" onclick="changeViscosity('high')">HIGH VISCOSITY</button>
+            <button class="control-btn" onclick="toggleTurbulence()">TURBULENCE</button>
+        </div>
+    </div>
+
+    <script>
+        class LiquidButton {
+            constructor(buttonElement) {
+                this.button = buttonElement;
+                this.particleSystem = document.getElementById('particleSystem');
+                this.effectIndicator = document.getElementById('effectIndicator');
+                this.viscosity = 'normal';
+                this.turbulenceMode = false;
+                this.isAnimating = false;
+                this.particles = [];
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.createParticleSystem();
+                this.startFluidEffects();
+                this.setupAdvancedInteractions();
+            }
+
+            setupEventListeners() {
+                this.button.addEventListener('click', (e) => this.handleClick(e));
+                this.button.addEventListener('mouseenter', () => this.handleMouseEnter());
+                this.button.addEventListener('mouseleave', () => this.handleMouseLeave());
+                this.button.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+                
+                // Touch events for mobile
+                this.button.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    this.handleTouch(e);
+                });
+            }
+
+            handleClick(e) {
+                if (this.isAnimating) return;
+                
+                this.isAnimating = true;
+                
+                // Create ripple effect at click position
+                this.createRipple(e);
+                
+                // Create bubble burst
+                this.createBubbleBurst();
+                
+                // Add liquid splash effect
+                this.createSplashEffect();
+                
+                setTimeout(() => {
+                    this.isAnimating = false;
+                }, 800);
+            }
+
+            handleMouseEnter() {
+                this.intensifyParticles();
+                this.accelerateWaves();
+            }
+
+            handleMouseLeave() {
+                this.normalizeParticles();
+                this.normalizeWaves();
+            }
+
+            handleMouseMove(e) {
+                const rect = this.button.getBoundingClientRect();
+                const x = (e.clientX - rect.left) / rect.width;
+                const y = (e.clientY - rect.top) / rect.height;
+                
+                // Create trailing effect
+                this.createTrailEffect(x, y);
+                
+                // Adjust wave intensity based on mouse position
+                this.adjustWaveIntensity(x, y);
+            }
+
+            handleTouch(e) {
+                const touch = e.touches[0];
+                this.handleClick({
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+            }
+
+            createRipple(e) {
+                const rect = this.button.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                const ripple = document.createElement('div');
+                ripple.style.position = 'absolute';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                ripple.style.width = '0';
+                ripple.style.height = '0';
+                ripple.style.background = 'radial-gradient(circle, rgba(255, 255, 255, 0.8), rgba(0, 255, 255, 0.4), transparent)';
+                ripple.style.borderRadius = '50%';
+                ripple.style.transform = 'translate(-50%, -50%)';
+                ripple.style.animation = 'liquid-ripple 1.2s ease-out';
+                ripple.style.pointerEvents = 'none';
+                ripple.style.zIndex = '10';
+
+                this.button.appendChild(ripple);
+
+                setTimeout(() => {
+                    ripple.remove();
+                }, 1200);
+            }
+
+            createBubbleBurst() {
+                for (let i = 0; i < 8; i++) {
+                    setTimeout(() => {
+                        const bubble = document.createElement('div');
+                        bubble.style.position = 'absolute';
+                        bubble.style.width = `${Math.random() * 15 + 5}px`;
+                        bubble.style.height = bubble.style.width;
+                        bubble.style.background = 'radial-gradient(circle, rgba(255, 255, 255, 0.9), rgba(0, 255, 255, 0.5))';
+                        bubble.style.borderRadius = '50%';
+                        bubble.style.left = Math.random() * 100 + '%';
+                        bubble.style.bottom = '0';
+                        bubble.style.animation = 'bubble-rise 2s ease-out forwards';
+                        bubble.style.pointerEvents = 'none';
+                        bubble.style.zIndex = '5';
+
+                        this.particleSystem.appendChild(bubble);
+
+                        setTimeout(() => {
+                            bubble.remove();
+                        }, 2000);
+                    }, i * 100);
+                }
+            }
+
+            createSplashEffect() {
+                for (let i = 0; i < 12; i++) {
+                    const splash = document.createElement('div');
+                    splash.style.position = 'absolute';
+                    splash.style.width = '3px';
+                    splash.style.height = '3px';
+                    splash.style.background = 'rgba(255, 255, 255, 0.9)';
+                    splash.style.borderRadius = '50%';
+                    splash.style.left = '50%';
+                    splash.style.top = '50%';
+                    splash.style.transform = 'translate(-50%, -50%)';
+                    splash.style.animation = `splash-${i} 1s ease-out forwards`;
+                    splash.style.pointerEvents = 'none';
+                    splash.style.zIndex = '8';
+
+                    this.button.appendChild(splash);
+
+                    setTimeout(() => {
+                        splash.remove();
+                    }, 1000);
+                }
+            }
+
+            createTrailEffect(x, y) {
+                const trail = document.createElement('div');
+                trail.style.position = 'absolute';
+                trail.style.left = (x * 100) + '%';
+                trail.style.top = (y * 100) + '%';
+                trail.style.width = '8px';
+                trail.style.height = '8px';
+                trail.style.background = 'radial-gradient(circle, rgba(255, 255, 255, 0.6), transparent)';
+                trail.style.borderRadius = '50%';
+                trail.style.transform = 'translate(-50%, -50%)';
+                trail.style.animation = 'trail-fade 0.8s ease-out';
+                trail.style.pointerEvents = 'none';
+                trail.style.zIndex = '4';
+
+                this.particleSystem.appendChild(trail);
+
+                setTimeout(() => {
+                    trail.remove();
+                }, 800);
+            }
+
+            adjustWaveIntensity(x, y) {
+                const waves = this.button.querySelectorAll('.wave');
+                const intensity = Math.sqrt(x * x + y * y);
+                
+                waves.forEach((wave, index) => {
+                    const speed = 4 - intensity * 2;
+                    wave.style.animationDuration = Math.max(speed, 1) + 's';
+                });
+            }
+
+            changeViscosity(level) {
+                this.viscosity = level;
+                this.applyViscosityChanges();
+            }
+
+            applyViscosityChanges() {
+                const waves = this.button.querySelectorAll('.wave');
+                const particles = this.particleSystem.querySelectorAll('.liquid-particle');
+                
+                let duration, description;
+                
+                switch(this.viscosity) {
+                    case 'low':
+                        duration = '2s';
+                        description = 'LOW VISCOSITY - RAPID FLOW';
+                        break;
+                    case 'high':
+                        duration = '8s';
+                        description = 'HIGH VISCOSITY - THICK FLUID';
+                        break;
+                    default:
+                        duration = '4s';
+                        description = 'NORMAL VISCOSITY - BALANCED';
+                }
+
+                waves.forEach(wave => {
+                    wave.style.animationDuration = duration;
+                });
+
+                particles.forEach(particle => {
+                    particle.style.animationDuration = duration === '2s' ? '1.5s' : duration === '8s' ? '5s' : '3s';
+                });
+
+                this.effectIndicator.textContent = description;
+            }
+
+            toggleTurbulence() {
+                this.turbulenceMode = !this.turbulenceMode;
+                
+                if (this.turbulenceMode) {
+                    this.startTurbulence();
+                } else {
+                    this.stopTurbulence();
+                }
+            }
+
+            startTurbulence() {
+                this.effectIndicator.textContent = 'TURBULENCE MODE ACTIVE';
+                
+                const waves = this.button.querySelectorAll('.wave');
+                waves.forEach((wave, index) => {
+                    const randomDuration = (Math.random() * 3 + 1) + 's';
+                    const randomDirection = Math.random() > 0.5 ? 'normal' : 'reverse';
+                    wave.style.animationDuration = randomDuration;
+                    wave.style.animationDirection = randomDirection;
+                });
+
+                // Add chaotic particle generation
+                this.turbulenceInterval = setInterval(() => {
+                    this.createChaosParticle();
+                }, 200);
+
+                // Add turbulent background effect
+                this.button.style.filter = 'contrast(1.2) saturate(1.5)';
+                this.button.style.animation = 'liquid-gradient 2s ease-in-out infinite, turbulent-shake 0.1s infinite';
+            }
+
+            stopTurbulence() {
+                this.effectIndicator.textContent = 'FLUID DYNAMICS ACTIVE';
+                clearInterval(this.turbulenceInterval);
+                
+                // Reset to normal
+                this.viscosity = 'normal';
+                this.applyViscosityChanges();
+                this.button.style.filter = '';
+                this.button.style.animation = 'liquid-gradient 6s ease-in-out infinite';
+            }
+
+            createChaosParticle() {
+                const particle = document.createElement('div');
+                particle.style.position = 'absolute';
+                particle.style.width = (Math.random() * 6 + 2) + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.background = `hsl(${Math.random() * 360}, 70%, 70%)`;
+                particle.style.borderRadius = '50%';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.bottom = '0';
+                particle.style.animation = 'chaos-particle 1.5s ease-out forwards';
+                particle.style.pointerEvents = 'none';
+                particle.style.zIndex = '6';
+
+                this.particleSystem.appendChild(particle);
+
+                setTimeout(() => {
+                    particle.remove();
+                }, 1500);
+            }
+
+            intensifyParticles() {
+                this.particles.forEach(particle => {
+                    particle.style.animationDuration = '1.5s';
+                    particle.style.filter = 'brightness(1.5) scale(1.2)';
+                });
+            }
+
+            normalizeParticles() {
+                if (!this.turbulenceMode) {
+                    this.particles.forEach(particle => {
+                        particle.style.animationDuration = '3s';
+                        particle.style.filter = '';
+                    });
+                }
+            }
+
+            accelerateWaves() {
+                const waves = this.button.querySelectorAll('.wave');
+                waves.forEach(wave => {
+                    const currentDuration = parseFloat(wave.style.animationDuration) || 4;
+                    wave.style.animationDuration = (currentDuration * 0.5) + 's';
+                });
+            }
+
+            normalizeWaves() {
+                if (!this.turbulenceMode) {
+                    this.applyViscosityChanges();
+                }
+            }
+
+            createParticleSystem() {
+                for (let i = 0; i < 15; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'liquid-particle';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.animationDelay = Math.random() * 3 + 's';
+                    particle.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                    
+                    this.particleSystem.appendChild(particle);
+                    this.particles.push(particle);
+                }
+            }
+
+            startFluidEffects() {
+                // Subtle liquid breathing effect
+                let breathePhase = 0;
+                setInterval(() => {
+                    if (!this.isAnimating && !this.turbulenceMode) {
+                        breathePhase += 0.02;
+                        const scale = 1 + Math.sin(breathePhase) * 0.01;
+                        const brightness = 0.95 + Math.sin(breathePhase * 1.3) * 0.05;
+                        
+                        this.button.style.transform = `scale(${scale})`;
+                        this.button.style.filter = `brightness(${brightness})`;
+                    }
+                }, 16);
+
+                // Dynamic gradient shifting
+                this.startGradientShift();
+            }
+
+            startGradientShift() {
+                let hueShift = 0;
+                setInterval(() => {
+                    if (!this.turbulenceMode) {
+                        hueShift += 0.5;
+                        this.button.style.filter = this.button.style.filter + ` hue-rotate(${hueShift % 360}deg)`;
+                    }
+                }, 100);
+            }
+
+            setupAdvancedInteractions() {
+                // Double-click for special effect
+                let clickCount = 0;
+                let clickTimer;
+
+                this.button.addEventListener('click', () => {
+                    clickCount++;
+                    
+                    if (clickCount === 1) {
+                        clickTimer = setTimeout(() => {
+                            clickCount = 0;
+                        }, 300);
+                    } else if (clickCount === 2) {
+                        clearTimeout(clickTimer);
+                        clickCount = 0;
+                        this.createSpecialEffect();
+                    }
+                });
+            }
+
+            createSpecialEffect() {
+                // Create liquid explosion effect
+                for (let i = 0; i < 20; i++) {
+                    const explosion = document.createElement('div');
+                    explosion.style.position = 'absolute';
+                    explosion.style.width = (Math.random() * 10 + 5) + 'px';
+                    explosion.style.height = explosion.style.width;
+                    explosion.style.background = `linear-gradient(45deg, 
+                        hsl(${Math.random() * 360}, 80%, 60%), 
+                        hsl(${Math.random() * 360}, 80%, 60%))`;
+                    explosion.style.borderRadius = '50%';
+                    explosion.style.left = '50%';
+                    explosion.style.top = '50%';
+                    explosion.style.transform = 'translate(-50%, -50%)';
+                    explosion.style.animation = `explosion-${i % 8} 2s ease-out forwards`;
+                    explosion.style.pointerEvents = 'none';
+                    explosion.style.zIndex = '15';
+
+                    this.button.appendChild(explosion);
+
+                    setTimeout(() => {
+                        explosion.remove();
+                    }, 2000);
+                }
+
+                // Temporary color inversion
+                this.button.style.filter = 'invert(1) hue-rotate(180deg)';
+                setTimeout(() => {
+                    this.button.style.filter = '';
+                }, 500);
+            }
+        }
+
+        // Global functions for control buttons
+        let liquidButton;
+
+        function changeViscosity(level) {
+            liquidButton.changeViscosity(level);
+        }
+
+        function toggleTurbulence() {
+            liquidButton.toggleTurbulence();
+        }
+
+        // Dynamic CSS for complex animations
+        const liquidAnimations = document.createElement('style');
+        liquidAnimations.textContent = `
+            @keyframes liquid-ripple {
+                to {
+                    width: 300px;
+                    height: 300px;
+                    opacity: 0;
+                }
+            }
+            
+            @keyframes bubble-rise {
+                0% {
+                    transform: translateY(0) scale(0);
+                    opacity: 0;
+                }
+                20% {
+                    opacity: 1;
+                    transform: translateY(-20px) scale(1);
+                }
+                100% {
+                    transform: translateY(-100px) scale(1.5);
+                    opacity: 0;
+                }
+            }
+            
+            @keyframes trail-fade {
+                0% {
+                    opacity: 1;
+                    transform: translate(-50%, -50%) scale(1);
+                }
+                100% {
+                    opacity: 0;
+                    transform: translate(-50%, -50%) scale(2);
+                }
+            }
+            
+            @keyframes chaos-particle {
+                0% {
+                    transform: translateY(0) rotate(0deg) scale(0);
+                    opacity: 0;
+                }
+                20% {
+                    opacity: 1;
+                    transform: translateY(-30px) rotate(180deg) scale(1);
+                }
+                100% {
+                    transform: translateY(-120px) rotate(720deg) scale(0);
+                    opacity: 0;
+                }
+            }
+            
+            @keyframes turbulent-shake {
+                0%, 100% { transform: translate(0); }
+                25% { transform: translate(-1px, 1px); }
+                50% { transform: translate(1px, -1px); }
+                75% { transform: translate(-1px, -1px); }
+            }
+        `;
+
+        // Generate splash animations dynamically
+        for (let i = 0; i < 12; i++) {
+            const angle = (i * 30) * Math.PI / 180;
+            const distance = 50 + Math.random() * 30;
+            const x = Math.cos(angle) * distance;
+            const y = Math.sin(angle) * distance;
+            
+            liquidAnimations.textContent += `
+                @keyframes splash-${i} {
+                    0% {
+                        transform: translate(-50%, -50%) scale(1);
+                        opacity: 1;
+                    }
+                    100% {
+                        transform: translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) scale(0);
+                        opacity: 0;
+                    }
+                }
+            `;
+        }
+
+        // Generate explosion animations
+        for (let i = 0; i < 8; i++) {
+            const angle = (i * 45) * Math.PI / 180;
+            const distance = 80 + Math.random() * 40;
+            const x = Math.cos(angle) * distance;
+            const y = Math.sin(angle) * distance;
+            
+            liquidAnimations.textContent += `
+                @keyframes explosion-${i} {
+                    0% {
+                        transform: translate(-50%, -50%) scale(0) rotate(0deg);
+                        opacity: 1;
+                    }
+                    50% {
+                        transform: translate(calc(-50% + ${x * 0.5}px), calc(-50% + ${y * 0.5}px)) scale(1.5) rotate(180deg);
+                        opacity: 0.8;
+                    }
+                    100% {
+                        transform: translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) scale(0) rotate(360deg);
+                        opacity: 0;
+                    }
+                }
+            `;
+        }
+
+        document.head.appendChild(liquidAnimations);
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            const buttonElement = document.getElementById('liquidButton');
+            liquidButton = new LiquidButton(buttonElement);
+            
+            // Performance optimization
+            let frameCount = 0;
+            const startTime = performance.now();
+            
+            function monitorPerformance() {
+                frameCount++;
+                if (frameCount % 60 === 0) {
+                    const currentTime = performance.now();
+                    const fps = 60000 / (currentTime - startTime);
+                    
+                    // Reduce particle count if performance is poor
+                    if (fps < 30) {
+                        const particles = document.querySelectorAll('.liquid-particle');
+                        if (particles.length > 8) {
+                            particles[particles.length - 1].remove();
+                        }
+                    }
+                }
+                requestAnimationFrame(monitorPerformance);
+            }
+            
+            requestAnimationFrame(monitorPerformance);
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            switch(e.code) {
+                case 'Space':
+                    e.preventDefault();
+                    document.getElementById('liquidButton').click();
+                    break;
+                case 'KeyT':
+                    toggleTurbulence();
+                    break;
+                case 'Digit1':
+                    changeViscosity('low');
+                    break;
+                case 'Digit2':
+                    changeViscosity('normal');
+                    break;
+                case 'Digit3':
+                    changeViscosity('high');
+                    break;
+            }
+        });
+    </script>
+</body>
+</html>

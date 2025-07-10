@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Folder Component</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body, html {
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(135deg, #000428 0%, #004e92 100%);
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        :root {
+            --folder-color: #5227FF;
+            --folder-back-color: #4a23e6;
+            --paper-1: #e6e6e6;
+            --paper-2: #f2f2f2;
+            --paper-3: #ffffff;
+            --magnet-x: 0px;
+            --magnet-y: 0px;
+        }
+        
+        .container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            padding: 40px;
+            max-width: 800px;
+        }
+        
+        .folder-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .folder {
+            transition: all 0.2s ease-in;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .folder:not(.folder--click):hover {
+            transform: translateY(-8px);
+        }
+        
+        .folder:not(.folder--click):hover .paper {
+            transform: translate(-50%, 0%);
+        }
+        
+        .folder:not(.folder--click):hover .folder__front {
+            transform: skew(15deg) scaleY(0.6);
+        }
+        
+        .folder:not(.folder--click):hover .right {
+            transform: skew(-15deg) scaleY(0.6);
+        }
+        
+        .folder.open {
+            transform: translateY(-8px);
+        }
+        
+        .folder.open .paper:nth-child(1) {
+            transform: translate(-120%, -70%) rotateZ(-15deg) translate(var(--magnet-x), var(--magnet-y));
+        }
+        
+        .folder.open .paper:nth-child(1):hover {
+            transform: translate(-120%, -70%) rotateZ(-15deg) scale(1.1) translate(var(--magnet-x), var(--magnet-y));
+        }
+        
+        .folder.open .paper:nth-child(2) {
+            transform: translate(10%, -70%) rotateZ(15deg) translate(var(--magnet-x), var(--magnet-y));
+            height: 80%;
+        }
+        
+        .folder.open .paper:nth-child(2):hover {
+            transform: translate(10%, -70%) rotateZ(15deg) scale(1.1) translate(var(--magnet-x), var(--magnet-y));
+        }
+        
+        .folder.open .paper:nth-child(3) {
+            transform: translate(-50%, -100%) rotateZ(5deg) translate(var(--magnet-x), var(--magnet-y));
+            height: 80%;
+        }
+        
+        .folder.open .paper:nth-child(3):hover {
+            transform: translate(-50%, -100%) rotateZ(5deg) scale(1.1) translate(var(--magnet-x), var(--magnet-y));
+        }
+        
+        .folder.open .folder__front {
+            transform: skew(15deg) scaleY(0.6);
+        }
+        
+        .folder.open .right {
+            transform: skew(-15deg) scaleY(0.6);
+        }
+        
+        .folder__back {
+            position: relative;
+            width: 100px;
+            height: 80px;
+            background: var(--folder-back-color);
+            border-radius: 0px 10px 10px 10px;
+        }
+        
+        .folder__back::after {
+            position: absolute;
+            z-index: 0;
+            bottom: 98%;
+            left: 0;
+            content: "";
+            width: 30px;
+            height: 10px;
+            background: var(--folder-back-color);
+            border-radius: 5px 5px 0 0;
+        }
+        
+        .paper {
+            position: absolute;
+            z-index: 2;
+            bottom: 10%;
+            left: 50%;
+            transform: translate(-50%, 10%);
+            width: 70%;
+            height: 80%;
+            background: var(--paper-1);
+            border-radius: 10px;
+            transition: all 0.3s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #333;
+            font-weight: 600;
+            text-align: center;
+            padding: 5px;
+            overflow: hidden;
+        }
+        
+        .paper:nth-child(2) {
+            background: var(--paper-2);
+            width: 80%;
+            height: 70%;
+        }
+        
+        .paper:nth-child(3) {
+            background: var(--paper-3);
+            width: 90%;
+            height: 60%;
+        }
+        
+        .folder__front {
+            position: absolute;
+            z-index: 3;
+            width: 100%;
+            height: 100%;
+            background: var(--folder-color);
+            border-radius: 5px 10px 10px 10px;
+            transform-origin: bottom;
+            transition: all 0.3s ease-in-out;
+        }
+        
+        .folder__front.right {
+            display: none;
+        }
+        
+        .folder-label {
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+            opacity: 0.9;
+        }
+        
+        .instructions {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .demo-info {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            color: #ffffff;
+            font-size: 16px;
+            opacity: 0.8;
+        }
+        
+        .demo-info h2 {
+            margin-bottom: 10px;
+            color: #0078d4;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+                padding: 20px;
+            }
+            
+            .instructions {
+                top: 10px;
+                right: 10px;
+                padding: 15px;
+                font-size: 12px;
+            }
+            
+            .demo-info {
+                bottom: 10px;
+                left: 10px;
+                font-size: 14px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="instructions">
+        📁 <strong>Interactive Folders</strong><br>
+        Click folders to open/close<br>
+        Hover over papers when open<br>
+        Watch the magnetic effect! ✨
+    </div>
+    
+    <div class="demo-info">
+        <h2>SS Web Innovations</h2>
+        <p>Interactive folder component showcase</p>
+    </div>
+
+    <div class="container">
+        <div class="folder-wrapper">
+            <div class="folder" id="folder1">
+                <div class="folder__back">
+                    <div class="paper">Project A</div>
+                    <div class="paper">Design</div>
+                    <div class="paper">Code</div>
+                    <div class="folder__front"></div>
+                </div>
+            </div>
+            <div class="folder-label">Projects</div>
+        </div>
+        
+        <div class="folder-wrapper">
+            <div class="folder" id="folder2" style="--folder-color: #ff6b6b; --folder-back-color: #e55a5a;">
+                <div class="folder__back">
+                    <div class="paper">Resume</div>
+                    <div class="paper">Portfolio</div>
+                    <div class="paper">Certificates</div>
+                    <div class="folder__front"></div>
+                </div>
+            </div>
+            <div class="folder-label">Documents</div>
+        </div>
+        
+        <div class="folder-wrapper">
+            <div class="folder" id="folder3" style="--folder-color: #4ecdc4; --folder-back-color: #45b7b8;">
+                <div class="folder__back">
+                    <div class="paper">Photos</div>
+                    <div class="paper">Videos</div>
+                    <div class="paper">Assets</div>
+                    <div class="folder__front"></div>
+                </div>
+            </div>
+            <div class="folder-label">Media</div>
+        </div>
+        
+        <div class="folder-wrapper">
+            <div class="folder" id="folder4" style="--folder-color: #ffa726; --folder-back-color: #ff9800;">
+                <div class="folder__back">
+                    <div class="paper">Notes</div>
+                    <div class="paper">Ideas</div>
+                    <div class="paper">Sketches</div>
+                    <div class="folder__front"></div>
+                </div>
+            </div>
+            <div class="folder-label">Creative</div>
+        </div>
+        
+        <div class="folder-wrapper">
+            <div class="folder" id="folder5" style="--folder-color: #ab47bc; --folder-back-color: #9c27b0;">
+                <div class="folder__back">
+                    <div class="paper">Config</div>
+                    <div class="paper">Settings</div>
+                    <div class="paper">Backup</div>
+                    <div class="folder__front"></div>
+                </div>
+            </div>
+            <div class="folder-label">System</div>
+        </div>
+        
+        <div class="folder-wrapper">
+            <div class="folder" id="folder6" style="--folder-color: #66bb6a; --folder-back-color: #4caf50;">
+                <div class="folder__back">
+                    <div class="paper">Reports</div>
+                    <div class="paper">Analytics</div>
+                    <div class="paper">Data</div>
+                    <div class="folder__front"></div>
+                </div>
+            </div>
+            <div class="folder-label">Business</div>
+        </div>
+    </div>
+
+    <script>
+        class Folder {
+            constructor(element, options = {}) {
+                this.element = element;
+                this.color = options.color || "#5227FF";
+                this.size = options.size || 1;
+                this.items = options.items || [];
+                this.maxItems = 3;
+                
+                this.open = false;
+                this.paperOffsets = Array.from({ length: this.maxItems }, () => ({ x: 0, y: 0 }));
+                
+                this.init();
+            }
+
+            darkenColor(hex, percent) {
+                let color = hex.startsWith("#") ? hex.slice(1) : hex;
+                if (color.length === 3) {
+                    color = color.split("").map((c) => c + c).join("");
+                }
+                
+                const num = parseInt(color, 16);
+                let r = (num >> 16) & 0xff;
+                let g = (num >> 8) & 0xff;
+                let b = num & 0xff;
+                
+                r = Math.max(0, Math.min(255, Math.floor(r * (1 - percent))));
+                g = Math.max(0, Math.min(255, Math.floor(g * (1 - percent))));
+                b = Math.max(0, Math.min(255, Math.floor(b * (1 - percent))));
+                
+                return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
+            }
+
+            init() {
+                this.setupColors();
+                this.setupEventListeners();
+                this.applySize();
+            }
+
+            setupColors() {
+                const folderBackColor = this.darkenColor(this.color, 0.08);
+                const paper1 = this.darkenColor("#ffffff", 0.1);
+                const paper2 = this.darkenColor("#ffffff", 0.05);
+                const paper3 = "#ffffff";
+                
+                this.element.style.setProperty('--folder-color', this.color);
+                this.element.style.setProperty('--folder-back-color', folderBackColor);
+                this.element.style.setProperty('--paper-1', paper1);
+                this.element.style.setProperty('--paper-2', paper2);
+                this.element.style.setProperty('--paper-3', paper3);
+            }
+
+            setupEventListeners() {
+                this.element.addEventListener('click', () => this.handleClick());
+                
+                const papers = this.element.querySelectorAll('.paper');
+                papers.forEach((paper, index) => {
+                    paper.addEventListener('mousemove', (e) => this.handlePaperMouseMove(e, index));
+                    paper.addEventListener('mouseleave', (e) => this.handlePaperMouseLeave(e, index));
+                });
+            }
+
+            applySize() {
+                this.element.style.transform = `scale(${this.size})`;
+            }
+
+            handleClick() {
+                this.open = !this.open;
+                
+                if (this.open) {
+                    this.element.classList.add('open');
+                } else {
+                    this.element.classList.remove('open');
+                    this.paperOffsets = Array.from({ length: this.maxItems }, () => ({ x: 0, y: 0 }));
+                    this.updatePaperOffsets();
+                }
+            }
+
+            handlePaperMouseMove(e, index) {
+                if (!this.open) return;
+                
+                const rect = e.currentTarget.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                const offsetX = (e.clientX - centerX) * 0.15;
+                const offsetY = (e.clientY - centerY) * 0.15;
+                
+                this.paperOffsets[index] = { x: offsetX, y: offsetY };
+                this.updatePaperOffset(index);
+            }
+
+            handlePaperMouseLeave(e, index) {
+                this.paperOffsets[index] = { x: 0, y: 0 };
+                this.updatePaperOffset(index);
+            }
+
+            updatePaperOffset(index) {
+                const paper = this.element.querySelectorAll('.paper')[index];
+                if (paper) {
+                    paper.style.setProperty('--magnet-x', `${this.paperOffsets[index].x}px`);
+                    paper.style.setProperty('--magnet-y', `${this.paperOffsets[index].y}px`);
+                }
+            }
+
+            updatePaperOffsets() {
+                this.paperOffsets.forEach((offset, index) => {
+                    this.updatePaperOffset(index);
+                });
+            }
+        }
+
+        // Initialize folders
+        window.addEventListener('DOMContentLoaded', () => {
+            const folders = document.querySelectorAll('.folder');
+            
+            folders.forEach((folderElement) => {
+                const papers = folderElement.querySelectorAll('.paper');
+                const items = Array.from(papers).map(paper => paper.textContent);
+                
+                new Folder(folderElement, {
+                    items: items,
+                    size: 1
+                });
+            });
+        });
+    </script>
+</body>
+</html>

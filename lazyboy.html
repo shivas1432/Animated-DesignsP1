@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monday Morning Struggle</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body.night-mode {
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+        }
+
+        .scene {
+            width: 450px;
+            height: 350px;
+            position: relative;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 25px;
+            backdrop-filter: blur(20px);
+            padding: 25px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .night-mode .scene {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+        }
+
+        .toggle-container {
+            position: absolute;
+            top: -90px;
+            right: 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .toggle-switch {
+            Position: relative;
+            width: 70px;
+            height: 35px;
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle-switch:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .toggle-switch.active {
+            background: linear-gradient(45deg, #2c3e50 0%, #34495e 100%);
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 29px;
+            height: 29px;
+            background: linear-gradient(45deg, #ffa726 0%, #ff7043 100%);
+            border-radius: 50%;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .toggle-slider::before {
+            content: '☀️';
+            transition: all 0.3s ease;
+        }
+
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(35px);
+            background: linear-gradient(45deg, #ecf0f1 0%, #bdc3c7 100%);
+        }
+
+        .toggle-switch.active .toggle-slider::before {
+            content: '🌙';
+        }
+
+        .toggle-label {
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            transition: color 0.3s ease;
+        }
+
+        .alarm-clock {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(45deg, #ff4757 0%, #ff3742 100%);
+            border-radius: 50%;
+            border: 5px solid #fff;
+            animation: alarmShake 0.08s infinite;
+            transition: all 0.6s ease;
+            box-shadow: 0 10px 25px rgba(255, 71, 87, 0.4);
+        }
+
+        .night-mode .alarm-clock {
+            animation: none;
+            opacity: 0.2;
+            transform: scale(0.8);
+            box-shadow: 0 5px 15px rgba(255, 71, 87, 0.1);
+        }
+
+        .clock-face {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 45px;
+            height: 45px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+            color: #333;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .alarm-bells {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            animation: bellRing 0.15s infinite alternate;
+        }
+
+        .night-mode .alarm-bells {
+            animation: none;
+        }
+
+        .bell {
+            width: 10px;
+            height: 10px;
+            background: linear-gradient(45deg, #ffa502 0%, #ff6348 100%);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            position: absolute;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .bell:first-child {
+            left: 0;
+            transform: rotate(-15deg);
+        }
+
+        .bell:last-child {
+            right: 0;
+            transform: rotate(15deg);
+        }
+
+        .bed {
+            position: absolute;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 220px;
+            height: 90px;
+            background: linear-gradient(45deg, #8e44ad 0%, #9b59b6 100%);
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(142, 68, 173, 0.3);
+        }
+
+        .pillow {
+            position: absolute;
+            top: -18px;
+            left: 15px;
+            width: 70px;
+            height: 35px;
+            background: linear-gradient(45deg, #ecf0f1 0%, #bdc3c7 100%);
+            border-radius: 50%;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .blanket {
+            position: absolute;
+            top: 15px;
+            left: 0;
+            right: 0;
+            height: 65px;
+            background: linear-gradient(45deg, #3498db 0%, #2980b9 100%);
+            border-radius: 0 0 15px 15px;
+            animation: blanketMove 2.5s infinite ease-in-out;
+            transition: all 0.6s ease;
+        }
+
+        .night-mode .blanket {
+            animation: none;
+            transform: translateY(-2px);
+        }
+
+        .person {
+            position: absolute;
+            top: -25px;
+            left: 90px;
+            z-index: 10;
+        }
+
+        .head {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(45deg, #ffdbac 0%, #ffc085 100%);
+            border-radius: 50%;
+            position: relative;
+            animation: headToss 3.5s infinite ease-in-out;
+            transition: all 0.6s ease;
+        }
+
+        .night-mode .head {
+            animation: none;
+            transform: rotate(0deg);
+        }
+
+        .hair {
+            position: absolute;
+            top: -8px;
+            left: 8px;
+            right: 8px;
+            height: 25px;
+            background: linear-gradient(45deg, #8b4513 0%, #a0522d 100%);
+            border-radius: 25px 25px 0 0;
+            animation: hairMess 2.2s infinite ease-in-out;
+            transition: all 0.6s ease;
+        }
+
+        .night-mode .hair {
+            animation: none;
+            transform: rotate(0deg) scaleY(1);
+        }
+
+        .eyes {
+            position: absolute;
+            top: 15px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .eye {
+            width: 8px;
+            height: 8px;
+            background: #333;
+            border-radius: 50%;
+            animation: eyeStruggle 4.5s infinite;
+            transition: all 0.6s ease;
+        }
+
+        .night-mode .eye {
+            animation: none;
+            height: 2px;
+            background: #666;
+        }
+
+        .mouth {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 14px;
+            height: 7px;
+            border: 2px solid #333;
+            border-top: none;
+            border-radius: 0 0 14px 14px;
+            animation: mouthYawn 3.2s infinite ease-in-out;
+            transition: all 0.6s ease;
+        }
+
+        .night-mode .mouth {
+            animation: none;
+            border-radius: 14px;
+            border-top: 2px solid #333;
+            height: 10px;
+            border-color: #666;
+        }
+
+        .thought-bubble {
+            position: absolute;
+            top: -70px;
+            left: -25px;
+            background: linear-gradient(45deg, #fff 0%, #f8f9fa 100%);
+            border-radius: 25px;
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #333;
+            opacity: 0;
+            animation: thoughtAppear 6s infinite;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            min-width: 90px;
+            text-align: center;
+            font-weight: 500;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.6s ease;
+        }
+
+        .night-mode .thought-bubble {
+            animation: nightThoughtAppear 3s infinite;
+            background: linear-gradient(45deg, #2c3e50 0%, #34495e 100%);
+            color: #ecf0f1;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .thought-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 35px;
+            width: 18px;
+            height: 18px;
+            background: inherit;
+            border-radius: 50%;
+            transition: all 0.6s ease;
+        }
+
+        .thought-bubble::before {
+            content: '';
+            position: absolute;
+            bottom: -22px;
+            left: 30px;
+            width: 10px;
+            height: 10px;
+            background: inherit;
+            border-radius: 50%;
+            transition: all 0.6s ease;
+        }
+
+        .sun {
+            position: absolute;
+            top: 35px;
+            left: 35px;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, #f39c12 0%, #e67e22 100%);
+            border-radius: 50%;
+            animation: sunRise 8s infinite ease-in-out;
+            transition: all 0.8s ease;
+            box-shadow: 0 0 30px rgba(243, 156, 18, 0.4);
+        }
+
+        .night-mode .sun {
+            opacity: 0;
+            animation: none;
+            transform: scale(0.5) translateY(30px);
+        }
+
+        .moon {
+            position: absolute;
+            top: 35px;
+            left: 35px;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle at 30% 30%, #f4f4f4 0%, #ddd 100%);
+            border-radius: 50%;
+            opacity: 0;
+            transition: all 0.8s ease;
+            box-shadow: inset -15px -8px 0 rgba(200, 200, 200, 0.3), 0 0 25px rgba(244, 244, 244, 0.2);
+            transform: scale(0.5);
+        }
+
+        .night-mode .moon {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        .night-mode .stars {
+            opacity: 1;
+        }
+
+        .star {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: white;
+            border-radius: 50%;
+            animation: starTwinkle 2.5s infinite alternate ease-in-out;
+            box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+        }
+
+        .star:nth-child(1) { top: 20%; left: 15%; animation-delay: 0s; }
+        .star:nth-child(2) { top: 30%; left: 80%; animation-delay: 0.7s; }
+        .star:nth-child(3) { top: 15%; left: 60%; animation-delay: 1.2s; }
+        .star:nth-child(4) { top: 40%; left: 25%; animation-delay: 1.8s; }
+        .star:nth-child(5) { top: 25%; left: 90%; animation-delay: 0.4s; }
+        .star:nth-child(6) { top: 45%; left: 70%; animation-delay: 1.5s; }
+
+        .sun-rays {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            animation: sunRotate 6s infinite linear;
+            transition: all 0.8s ease;
+        }
+
+        .night-mode .sun-rays {
+            animation: none;
+            opacity: 0;
+        }
+
+        .ray {
+            position: absolute;
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(to bottom, #f39d1218, transparent);
+            border-radius: 2px;
+            top: -25px;
+            left: 55%;
+            transform-origin: 50% 50px;
+        }
+
+        .ray:nth-child(1) { transform: translateX(-50%) rotate(0deg); }
+        .ray:nth-child(2) { transform: translateX(-50%) rotate(45deg); }
+        .ray:nth-child(3) { transform: translateX(-50%) rotate(90deg); }
+        .ray:nth-child(4) { transform: translateX(-50%) rotate(135deg); }
+        .ray:nth-child(5) { transform: translateX(-50%) rotate(180deg); }
+        .ray:nth-child(6) { transform: translateX(-50%) rotate(225deg); }
+        .ray:nth-child(7) { transform: translateX(-50%) rotate(270deg); }
+        .ray:nth-child(8) { transform: translateX(-50%) rotate(315deg); }
+
+        .motivation-meter {
+            position: absolute;
+            bottom: 25px;
+            left: 25px;
+            width: 170px;
+            height: 25px;
+            background: rgba(236, 240, 241, 0.9);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .motivation-fill {
+            height: 100%;
+            width: 10%;
+            background: linear-gradient(90deg, #e74c3c 0%, #c0392b 50%, #a93226 100%);
+            border-radius: 15px;
+            animation: motivationFluctuate 5s infinite ease-in-out;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .night-mode .motivation-fill {
+            width: 95%;
+            background: linear-gradient(90deg, #27ae60 0%, #2ecc71 50%, #58d68d 100%);
+            animation: none;
+            box-shadow: 0 0 15px rgba(39, 174, 96, 0.4);
+        }
+
+        .meter-label {
+            position: absolute;
+            top: -30px;
+            left: 0;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .title {
+            position: absolute;
+            top: -70px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 28px;
+            font-weight: 700;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.4);
+            transition: all 0.6s ease;
+        }
+
+        .floating-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+        }
+
+        .zzz {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 20px;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+
+        .night-mode .zzz {
+            opacity: 1;
+            animation: floatUp 3s infinite ease-in-out;
+        }
+
+        .zzz:nth-child(1) { top: 40%; left: 60%; animation-delay: 0s; }
+        .zzz:nth-child(2) { top: 50%; left: 65%; animation-delay: 1s; }
+        .zzz:nth-child(3) { top: 45%; left: 70%; animation-delay: 2s; }
+
+        @keyframes alarmShake {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(3deg) scale(1.02); }
+            75% { transform: rotate(-3deg) scale(1.02); }
+        }
+
+        @keyframes bellRing {
+            0% { transform: rotate(-8deg); }
+            100% { transform: rotate(8deg); }
+        }
+
+        @keyframes blanketMove {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        @keyframes headToss {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-12deg); }
+            75% { transform: rotate(12deg); }
+        }
+
+        @keyframes hairMess {
+            0%, 100% { transform: rotate(0deg) scaleY(1); }
+            50% { transform: rotate(8deg) scaleY(1.3); }
+        }
+
+        @keyframes eyeStruggle {
+            0%, 85%, 100% { height: 8px; }
+            5%, 15% { height: 2px; }
+            40%, 60% { height: 2px; }
+        }
+
+        @keyframes mouthYawn {
+            0%, 65%, 100% { border-radius: 0 0 14px 14px; height: 7px; }
+            75%, 95% { border-radius: 14px; height: 14px; }
+        }
+
+        @keyframes thoughtAppear {
+            0%, 65%, 100% { opacity: 0; transform: scale(0.7) translateY(10px); }
+            70%, 95% { opacity: 1; transform: scale(1) translateY(0px); }
+        }
+
+        @keyframes nightThoughtAppear {
+            0%, 65%, 100% { opacity: 0; transform: scale(0.7) translateY(10px); }
+            70%, 95% { opacity: 1; transform: scale(1) translateY(0px); }
+        }
+
+        @keyframes sunRise {
+            0% { transform: translateY(25px) scale(0.9); filter: brightness(0.8); }
+            100% { transform: translateY(0px) scale(1); filter: brightness(1.1); }
+        }
+
+        @keyframes sunRotate {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        @keyframes motivationFluctuate {
+            0%, 100% { width: 10%; }
+            20% { width: 5%; }
+            40% { width: 18%; }
+            60% { width: 8%; }
+            80% { width: 15%; }
+        }
+
+        @keyframes starTwinkle {
+            0% { opacity: 0.3; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1.2); }
+        }
+
+        @keyframes floatUp {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.6; }
+            50% { transform: translateY(-15px) rotate(5deg); opacity: 1; }
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .scene {
+                width: 90vw;
+                height: 70vh;
+                max-width: 400px;
+                max-height: 300px;
+            }
+            
+            .title {
+                font-size: 20px;
+                top: -50px;
+            }
+            
+            .toggle-container {
+                top: -70px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="scene">
+        <div class="toggle-container">
+            <span class="toggle-label">Day/Night</span>
+            <div class="toggle-switch" id="toggleSwitch">
+                <div class="toggle-slider"></div>
+            </div>
+        </div>
+
+        <h1 class="title"></h1>
+        
+        <div class="alarm-clock">
+            <div class="alarm-bells">
+                <div class="bell"></div>
+                <div class="bell"></div>
+            </div>
+            <div class="clock-face">7:00</div>
+        </div>
+
+        <div class="sun">
+            <div class="sun-rays">
+                <div class="ray"></div>
+                <div class="ray"></div>
+                <div class="ray"></div>
+                <div class="ray"></div>
+                <div class="ray"></div>
+                <div class="ray"></div>
+                <div class="ray"></div>
+                <div class="ray"></div>
+            </div>
+        </div>
+
+        <div class="moon"></div>
+
+        <div class="stars">
+            <div class="star"></div>
+            <div class="star"></div>
+            <div class="star"></div>
+            <div class="star"></div>
+            <div class="star"></div>
+            <div class="star"></div>
+        </div>
+
+        <div class="floating-elements">
+            <div class="zzz">Z</div>
+            <div class="zzz">Z</div>
+            <div class="zzz">Z</div>
+        </div>
+
+        <div class="bed">
+            <div class="pillow"></div>
+            <div class="blanket"></div>
+            <div class="person">
+                <div class="head">
+                    <div class="hair"></div>
+                    <div class="eyes">
+                        <div class="eye"></div>
+                        <div class="eye"></div>
+                    </div>
+                    <div class="mouth"></div>
+                    <div class="thought-bubble" id="thoughtBubble">Just 5 more minutes...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="motivation-meter">
+            <div class="meter-label">Motivation Level</div>
+            <div class="motivation-fill"></div>
+        </div>
+    </div>
+
+    <script>
+        const dayThoughts = [
+            "Just 5 more minutes... 😴",
+            "Is it Friday yet? 😩",
+            "I hate Mondays 😤",
+            "Why do weekends end? 😭",
+            "Coffee... need coffee... ☕",
+            "Maybe I'm sick? 🤔",
+            "Can I work from bed? 🛏️",
+            "Ugh... adulting is hard 😵"
+        ];
+
+        const nightThoughts = [
+            "Thank you 😊",
+            "Sweet dreams 😴",
+            "Good night 🌙",
+            "Peaceful sleep ✨",
+            "Rest well 💤",
+            "So grateful 🙏",
+            "Perfect rest 😌"
+        ];
+
+        const thoughtBubble = document.getElementById('thoughtBubble');
+        const toggleSwitch = document.getElementById('toggleSwitch');
+        const body = document.body;
+        
+        let thoughtIndex = 0;
+        let isNightMode = false;
+        let thoughtInterval;
+
+        function startThoughtCycle() {
+            clearInterval(thoughtInterval);
+            const thoughts = isNightMode ? nightThoughts : dayThoughts;
+            const interval = isNightMode ? 3500 : 6000;
+            
+            // Set initial thought immediately
+            thoughtBubble.textContent = thoughts[0];
+            thoughtIndex = 0;
+            
+            thoughtInterval = setInterval(() => {
+                thoughtIndex = (thoughtIndex + 1) % thoughts.length;
+                thoughtBubble.textContent = thoughts[thoughtIndex];
+            }, interval);
+        }
+
+        toggleSwitch.addEventListener('click', () => {
+            isNightMode = !isNightMode;
+            toggleSwitch.classList.toggle('active');
+            body.classList.toggle('night-mode');
+            
+            // Add subtle haptic feedback (if supported)
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+            
+            // Reset and start new thought cycle
+            startThoughtCycle();
+        });
+
+        // Add hover effects
+        toggleSwitch.addEventListener('mouseenter', () => {
+            toggleSwitch.style.transform = 'scale(1.05)';
+        });
+
+        toggleSwitch.addEventListener('mouseleave', () => {
+            toggleSwitch.style.transform = 'scale(1)';
+        });
+
+        // Initialize with day mode
+        startThoughtCycle();
+
+        // Add some randomness to animations
+        setTimeout(() => {
+            const alarmClock = document.querySelector('.alarm-clock');
+            const originalAnimation = alarmClock.style.animation;
+            
+            setInterval(() => {
+                if (!isNightMode) {
+                    // Occasionally make the alarm shake more violently
+                    if (Math.random() < 0.3) {
+                        alarmClock.style.animation = 'alarmShake 0.05s infinite';
+                        setTimeout(() => {
+                            alarmClock.style.animation = originalAnimation;
+                        }, 2000);
+                    }
+                }
+            }, 10000);
+        }, 2000);
+    </script>
+</body>
+</html>

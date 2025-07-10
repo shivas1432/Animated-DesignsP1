@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Loader - Multi-Dimensional Spinner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(45deg, #0a0a0a 0%, #1a1a2e 25%, #16213e 50%, #0f0f23 75%, #000000 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            perspective: 1500px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Quantum Field Background */
+        .quantum-field {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 25% 25%, rgba(255, 0, 150, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 75% 75%, rgba(0, 255, 255, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 50% 50%, rgba(150, 255, 0, 0.05) 0%, transparent 50%);
+            animation: quantum-flux 12s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        @keyframes quantum-flux {
+            0%, 100% { 
+                transform: scale(1) rotate(0deg);
+                opacity: 0.3;
+            }
+            33% { 
+                transform: scale(1.1) rotate(120deg);
+                opacity: 0.6;
+            }
+            66% { 
+                transform: scale(0.9) rotate(240deg);
+                opacity: 0.4;
+            }
+        }
+
+        /* Energy Waves */
+        .energy-wave {
+            position: absolute;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: energy-pulse 4s ease-out infinite;
+            pointer-events: none;
+        }
+
+        .energy-wave:nth-child(1) {
+            width: 200px;
+            height: 200px;
+            top: 20%;
+            left: 15%;
+            animation-delay: 0s;
+        }
+
+        .energy-wave:nth-child(2) {
+            width: 300px;
+            height: 300px;
+            top: 60%;
+            right: 10%;
+            animation-delay: 2s;
+        }
+
+        .energy-wave:nth-child(3) {
+            width: 150px;
+            height: 150px;
+            bottom: 25%;
+            left: 60%;
+            animation-delay: 1s;
+        }
+
+        @keyframes energy-pulse {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+
+        /* Main Container */
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 60px;
+            z-index: 10;
+        }
+
+        .title {
+            color: #fff;
+            font-size: 3.5rem;
+            font-weight: 100;
+            text-align: center;
+            text-shadow: 0 0 40px rgba(0, 255, 255, 0.6);
+            letter-spacing: 8px;
+            margin-bottom: 20px;
+            animation: title-glow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes title-glow {
+            from {
+                text-shadow: 0 0 40px rgba(0, 255, 255, 0.6);
+            }
+            to {
+                text-shadow: 0 0 60px rgba(255, 0, 150, 0.8), 0 0 80px rgba(0, 255, 255, 0.4);
+            }
+        }
+
+        /* Quantum Loader Container */
+        .quantum-loader-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            transform-style: preserve-3d;
+            animation: container-float 6s ease-in-out infinite;
+        }
+
+        @keyframes container-float {
+            0%, 100% { transform: translateY(0px) rotateZ(0deg); }
+            50% { transform: translateY(-20px) rotateZ(10deg); }
+        }
+
+        /* Main Quantum Loader */
+        .quantum-loader {
+            width: 200px;
+            height: 200px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transform-style: preserve-3d;
+        }
+
+        /* Quantum Rings */
+        .quantum-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 4px solid transparent;
+            border-radius: 50%;
+            animation: quantum-spin 3s linear infinite;
+            transform-style: preserve-3d;
+        }
+
+        .quantum-ring:nth-child(1) {
+            border-top-color: #ff0096;
+            border-bottom-color: rgba(255, 0, 150, 0.3);
+            transform: rotateX(0deg);
+            animation-delay: 0s;
+            filter: drop-shadow(0 0 20px #ff0096);
+        }
+
+        .quantum-ring:nth-child(2) {
+            border-right-color: #00ffff;
+            border-left-color: rgba(0, 255, 255, 0.3);
+            transform: rotateX(60deg);
+            animation-delay: 0.5s;
+            filter: drop-shadow(0 0 20px #00ffff);
+        }
+
+        .quantum-ring:nth-child(3) {
+            border-bottom-color: #96ff00;
+            border-top-color: rgba(150, 255, 0, 0.3);
+            transform: rotateX(120deg);
+            animation-delay: 1s;
+            filter: drop-shadow(0 0 20px #96ff00);
+        }
+
+        .quantum-ring:nth-child(4) {
+            border-left-color: #ff9600;
+            border-right-color: rgba(255, 150, 0, 0.3);
+            transform: rotateY(90deg);
+            animation-delay: 1.5s;
+            filter: drop-shadow(0 0 20px #ff9600);
+        }
+
+        .quantum-ring:nth-child(5) {
+            border-top-color: #ff0096;
+            border-bottom-color: rgba(255, 0, 150, 0.3);
+            transform: rotateY(45deg) rotateX(45deg);
+            animation-delay: 2s;
+            filter: drop-shadow(0 0 20px #ff0096);
+        }
+
+        .quantum-ring:nth-child(6) {
+            border-right-color: #00ffff;
+            border-left-color: rgba(0, 255, 255, 0.3);
+            transform: rotateY(-45deg) rotateX(-45deg);
+            animation-delay: 2.5s;
+            filter: drop-shadow(0 0 20px #00ffff);
+        }
+
+        @keyframes quantum-spin {
+            from { 
+                transform: rotateY(0deg) rotateZ(0deg);
+                opacity: 0.7;
+            }
+            50% {
+                opacity: 1;
+            }
+            to { 
+                transform: rotateY(360deg) rotateZ(360deg);
+                opacity: 0.7;
+            }
+        }
+
+        /* Central Core */
+        .quantum-core {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 40px;
+            height: 40px;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(circle, 
+                rgba(255, 255, 255, 0.9) 0%,
+                rgba(0, 255, 255, 0.6) 30%,
+                rgba(255, 0, 150, 0.4) 60%,
+                transparent 100%);
+            border-radius: 50%;
+            animation: core-pulse 2s ease-in-out infinite;
+            box-shadow: 
+                0 0 30px rgba(255, 255, 255, 0.6),
+                inset 0 0 20px rgba(0, 255, 255, 0.3);
+        }
+
+        @keyframes core-pulse {
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(1);
+                box-shadow: 
+                    0 0 30px rgba(255, 255, 255, 0.6),
+                    inset 0 0 20px rgba(0, 255, 255, 0.3);
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.3);
+                box-shadow: 
+                    0 0 50px rgba(255, 255, 255, 0.9),
+                    inset 0 0 30px rgba(0, 255, 255, 0.6);
+            }
+        }
+
+        /* Orbital Particles */
+        .orbital-particles {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .orbital-particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: radial-gradient(circle, #fff, transparent);
+            border-radius: 50%;
+            animation: orbital-motion 4s linear infinite;
+        }
+
+        .orbital-particle:nth-child(1) {
+            top: 10%;
+            left: 50%;
+            animation-delay: 0s;
+            background: radial-gradient(circle, #ff0096, transparent);
+        }
+
+        .orbital-particle:nth-child(2) {
+            top: 50%;
+            right: 10%;
+            animation-delay: 1s;
+            background: radial-gradient(circle, #00ffff, transparent);
+        }
+
+        .orbital-particle:nth-child(3) {
+            bottom: 10%;
+            left: 50%;
+            animation-delay: 2s;
+            background: radial-gradient(circle, #96ff00, transparent);
+        }
+
+        .orbital-particle:nth-child(4) {
+            top: 50%;
+            left: 10%;
+            animation-delay: 3s;
+            background: radial-gradient(circle, #ff9600, transparent);
+        }
+
+        @keyframes orbital-motion {
+            from {
+                transform: rotate(0deg) translateX(120px) rotate(0deg);
+                opacity: 0.5;
+            }
+            to {
+                transform: rotate(360deg) translateX(120px) rotate(-360deg);
+                opacity: 1;
+            }
+        }
+
+        /* Progress Text */
+        .progress-container {
+            text-align: center;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 300;
+            letter-spacing: 3px;
+        }
+
+        .progress-text {
+            margin-bottom: 15px;
+            opacity: 0.8;
+            animation: text-flicker 2s ease-in-out infinite;
+        }
+
+        .progress-percentage {
+            font-size: 36px;
+            font-weight: 700;
+            color: #00ffff;
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+        }
+
+        @keyframes text-flicker {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+
+        /* Control Panel */
+        .control-panel {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        .control-btn {
+            padding: 15px 30px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 20px;
+            color: #00ffff;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            backdrop-filter: blur(10px);
+            font-size: 14px;
+            font-weight: 400;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .control-btn:hover {
+            background: rgba(0, 255, 255, 0.1);
+            border-color: rgba(0, 255, 255, 0.7);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(0, 255, 255, 0.3);
+            color: #fff;
+        }
+
+        .control-btn:active {
+            transform: translateY(-1px);
+        }
+
+        /* Speed Indicator */
+        .speed-indicator {
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            font-size: 14px;
+            opacity: 0.7;
+            letter-spacing: 2px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .quantum-loader-container {
+                width: 250px;
+                height: 250px;
+            }
+            
+            .quantum-loader {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .title {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="quantum-field"></div>
+    
+    <div class="energy-wave"></div>
+    <div class="energy-wave"></div>
+    <div class="energy-wave"></div>
+    
+    <div class="main-container">
+        <h1 class="title">QUANTUM PROCESSING</h1>
+        
+        <div class="quantum-loader-container">
+            <div class="speed-indicator" id="speedIndicator">STANDARD VELOCITY</div>
+            
+            <div class="quantum-loader" id="quantumLoader">
+                <div class="quantum-ring"></div>
+                <div class="quantum-ring"></div>
+                <div class="quantum-ring"></div>
+                <div class="quantum-ring"></div>
+                <div class="quantum-ring"></div>
+                <div class="quantum-ring"></div>
+                
+                <div class="quantum-core"></div>
+                
+                <div class="orbital-particles">
+                    <div class="orbital-particle"></div>
+                    <div class="orbital-particle"></div>
+                    <div class="orbital-particle"></div>
+                    <div class="orbital-particle"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="progress-container">
+            <div class="progress-text" id="progressText">INITIALIZING QUANTUM STATE</div>
+            <div class="progress-percentage" id="progressPercentage">0%</div>
+        </div>
+        
+        <div class="control-panel">
+            <button class="control-btn" onclick="changeSpeed('slow')">SLOW MODE</button>
+            <button class="control-btn" onclick="changeSpeed('normal')">NORMAL</button>
+            <button class="control-btn" onclick="changeSpeed('fast')">HYPER SPEED</button>
+            <button class="control-btn" onclick="toggleChaos()">CHAOS MODE</button>
+        </div>
+    </div>
+
+    <script>
+        class QuantumLoader {
+            constructor() {
+                this.currentSpeed = 'normal';
+                this.chaosMode = false;
+                this.progress = 0;
+                this.isRunning = false;
+                this.progressMessages = [
+                    "INITIALIZING QUANTUM STATE",
+                    "ESTABLISHING NEURAL LINKS", 
+                    "CALIBRATING SPACE-TIME",
+                    "SYNCHRONIZING DIMENSIONS",
+                    "PROCESSING QUANTUM DATA",
+                    "OPTIMIZING FLUX CAPACITORS",
+                    "FINALIZING MATRIX PROTOCOLS",
+                    "QUANTUM LOADING COMPLETE"
+                ];
+                this.init();
+            }
+
+            init() {
+                this.setupElements();
+                this.startProgressSimulation();
+                this.setupEventListeners();
+                this.startAmbientEffects();
+            }
+
+            setupElements() {
+                this.loader = document.getElementById('quantumLoader');
+                this.progressText = document.getElementById('progressText');
+                this.progressPercentage = document.getElementById('progressPercentage');
+                this.speedIndicator = document.getElementById('speedIndicator');
+                this.rings = this.loader.querySelectorAll('.quantum-ring');
+                this.particles = this.loader.querySelectorAll('.orbital-particle');
+            }
+
+            setupEventListeners() {
+                // Click to restart progress
+                this.loader.addEventListener('click', () => {
+                    this.restartProgress();
+                });
+
+                // Hover effects
+                this.loader.addEventListener('mouseenter', () => {
+                    this.intensifyEffects();
+                });
+
+                this.loader.addEventListener('mouseleave', () => {
+                    this.normalizeEffects();
+                });
+            }
+
+            changeSpeed(speed) {
+                this.currentSpeed = speed;
+                this.applySpeedChanges();
+            }
+
+            applySpeedChanges() {
+                let duration, description;
+                
+                switch(this.currentSpeed) {
+                    case 'slow':
+                        duration = '6s';
+                        description = 'QUANTUM DECELERATION';
+                        break;
+                    case 'fast':
+                        duration = '1s';
+                        description = 'HYPER VELOCITY';
+                        break;
+                    default:
+                        duration = '3s';
+                        description = 'STANDARD VELOCITY';
+                }
+
+                this.rings.forEach(ring => {
+                    ring.style.animationDuration = duration;
+                });
+
+                this.particles.forEach(particle => {
+                    particle.style.animationDuration = duration === '6s' ? '8s' : duration === '1s' ? '2s' : '4s';
+                });
+
+                this.speedIndicator.textContent = description;
+            }
+
+            toggleChaos() {
+                this.chaosMode = !this.chaosMode;
+                
+                if (this.chaosMode) {
+                    this.startChaosMode();
+                } else {
+                    this.stopChaosMode();
+                }
+            }
+
+            startChaosMode() {
+                this.speedIndicator.textContent = 'CHAOS PROTOCOL ACTIVE';
+                
+                // Randomize ring animations
+                this.rings.forEach((ring, index) => {
+                    const randomDuration = (Math.random() * 3 + 0.5) + 's';
+                    const randomDirection = Math.random() > 0.5 ? 'normal' : 'reverse';
+                    ring.style.animationDuration = randomDuration;
+                    ring.style.animationDirection = randomDirection;
+                    
+                    // Random color changes
+                    setTimeout(() => {
+                        this.randomizeRingColors(ring);
+                    }, index * 200);
+                });
+
+                // Chaos particle behavior
+                this.particles.forEach(particle => {
+                    const randomDuration = (Math.random() * 4 + 1) + 's';
+                    particle.style.animationDuration = randomDuration;
+                });
+
+                // Add chaos visual effects
+                this.loader.style.filter = 'hue-rotate(0deg)';
+                this.chaosInterval = setInterval(() => {
+                    const hue = Math.random() * 360;
+                    this.loader.style.filter = `hue-rotate(${hue}deg)`;
+                }, 200);
+            }
+
+            stopChaosMode() {
+                this.speedIndicator.textContent = 'STANDARD VELOCITY';
+                clearInterval(this.chaosInterval);
+                
+                // Reset to normal animations
+                this.currentSpeed = 'normal';
+                this.applySpeedChanges();
+                this.loader.style.filter = 'none';
+                
+                // Reset ring colors
+                this.rings.forEach(ring => {
+                    ring.style.filter = '';
+                });
+            }
+
+            randomizeRingColors(ring) {
+                const colors = ['#ff0096', '#00ffff', '#96ff00', '#ff9600', '#9600ff', '#ff6000'];
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                ring.style.filter = `drop-shadow(0 0 20px ${randomColor}) hue-rotate(${Math.random() * 360}deg)`;
+            }
+
+            intensifyEffects() {
+                this.rings.forEach(ring => {
+                    ring.style.filter = ring.style.filter + ' brightness(1.5) saturate(1.5)';
+                });
+                
+                this.particles.forEach(particle => {
+                    particle.style.transform = particle.style.transform + ' scale(1.5)';
+                });
+            }
+
+            normalizeEffects() {
+                if (!this.chaosMode) {
+                    this.rings.forEach(ring => {
+                        ring.style.filter = ring.style.filter.replace(' brightness(1.5) saturate(1.5)', '');
+                    });
+                }
+                
+                this.particles.forEach(particle => {
+                    particle.style.transform = particle.style.transform.replace(' scale(1.5)', '');
+                });
+            }
+
+            startProgressSimulation() {
+                this.isRunning = true;
+                this.progress = 0;
+                this.updateProgress();
+                
+                this.progressInterval = setInterval(() => {
+                    if (this.progress < 100) {
+                        const increment = Math.random() * 3 + 1;
+                        this.progress = Math.min(100, this.progress + increment);
+                        this.updateProgress();
+                    } else {
+                        clearInterval(this.progressInterval);
+                        setTimeout(() => {
+                            this.restartProgress();
+                        }, 2000);
+                    }
+                }, 200);
+            }
+
+            updateProgress() {
+                this.progressPercentage.textContent = Math.floor(this.progress) + '%';
+                
+                // Update progress message based on percentage
+                const messageIndex = Math.floor((this.progress / 100) * (this.progressMessages.length - 1));
+                this.progressText.textContent = this.progressMessages[messageIndex];
+                
+                // Update core intensity based on progress
+                const core = this.loader.querySelector('.quantum-core');
+                const intensity = this.progress / 100;
+                core.style.boxShadow = `
+                    0 0 ${30 + intensity * 50}px rgba(255, 255, 255, ${0.6 + intensity * 0.4}),
+                    inset 0 0 ${20 + intensity * 30}px rgba(0, 255, 255, ${0.3 + intensity * 0.6})
+                `;
+            }
+
+            restartProgress() {
+                clearInterval(this.progressInterval);
+                this.progress = 0;
+                this.startProgressSimulation();
+                
+                // Add restart visual effect
+                this.createRestartBurst();
+            }
+
+            createRestartBurst() {
+                const burst = document.createElement('div');
+                burst.style.position = 'absolute';
+                burst.style.top = '50%';
+                burst.style.left = '50%';
+                burst.style.width = '10px';
+                burst.style.height = '10px';
+                burst.style.background = 'radial-gradient(circle, rgba(255, 255, 255, 1), transparent)';
+                burst.style.borderRadius = '50%';
+                burst.style.transform = 'translate(-50%, -50%)';
+                burst.style.animation = 'restart-burst 0.8s ease-out forwards';
+                burst.style.pointerEvents = 'none';
+                burst.style.zIndex = '100';
+
+                this.loader.appendChild(burst);
+
+                setTimeout(() => {
+                    burst.remove();
+                }, 800);
+            }
+
+            startAmbientEffects() {
+                // Subtle container rotation
+                let rotationPhase = 0;
+                setInterval(() => {
+                    rotationPhase += 0.01;
+                    const container = document.querySelector('.quantum-loader-container');
+                    const rotation = Math.sin(rotationPhase) * 5;
+                    container.style.transform = `rotateZ(${rotation}deg)`;
+                }, 16);
+
+                // Dynamic lighting effects
+                let lightPhase = 0;
+                setInterval(() => {
+                    lightPhase += 0.02;
+                    const intensity = 0.5 + Math.sin(lightPhase) * 0.3;
+                    document.querySelector('.quantum-field').style.opacity = intensity;
+                }, 50);
+            }
+        }
+
+        // Global functions for control buttons
+        let quantumLoader;
+
+        function changeSpeed(speed) {
+            quantumLoader.changeSpeed(speed);
+        }
+
+        function toggleChaos() {
+            quantumLoader.toggleChaos();
+        }
+
+        // Additional CSS animations
+        const dynamicStyles = document.createElement('style');
+        dynamicStyles.textContent = `
+            @keyframes restart-burst {
+                0% {
+                    width: 10px;
+                    height: 10px;
+                    opacity: 1;
+                }
+                50% {
+                    width: 200px;
+                    height: 200px;
+                    opacity: 0.8;
+                }
+                100% {
+                    width: 400px;
+                    height: 400px;
+                    opacity: 0;
+                }
+            }
+            
+            .quantum-ring:hover {
+                filter: brightness(1.5) saturate(1.5) !important;
+            }
+            
+            .orbital-particle:hover {
+                transform: scale(2) !important;
+            }
+        `;
+        document.head.appendChild(dynamicStyles);
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            quantumLoader = new QuantumLoader();
+            
+            // Performance monitoring and optimization
+            let frameCount = 0;
+            let lastTime = performance.now();
+            
+            function monitorPerformance() {
+                frameCount++;
+                const currentTime = performance.now();
+                
+                if (frameCount % 60 === 0) {
+                    const deltaTime = currentTime - lastTime;
+                    const fps = 60000 / deltaTime;
+                    
+                    // Adjust effects based on performance
+                    if (fps < 30) {
+                        // Reduce particle count for better performance
+                        const particles = document.querySelectorAll('.orbital-particle');
+                        if (particles.length > 2) {
+                            particles[particles.length - 1].style.display = 'none';
+                        }
+                    }
+                    
+                    lastTime = currentTime;
+                }
+                
+                requestAnimationFrame(monitorPerformance);
+            }
+            
+            requestAnimationFrame(monitorPerformance);
+        });
+
+        // Advanced interaction features
+        document.addEventListener('keydown', (e) => {
+            switch(e.code) {
+                case 'Space':
+                    e.preventDefault();
+                    quantumLoader.restartProgress();
+                    break;
+                case 'KeyC':
+                    toggleChaos();
+                    break;
+                case 'Digit1':
+                    changeSpeed('slow');
+                    break;
+                case 'Digit2':
+                    changeSpeed('normal');
+                    break;
+                case 'Digit3':
+                    changeSpeed('fast');
+                    break;
+            }
+        });
+    </script>
+</body>
+</html>

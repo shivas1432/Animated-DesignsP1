@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Viral Social Icons</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Exo+2:wght@300;400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background-color: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Exo 2', sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+            animation: backgroundShift 10s ease-in-out infinite;
+        }
+
+        @keyframes backgroundShift {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .names-display {
+            position: absolute;
+            top: -120px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            padding: 20px 30px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+            min-width: 280px;
+            text-align: center;
+        }
+
+        .names-display.show {
+            opacity: 1;
+            visibility: visible;
+            top: -140px;
+            transform: translateX(-50%) translateY(0) scale(1);
+            animation: namesPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes namesPulse {
+            0%, 100% { 
+                box-shadow: 0 10px 40px rgba(255, 255, 255, 0.2);
+                transform: translateX(-50%) translateY(0) scale(1);
+            }
+            50% { 
+                box-shadow: 0 15px 50px rgba(255, 255, 255, 0.4);
+                transform: translateX(-50%) translateY(-5px) scale(1.02);
+            }
+        }
+
+        .names-title {
+            font-family: 'Orbitron', monospace;
+            font-weight: 900;
+            font-size: 16px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96c93d);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+            animation: gradientShift 3s ease-in-out infinite;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .names-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .name-item {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 500;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.9);
+            opacity: 0;
+            transform: translateX(-20px);
+            animation: slideInName 0.6s ease-out forwards;
+            position: relative;
+            padding: 8px 15px;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .name-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(0) scale(1.05);
+            color: white;
+        }
+
+        .name-item:nth-child(1) { animation-delay: 0.1s; }
+        .name-item:nth-child(2) { animation-delay: 0.2s; }
+        .name-item:nth-child(3) { animation-delay: 0.3s; }
+        .name-item:nth-child(4) { animation-delay: 0.4s; }
+        .name-item:nth-child(5) { animation-delay: 0.5s; }
+
+        @keyframes slideInName {
+            0% {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .name-item::before {
+            content: '👑';
+            margin-right: 8px;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .close-names {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            color: white;
+            cursor: none;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close-names:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .social-container {
+            display: flex;
+            gap: 30px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(30px);
+            border-radius: 40px;
+            border: 2px solid;
+            border-image: linear-gradient(45deg, #00d4ff, #ff006e, #8338ec, #3a86ff) 1;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                0 0 60px rgba(131, 56, 236, 0.3);
+            animation: containerFloat 8s ease-in-out infinite;
+            position: relative;
+            z-index: 10;
+            cursor: none;
+        }
+
+        @keyframes containerFloat {
+            0%, 100% { transform: translateY(0px) rotateX(0deg); }
+            50% { transform: translateY(-15px) rotateX(2deg); }
+        }
+
+        .social-icon-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .social-icon {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: none;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .social-icon::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: iconRotate 4s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .social-icon:hover::before {
+            opacity: 1;
+        }
+
+        @keyframes iconRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .social-icon::after {
+            content: '';
+            position: absolute;
+            inset: 2px;
+            border-radius: 23px;
+            background: inherit;
+            z-index: 1;
+        }
+
+        .social-icon svg {
+            width: 36px;
+            height: 36px;
+            fill: white;
+            transition: all 0.4s ease;
+            z-index: 2;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+        }
+
+        .social-icon:hover {
+            transform: translateY(-12px) scale(1.15);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                0 0 30px rgba(255, 255, 255, 0.2);
+        }
+
+        .icon-label {
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background: linear-gradient(45deg, #00d4ff, #ff006e, #8338ec, #3a86ff);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+            animation: textGlow 3s ease-in-out infinite;
+            position: relative;
+            opacity: 0.9;
+            transition: all 0.4s ease;
+        }
+
+        .icon-label::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: -10px;
+            right: -10px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: translateY(-50%) scaleX(0);
+            transition: transform 0.4s ease;
+        }
+
+        .social-icon-wrapper:hover .icon-label {
+            transform: translateY(-5px);
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+        }
+
+        .social-icon-wrapper:hover .icon-label::before {
+            transform: translateY(-50%) scaleX(1);
+        }
+
+        @keyframes textGlow {
+            0%, 100% { 
+                background-position: 0% 50%;
+                text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            }
+            50% { 
+                background-position: 100% 50%;
+                text-shadow: 0 0 30px rgba(255, 255, 255, 0.6);
+            }
+        }
+
+        .follow-icon {
+            background: linear-gradient(135deg, #667eea, #764ba2, #8338ec);
+            animation: pulseGlow 4s ease-in-out infinite;
+        }
+
+        .like-icon {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24, #ff006e);
+            animation: pulseGlow 4s ease-in-out infinite 0.7s;
+        }
+
+        .comment-icon {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d, #00d4ff);
+            animation: pulseGlow 4s ease-in-out infinite 1.4s;
+        }
+
+        .share-icon {
+            background: linear-gradient(135deg, #45b7d1, #96c93d, #3a86ff);
+            animation: pulseGlow 4s ease-in-out infinite 2.1s;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                box-shadow: 
+                    0 0 20px rgba(255, 255, 255, 0.2),
+                    inset 0 0 20px rgba(255, 255, 255, 0.1);
+            }
+            50% {
+                box-shadow: 
+                    0 0 40px rgba(255, 255, 255, 0.4), 
+                    0 0 60px rgba(255, 255, 255, 0.2),
+                    inset 0 0 30px rgba(255, 255, 255, 0.2);
+            }
+        }
+
+        .like-icon:hover {
+            animation: heartBeat 0.8s ease-in-out;
+        }
+
+        @keyframes heartBeat {
+            0%, 100% { transform: translateY(-12px) scale(1.15); }
+            25% { transform: translateY(-12px) scale(1.25); }
+            50% { transform: translateY(-12px) scale(1.2); }
+            75% { transform: translateY(-12px) scale(1.3); }
+        }
+
+        .follow-icon:hover {
+            animation: followBounce 1s ease-in-out;
+        }
+
+        @keyframes followBounce {
+            0%, 100% { transform: translateY(-12px) scale(1.15); }
+            25% { transform: translateY(-18px) scale(1.2) rotate(8deg); }
+            50% { transform: translateY(-12px) scale(1.25) rotate(0deg); }
+            75% { transform: translateY(-15px) scale(1.15) rotate(-5deg); }
+        }
+
+        .comment-icon:hover {
+            animation: commentShake 0.8s ease-in-out;
+        }
+
+        @keyframes commentShake {
+            0%, 100% { transform: translateY(-12px) scale(1.15) rotate(0deg); }
+            25% { transform: translateY(-12px) scale(1.2) rotate(5deg); }
+            50% { transform: translateY(-12px) scale(1.25) rotate(-5deg); }
+            75% { transform: translateY(-12px) scale(1.2) rotate(3deg); }
+        }
+
+        .share-icon:hover {
+            animation: shareRotate 1s ease-in-out;
+        }
+
+        @keyframes shareRotate {
+            0% { transform: translateY(-12px) scale(1.15) rotate(0deg); }
+            50% { transform: translateY(-12px) scale(1.25) rotate(180deg); }
+            100% { transform: translateY(-12px) scale(1.15) rotate(360deg); }
+        }
+
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6);
+            transform: scale(0);
+            animation: rippleEffect 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes rippleEffect {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: particleFloat 2s ease-out forwards;
+        }
+
+        @keyframes particleFloat {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-100px) scale(0);
+            }
+        }
+
+        .bg-particle {
+            position: absolute;
+            background: linear-gradient(45deg, rgba(131, 56, 236, 0.3), rgba(255, 0, 110, 0.3));
+            border-radius: 50%;
+            animation: floatParticle 15s linear infinite;
+            filter: blur(1px);
+        }
+
+        @keyframes floatParticle {
+            0% {
+                transform: translateY(100vh) rotate(0deg) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+                transform: translateY(90vh) rotate(36deg) scale(1);
+            }
+            90% {
+                opacity: 1;
+                transform: translateY(10vh) rotate(324deg) scale(1);
+            }
+            100% {
+                transform: translateY(-10vh) rotate(360deg) scale(0);
+                opacity: 0;
+            }
+        }
+
+        .cyber-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(131, 56, 236, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(131, 56, 236, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="cyber-grid"></div>
+    
+    <div class="bg-particle" style="left: 5%; width: 8px; height: 8px; animation-delay: 0s;"></div>
+    <div class="bg-particle" style="left: 15%; width: 12px; height: 12px; animation-delay: 3s;"></div>
+    <div class="bg-particle" style="left: 25%; width: 6px; height: 6px; animation-delay: 6s;"></div>
+    <div class="bg-particle" style="left: 35%; width: 10px; height: 10px; animation-delay: 9s;"></div>
+    <div class="bg-particle" style="left: 45%; width: 4px; height: 4px; animation-delay: 12s;"></div>
+    <div class="bg-particle" style="left: 55%; width: 14px; height: 14px; animation-delay: 2s;"></div>
+    <div class="bg-particle" style="left: 65%; width: 7px; height: 7px; animation-delay: 5s;"></div>
+    <div class="bg-particle" style="left: 75%; width: 9px; height: 9px; animation-delay: 8s;"></div>
+    <div class="bg-particle" style="left: 85%; width: 11px; height: 11px; animation-delay: 11s;"></div>
+    <div class="bg-particle" style="left: 95%; width: 5px; height: 5px; animation-delay: 14s;"></div>
+
+    <div class="social-container">
+        <div class="social-icon-wrapper">
+            <div class="social-icon follow-icon" data-action="follow">
+                <svg viewBox="0 0 24 24">
+                    <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A1.5 1.5 0 0 0 18.54 8H16c-.8 0-1.54.37-2 1l-3.72 5.6-2.41-1.94c-.39-.31-.67-.8-.67-1.36V2h-2v8.3c0 1.31.65 2.58 1.74 3.35L10.13 16H2v2h9.5l-1.18-2.65L13 14l3.5 7H18l1.5-3H22v-1h-2z"/>
+                </svg>
+            </div>
+            <div class="icon-label">Follow</div>
+        </div>
+        
+        <div class="social-icon-wrapper">
+            <div class="social-icon like-icon" data-action="like">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+            </div>
+            <div class="icon-label">Like</div>
+        </div>
+        
+        <div class="social-icon-wrapper">
+            <div class="social-icon comment-icon" data-action="comment">
+                <svg viewBox="0 0 24 24">
+                    <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4l4 4 4-4h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+                </svg>
+            </div>
+            <div class="icon-label">Comment</div>
+        </div>
+        
+        <div class="social-icon-wrapper">
+            <div class="social-icon share-icon" data-action="share">
+                <svg viewBox="0 0 24 24">
+                    <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/>
+                </svg>
+            </div>
+            <div class="icon-label">Share</div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const socialIcons = document.querySelectorAll('.social-icon');
+            
+            socialIcons.forEach(icon => {
+                icon.addEventListener('click', function(e) {
+                    const action = this.getAttribute('data-action');
+                    createRipple(e, this);
+                    createParticleBurst(this);
+                    handleAction(action, this);
+                });
+                
+                icon.addEventListener('mouseenter', function() {
+                    this.style.filter = 'brightness(1.3) saturate(1.4) contrast(1.1)';
+                    this.style.boxShadow = '0 0 40px rgba(255, 255, 255, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.2)';
+                });
+                
+                icon.addEventListener('mouseleave', function() {
+                    this.style.filter = 'brightness(1) saturate(1) contrast(1)';
+                    this.style.boxShadow = '';
+                });
+            });
+            
+            function createRipple(event, element) {
+                const circle = document.createElement('span');
+                const diameter = Math.max(element.clientWidth, element.clientHeight);
+                const radius = diameter / 2;
+                
+                const rect = element.getBoundingClientRect();
+                circle.style.width = circle.style.height = diameter + 'px';
+                circle.style.left = (event.clientX - rect.left - radius) + 'px';
+                circle.style.top = (event.clientY - rect.top - radius) + 'px';
+                circle.classList.add('ripple');
+                
+                element.appendChild(circle);
+                
+                setTimeout(() => {
+                    circle.remove();
+                }, 600);
+            }
+            
+            function createParticleBurst(element) {
+                for (let i = 0; i < 8; i++) {
+                    const particle = document.createElement('div');
+                    particle.classList.add('particle');
+                    
+                    const angle = (i * 45) * Math.PI / 180;
+                    const distance = 40 + Math.random() * 30;
+                    
+                    particle.style.left = '50%';
+                    particle.style.top = '50%';
+                    particle.style.transform = `translate(-50%, -50%)`;
+                    particle.style.background = `linear-gradient(45deg, #00d4ff, #ff006e)`;
+                    particle.style.boxShadow = '0 0 10px rgba(255, 255, 255, 0.8)';
+                    
+                    element.appendChild(particle);
+                    
+                    setTimeout(() => {
+                        particle.style.transform = `translate(${Math.cos(angle) * distance - 2}px, ${Math.sin(angle) * distance - 60}px) scale(0)`;
+                    }, 10);
+                    
+                    setTimeout(() => {
+                        particle.remove();
+                    }, 2000);
+                }
+            }
+            
+            function handleAction(action, element) {
+                const messages = {
+                    follow: 'Following! 🚀',
+                    like: 'Liked! ❤️',
+                    comment: 'Opening comments... 💬',
+                    share: 'Sharing! ⚡'
+                };
+
+                if (action === 'follow') {
+                    showFollowNames(element);
+                    return;
+                }
+                
+                const message = document.createElement('div');
+                message.textContent = messages[action];
+                message.style.cssText = `
+                    position: absolute;
+                    top: -50px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: linear-gradient(45deg, rgba(131, 56, 236, 0.9), rgba(255, 0, 110, 0.9));
+                    color: white;
+                    padding: 12px 20px;
+                    border-radius: 25px;
+                    font-family: 'Exo 2', sans-serif;
+                    font-size: 13px;
+                    font-weight: 600;
+                    opacity: 0;
+                    transition: all 0.4s ease;
+                    pointer-events: none;
+                    z-index: 1000;
+                    border: 1px solid rgba(255, 255, 255, 0.3);
+                    backdrop-filter: blur(10px);
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                `;
+                
+                element.appendChild(message);
+                
+                setTimeout(() => {
+                    message.style.opacity = '1';
+                    message.style.top = '-65px';
+                    message.style.transform = 'translateX(-50%) scale(1.05)';
+                }, 10);
+                
+                setTimeout(() => {
+                    message.style.opacity = '0';
+                    message.style.top = '-80px';
+                    message.style.transform = 'translateX(-50%) scale(0.9)';
+                }, 2000);
+                
+                setTimeout(() => {
+                    message.remove();
+                }, 2500);
+                
+                switch(action) {
+                    case 'like':
+                        element.style.transform = 'translateY(-12px) scale(1.25)';
+                        element.style.filter = 'hue-rotate(15deg) brightness(1.4)';
+                        setTimeout(() => {
+                            element.style.transform = '';
+                            element.style.filter = '';
+                        }, 400);
+                        break;
+                    case 'comment':
+                        element.style.filter = 'hue-rotate(90deg) brightness(1.3)';
+                        setTimeout(() => {
+                            element.style.filter = '';
+                        }, 1000);
+                        break;
+                    case 'share':
+                        element.style.filter = 'hue-rotate(180deg) brightness(1.3)';
+                        setTimeout(() => {
+                            element.style.filter = '';
+                        }, 1000);
+                        break;
+                }
+            }
+            
+            function showFollowNames(element) {
+                const existingDisplay = document.querySelector('.names-display');
+                if (existingDisplay) {
+                    existingDisplay.remove();
+                }
+
+                const namesDisplay = document.createElement('div');
+                namesDisplay.classList.add('names-display');
+                
+                const names = [
+                    'Alex Johnson',
+                    'Sofia Martinez',
+                    'Ryan Chen',
+                    'Emma Wilson',
+                    'Marcus Thompson'
+                ];
+
+                namesDisplay.innerHTML = `
+                    <button class="close-names">×</button>
+                    <div class="names-title">New Followers</div>
+                    <div class="names-list">
+                        ${names.map(name => `<div class="name-item">${name}</div>`).join('')}
+                    </div>
+                `;
+
+                const container = document.querySelector('.social-container');
+                container.appendChild(namesDisplay);
+
+                setTimeout(() => {
+                    namesDisplay.classList.add('show');
+                }, 100);
+
+                const closeBtn = namesDisplay.querySelector('.close-names');
+                closeBtn.addEventListener('click', () => {
+                    namesDisplay.classList.remove('show');
+                    setTimeout(() => {
+                        namesDisplay.remove();
+                    }, 600);
+                });
+
+                setTimeout(() => {
+                    if (namesDisplay.classList.contains('show')) {
+                        namesDisplay.classList.remove('show');
+                        setTimeout(() => {
+                            if (namesDisplay.parentNode) {
+                                namesDisplay.remove();
+                            }
+                        }, 600);
+                    }
+                }, 5000);
+            }
+            
+            setInterval(() => {
+                const particle = document.createElement('div');
+                particle.classList.add('bg-particle');
+                particle.style.cssText = `
+                    left: ${Math.random() * 100}%;
+                    width: ${6 + Math.random() * 12}px;
+                    height: ${6 + Math.random() * 12}px;
+                    animation-delay: 0s;
+                    background: linear-gradient(45deg, 
+                        rgba(131, 56, 236, ${0.2 + Math.random() * 0.3}), 
+                        rgba(255, 0, 110, ${0.2 + Math.random() * 0.3}));
+                `;
+                document.body.appendChild(particle);
+                
+                setTimeout(() => {
+                    particle.remove();
+                }, 15000);
+            }, 4000);
+
+            const container = document.querySelector('.social-container');
+            container.addEventListener('mousemove', (e) => {
+                const rect = container.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = (y - centerY) / 10;
+                const rotateY = (centerX - x) / 10;
+                
+                container.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-15px)`;
+            });
+            
+            container.addEventListener('mouseleave', () => {
+                container.style.transform = '';
+            });
+        });
+    </script>
+</body>
+</html>

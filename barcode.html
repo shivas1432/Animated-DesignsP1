@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Barcode Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 25%, #2d2d2d 50%, #1e3a8a 75%, #3b82f6 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(59, 130, 246, 0.1);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #ffffff;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+            text-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+        }
+
+        .input-group {
+            margin-bottom: 30px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 1.1rem;
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            border-radius: 50px;
+            outline: none;
+            transition: all 0.3s ease;
+            background: rgba(0, 0, 0, 0.8);
+            color: #ffffff;
+            backdrop-filter: blur(10px);
+        }
+
+        input[type="text"]::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        input[type="text"]:focus {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4), 0 0 20px rgba(59, 130, 246, 0.2);
+            background: rgba(0, 0, 0, 0.95);
+        }
+
+        button {
+            background: linear-gradient(45deg, #1e40af, #3b82f6, #000000);
+            color: #ffffff;
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(59, 130, 246, 0.4), 0 0 25px rgba(59, 130, 246, 0.3);
+            border-color: #3b82f6;
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        button:active {
+            transform: translateY(-1px);
+        }
+
+        .barcode-container {
+            margin-top: 40px;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 15px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #barcode {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 80px;
+        }
+
+        .barcode-text {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #94a3b8;
+            margin-top: 10px;
+        }
+
+        .download-btn {
+            margin-top: 20px;
+            background: linear-gradient(45deg, #1e40af, #000000);
+            padding: 10px 25px;
+            font-size: 0.9rem;
+            display: none;
+            border: 1px solid rgba(59, 130, 246, 0.4);
+        }
+
+        .download-btn:hover {
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4), 0 0 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            text-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 30px 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            input[type="text"], button {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Barcode Generator</h1>
+        
+        <div class="input-group">
+            <input type="text" id="textInput" placeholder="Enter text to generate barcode..." maxlength="100">
+        </div>
+        
+        <button onclick="generateBarcode()">Generate Barcode</button>
+        
+        <div class="barcode-container">
+            <div id="barcode"></div>
+            <div id="barcodeText" class="barcode-text"></div>
+            <div id="errorMessage" class="error-message"></div>
+            <button id="downloadBtn" class="download-btn" onclick="downloadBarcode()">Download PNG</button>
+        </div>
+    </div>
+
+    <script>
+        // Code 128 character set and patterns
+        const code128 = {
+            'A': [2,1,2,2,2,2], 'B': [2,2,2,1,2,2], 'C': [2,2,2,2,2,1], 'D': [1,2,1,2,2,3],
+            'E': [1,2,1,3,2,2], 'F': [1,3,1,2,2,2], 'G': [1,2,2,2,1,3], 'H': [1,2,2,3,1,2],
+            'I': [1,3,2,2,1,2], 'J': [2,2,1,2,1,3], 'K': [2,2,1,3,1,2], 'L': [2,3,1,2,1,2],
+            'M': [1,1,2,2,3,2], 'N': [1,2,2,1,3,2], 'O': [1,2,2,2,3,1], 'P': [1,1,3,2,2,2],
+            'Q': [1,2,3,1,2,2], 'R': [1,2,3,2,2,1], 'S': [2,2,3,2,1,1], 'T': [2,2,1,1,3,2],
+            'U': [2,2,1,2,3,1], 'V': [2,1,3,2,1,2], 'W': [2,2,3,1,1,2], 'X': [3,1,2,1,3,1],
+            'Y': [3,1,1,2,2,2], 'Z': [3,2,1,1,2,2], '0': [3,2,1,2,2,1], '1': [3,1,2,2,1,2],
+            '2': [2,2,2,1,1,3], '3': [2,3,3,1,1,1], '4': [2,1,1,3,3,1], '5': [2,3,1,1,3,1],
+            '6': [1,1,2,3,3,1], '7': [1,3,2,1,3,1], '8': [1,3,2,3,1,1], '9': [2,1,1,3,1,3],
+            ' ': [2,3,3,1,1,1], '!': [4,1,1,1,1,1], '"': [1,1,1,4,1,1], '#': [1,1,1,1,4,1],
+            '$': [1,1,1,1,1,4], '%': [1,4,1,1,1,1], '&': [1,1,4,1,1,1], "'": [4,1,1,1,2,1],
+            '(': [1,1,1,2,4,1], ')': [1,1,1,4,2,1], '*': [1,2,1,1,4,1], '+': [1,2,1,4,1,1],
+            ',': [1,4,1,1,2,1], '-': [1,4,1,2,1,1], '.': [1,1,2,1,4,1], '/': [1,1,2,4,1,1],
+            ':': [1,2,4,1,1,1], ';': [4,1,1,2,1,1], '<': [1,1,1,1,2,4], '=': [1,1,1,2,1,4],
+            '>': [1,2,1,1,1,4], '?': [1,2,1,4,1,1], '@': [2,1,1,4,1,1], '[': [4,1,2,1,1,1],
+            '\\': [1,1,4,2,1,1], ']': [2,1,4,1,1,1], '^': [1,1,2,2,4,1], '_': [2,1,1,1,4,1],
+            '`': [4,1,1,1,1,2], '{': [1,1,1,1,1,4], '|': [1,1,1,1,4,2], '}': [1,1,1,4,1,2],
+            '~': [1,1,4,1,1,2], 'START': [2,1,1,4,1,2], 'STOP': [2,3,3,1,1,1,2]
+        };
+
+        function generateBarcode() {
+            const text = document.getElementById('textInput').value.trim();
+            const barcodeDiv = document.getElementById('barcode');
+            const barcodeTextDiv = document.getElementById('barcodeText');
+            const errorDiv = document.getElementById('errorMessage');
+            const downloadBtn = document.getElementById('downloadBtn');
+            
+            // Clear previous results
+            barcodeDiv.innerHTML = '';
+            barcodeTextDiv.textContent = '';
+            errorDiv.textContent = '';
+            downloadBtn.style.display = 'none';
+            
+            if (!text) {
+                errorDiv.textContent = 'Please enter some text to generate a barcode.';
+                return;
+            }
+            
+            if (text.length > 50) {
+                errorDiv.textContent = 'Text is too long. Please keep it under 50 characters.';
+                return;
+            }
+            
+            try {
+                const barcode = createSimpleBarcode(text);
+                barcodeDiv.appendChild(barcode);
+                barcodeTextDiv.textContent = text;
+                downloadBtn.style.display = 'inline-block';
+            } catch (error) {
+                errorDiv.textContent = 'Error generating barcode. Please try with different text.';
+            }
+        }
+        
+        function createSimpleBarcode(text) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas size
+            const barWidth = 2;
+            const barHeight = 80;
+            const totalWidth = text.length * 12 * barWidth + 40; // Approximate width
+            
+            canvas.width = totalWidth;
+            canvas.height = barHeight + 20;
+            
+            // Fill background
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Generate pattern based on text
+            let x = 20;
+            ctx.fillStyle = 'black';
+            
+            // Start pattern
+            for (let i = 0; i < 3; i++) {
+                ctx.fillRect(x, 10, barWidth, barHeight);
+                x += barWidth * 2;
+            }
+            
+            // Text encoding (simplified pattern)
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+                const charCode = char.charCodeAt(0);
+                
+                // Create pattern based on character code
+                const pattern = [(charCode % 3) + 1, (charCode % 2) + 1, (charCode % 4) + 1, 
+                               (charCode % 2) + 1, (charCode % 3) + 1, (charCode % 2) + 1];
+                
+                for (let j = 0; j < pattern.length; j++) {
+                    if (j % 2 === 0) { // Black bars
+                        ctx.fillRect(x, 10, barWidth * pattern[j], barHeight);
+                    }
+                    x += barWidth * pattern[j];
+                }
+            }
+            
+            // End pattern
+            for (let i = 0; i < 3; i++) {
+                ctx.fillRect(x, 10, barWidth, barHeight);
+                x += barWidth * 2;
+            }
+            
+            return canvas;
+        }
+        
+        function downloadBarcode() {
+            const canvas = document.querySelector('#barcode canvas');
+            if (canvas) {
+                const link = document.createElement('a');
+                link.download = 'barcode.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            }
+        }
+        
+        // Generate barcode on Enter key press
+        document.getElementById('textInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateBarcode();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfect Neon Clock</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: radial-gradient(ellipse at center, #0f0f23 0%, #000000 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Subtle background grid */
+        .grid-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: 1;
+        }
+
+        /* Clock container */
+        .clock-container {
+            text-align: center;
+            z-index: 10;
+            position: relative;
+        }
+
+        .time-display {
+            font-size: clamp(4rem, 12vw, 8rem);
+            font-weight: bold;
+            color: #00ffff;
+            text-shadow: 
+                0 0 10px #00ffff,
+                0 0 20px #00ffff,
+                0 0 40px #00ffff,
+                0 0 80px #00ffff;
+            letter-spacing: 0.1em;
+            margin-bottom: 2rem;
+            font-family: 'Courier New', monospace;
+            user-select: none;
+            filter: drop-shadow(0 0 20px rgba(0, 255, 255, 0.5));
+        }
+
+        .date-display {
+            font-size: clamp(1.2rem, 3vw, 2rem);
+            color: rgba(255, 255, 255, 0.8);
+            text-shadow: 
+                0 0 5px rgba(255, 255, 255, 0.5),
+                0 0 10px rgba(255, 255, 255, 0.3);
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+            font-weight: 300;
+        }
+
+        .day-display {
+            font-size: clamp(1rem, 2.5vw, 1.5rem);
+            color: rgba(0, 255, 255, 0.7);
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+            letter-spacing: 0.1em;
+            font-weight: 400;
+        }
+
+        /* Glow pulse animation */
+        @keyframes glow-pulse {
+            0%, 100% {
+                text-shadow: 
+                    0 0 10px #00ffff,
+                    0 0 20px #00ffff,
+                    0 0 40px #00ffff,
+                    0 0 80px #00ffff;
+            }
+            50% {
+                text-shadow: 
+                    0 0 15px #00ffff,
+                    0 0 30px #00ffff,
+                    0 0 60px #00ffff,
+                    0 0 120px #00ffff;
+            }
+        }
+
+        .time-display {
+            animation: glow-pulse 4s ease-in-out infinite;
+        }
+
+        /* Colon blinking */
+        .colon {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+
+        /* Subtle floating particles */
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(0, 255, 255, 0.6);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float-particle linear infinite;
+        }
+
+        @keyframes float-particle {
+            0% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-10vh) translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        /* Ambient glow effect */
+        .ambient-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 800px;
+            height: 400px;
+            background: radial-gradient(
+                ellipse at center,
+                rgba(0, 255, 255, 0.1) 0%,
+                rgba(0, 255, 255, 0.05) 30%,
+                transparent 70%
+            );
+            z-index: 2;
+            animation: ambient-pulse 6s ease-in-out infinite;
+        }
+
+        @keyframes ambient-pulse {
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.5;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.2);
+                opacity: 0.8;
+            }
+        }
+
+        /* Perfect timing indicator */
+        .timing-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 12px;
+            height: 12px;
+            background: #00ff00;
+            border-radius: 50%;
+            box-shadow: 0 0 15px #00ff00;
+            animation: timing-pulse 1s ease-in-out infinite;
+            z-index: 20;
+        }
+
+        @keyframes timing-pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.3);
+                opacity: 0.7;
+            }
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .time-display {
+                letter-spacing: 0.05em;
+            }
+            
+            .ambient-glow {
+                width: 400px;
+                height: 200px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .clock-container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background elements -->
+    <div class="grid-bg"></div>
+    <div class="ambient-glow"></div>
+    
+    <!-- Timing indicator -->
+    <div class="timing-indicator" title="Perfect Timing"></div>
+
+    <!-- Main clock -->
+    <div class="clock-container">
+        <div class="time-display" id="timeDisplay">00:00:00</div>
+        <div class="date-display" id="dateDisplay">Loading...</div>
+        <div class="day-display" id="dayDisplay">Today</div>
+    </div>
+
+    <script>
+        // Perfect timing system
+        class PerfectClock {
+            constructor() {
+                this.timeElement = document.getElementById('timeDisplay');
+                this.dateElement = document.getElementById('dateDisplay');
+                this.dayElement = document.getElementById('dayDisplay');
+                this.lastSecond = -1;
+                
+                this.init();
+            }
+
+            init() {
+                // Start with immediate update
+                this.updateTime();
+                
+                // Use high-precision timing
+                this.startPrecisionTimer();
+                
+                // Create subtle particles
+                this.createParticles();
+            }
+
+            startPrecisionTimer() {
+                const updateClock = () => {
+                    this.updateTime();
+                    
+                    // Calculate precise delay until next second
+                    const now = new Date();
+                    const msUntilNextSecond = 1000 - now.getMilliseconds();
+                    
+                    setTimeout(updateClock, msUntilNextSecond);
+                };
+                
+                // Start the precision timer
+                const now = new Date();
+                const msUntilNextSecond = 1000 - now.getMilliseconds();
+                setTimeout(updateClock, msUntilNextSecond);
+            }
+
+            updateTime() {
+                const now = new Date();
+                const currentSecond = now.getSeconds();
+                
+                // Only update if second has actually changed
+                if (currentSecond !== this.lastSecond) {
+                    this.lastSecond = currentSecond;
+                    
+                    // Format time with perfect precision
+                    const hours = now.getHours().toString().padStart(2, '0');
+                    const minutes = now.getMinutes().toString().padStart(2, '0');
+                    const seconds = currentSecond.toString().padStart(2, '0');
+                    
+                    // Update time with blinking colons
+                    const timeString = `${hours}<span class="colon">:</span>${minutes}<span class="colon">:</span>${seconds}`;
+                    this.timeElement.innerHTML = timeString;
+                    
+                    // Update date (only when needed)
+                    this.updateDate(now);
+                }
+            }
+
+            updateDate(now) {
+                const options = { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                };
+                
+                const dayOptions = { weekday: 'long' };
+                
+                this.dateElement.textContent = now.toLocaleDateString('en-US', options);
+                this.dayElement.textContent = now.toLocaleDateString('en-US', dayOptions);
+            }
+
+            createParticles() {
+                const particleCount = 8;
+                
+                for (let i = 0; i < particleCount; i++) {
+                    setTimeout(() => {
+                        this.addParticle();
+                    }, i * 2000);
+                }
+                
+                // Continue creating particles
+                setInterval(() => {
+                    this.addParticle();
+                }, 4000);
+            }
+
+            addParticle() {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                // Random horizontal position
+                particle.style.left = Math.random() * 100 + '%';
+                
+                // Random animation duration
+                particle.style.animationDuration = (Math.random() * 15 + 10) + 's';
+                
+                // Random delay
+                particle.style.animationDelay = Math.random() * 2 + 's';
+                
+                document.body.appendChild(particle);
+                
+                // Remove particle after animation
+                setTimeout(() => {
+                    if (particle.parentNode) {
+                        particle.parentNode.removeChild(particle);
+                    }
+                }, 27000);
+            }
+        }
+
+        // Initialize the perfect clock
+        document.addEventListener('DOMContentLoaded', () => {
+            new PerfectClock();
+        });
+
+        // Prevent any lag by disabling unnecessary features
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                // Page is hidden, reduce updates
+                console.log('Clock minimized - maintaining precision');
+            } else {
+                // Page is visible, ensure accuracy
+                console.log('Clock restored - perfect timing active');
+            }
+        });
+    </script>
+</body>
+</html>

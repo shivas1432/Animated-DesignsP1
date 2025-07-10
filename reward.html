@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Elite Prize Counter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+:root {
+  --dark-rgb: 15 23 42;
+  --darker-rgb: 3 7 18;
+  
+  --neon-cyan: 6 182 212;
+  --neon-purple: 147 51 234;
+  --neon-orange: 251 146 60;
+  
+  --background-rgb: 8 8 16;
+  --theme-rgb: var(--neon-cyan);
+}
+
+body {
+  background: radial-gradient(ellipse at center, rgb(var(--background-rgb)), black);
+  height: 100vh;  
+  overflow: hidden;
+  font-family: "Rajdhani", sans-serif;
+}
+
+button {  
+  font-family: "Rajdhani", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+#app {
+  height: 100%;
+  width: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: 
+    linear-gradient(45deg, transparent 49%, rgb(var(--theme-rgb) / 3%) 50%, transparent 51%),
+    linear-gradient(-45deg, transparent 49%, rgb(var(--theme-rgb) / 3%) 50%, transparent 51%),
+    radial-gradient(circle at 30% 70%, rgb(var(--theme-rgb) / 5%) 0%, transparent 50%);
+  background-size: 60px 60px, 60px 60px, 100% 100%;
+  animation: gridShift 20s linear infinite;
+}
+
+@keyframes gridShift {
+  0% { background-position: 0 0, 0 0, 0 0; }
+  100% { background-position: 60px 60px, -60px 60px, 0 0; }
+}
+
+#shapes {
+  height: calc(100% - 3rem);
+  width: calc(100% - 3rem);  
+  position: fixed;
+  left: 0%;
+  top: 0%;
+  z-index: 1;
+  margin: 1.5rem;
+  border-radius: 2rem;
+  border: 0.2rem solid rgb(var(--theme-rgb) / 20%);
+  pointer-events: none;
+  box-shadow: 
+    inset 0 0 100px rgb(var(--theme-rgb) / 5%),
+    0 0 50px rgb(var(--theme-rgb) / 10%);
+}
+
+#shapes:before,
+#shapes:after {
+  content: "";
+  position: absolute;
+  background: linear-gradient(90deg, transparent, rgb(var(--theme-rgb) / 30%), transparent);
+  border-radius: 2px;
+}
+
+#shapes:before {
+  height: 0.3rem;
+  width: 25%;
+  min-width: 8rem;
+  left: 15%;
+  top: 25%;
+  animation: pulse 4s ease-in-out infinite;
+}
+
+#shapes:after {
+  width: 0.3rem;
+  height: 25%;
+  min-height: 12rem;
+  right: 20%;
+  bottom: 10%;
+  animation: pulse 4s ease-in-out infinite reverse;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+@keyframes orbit {
+  from { transform: rotate(0deg) translateX(100px) rotate(0deg); }
+  to { transform: rotate(360deg) translateX(100px) rotate(-360deg); }
+}
+
+#shapes > i {
+  position: absolute;
+  color: rgb(var(--theme-rgb));
+  opacity: 0.15;
+  animation: orbit 15000ms linear infinite;
+}
+
+#shapes > i.fa-star {
+  font-size: 2.5rem;
+  left: 20%;
+  top: 8%;
+  animation-duration: 12s;
+}
+
+#shapes > i.fa-diamond {
+  font-size: 6rem;
+  right: 12%;
+  top: 20%;
+  animation-duration: 18s;
+  animation-direction: reverse;
+}
+
+#shapes > i.fa-hexagon {
+  font-size: 3.5rem;
+  left: 25%;
+  bottom: 20%;
+  animation-duration: 14s;
+  animation-delay: -5s;
+}
+
+#prize {
+  width: 85rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+  z-index: 2;
+  background: linear-gradient(135deg, rgb(var(--darker-rgb) / 90%), rgb(var(--dark-rgb) / 80%));
+  border-radius: 3rem;
+  border: 2rem solid rgb(var(--theme-rgb) / 8%);
+  padding: 8rem 5rem;  
+  box-shadow: 
+    0 0 150px rgb(var(--theme-rgb) / 20%),
+    inset 0 0 100px rgb(var(--theme-rgb) / 5%);
+  backdrop-filter: blur(20px);
+}
+
+#prize-label,
+#prize-text {
+  color: rgb(var(--theme-rgb));
+  text-align: center;
+}
+
+#prize-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5rem;
+  font-size: 2.8rem;
+  font-weight: 600;
+  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
+
+#prize-label > span {
+  display: inline-flex; 
+}
+
+#prize-label > .asterisk {
+  font-size: 3.5rem;
+  animation: rotate 8s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+#prize-text {  
+  display: flex;
+  gap: 0.8rem;
+  height: 9rem;
+  line-height: 9rem;
+  font-size: 10rem;
+  font-weight: 700;
+}
+
+#prize-text > .digit {  
+  width: 7.5rem;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgb(var(--theme-rgb) / 10%), rgb(var(--theme-rgb) / 5%));
+  border-radius: 1rem;
+  border: 0.2rem solid rgb(var(--theme-rgb) / 30%);
+  box-shadow: 
+    0 0 30px rgb(var(--theme-rgb) / 20%),
+    inset 0 0 20px rgb(var(--theme-rgb) / 10%);
+}
+
+#prize-text > .digit > .digit-track {  
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: absolute; 
+  left: 0%;
+  top: 0%;
+  translate: 0% 0%;
+  transition: translate 2500ms cubic-bezier(.25,.46,.45,.94);
+}
+
+.prize-filter {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  left: 0%;
+  top: 0%;
+  pointer-events: none;
+  border-radius: 3rem;
+}
+
+@keyframes scan-waves {
+  0% {
+    background-position: 0% 0%;
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    background-position: 0% -200%;
+    opacity: 0.3;
+  }
+}
+
+#prize-lines {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    rgb(var(--theme-rgb) / 8%) 1px,
+    rgb(var(--theme-rgb) / 15%) 2px,
+    transparent 4px
+  );
+  background-size: 100% 8px;
+  z-index: 2;
+  animation: scan-waves 6s ease-in-out infinite;
+}
+
+#prize-shadow {
+  background: radial-gradient(
+    ellipse at center,
+    rgb(var(--theme-rgb) / 3%) 20%, 
+    transparent 70%
+  );
+  z-index: 3;
+  animation: glow-pulse 3s ease-in-out infinite alternate;
+}
+
+@keyframes glow-pulse {
+  from { opacity: 0.5; }
+  to { opacity: 1; }
+}
+
+#actions-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  position: fixed;
+  bottom: 3rem;
+  z-index: 10;
+}
+
+#actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, rgb(0 0 0 / 70%), rgb(var(--theme-rgb) / 5%));
+  border: 1px solid rgb(var(--theme-rgb) / 20%);
+  border-radius: 1.5rem;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 10px 40px rgb(0 0 0 / 50%);
+}
+
+#actions button {
+  height: 3.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  padding: 0rem 2rem;
+  background: linear-gradient(135deg, rgb(var(--theme-rgb) / 10%), rgb(var(--theme-rgb) / 5%));
+  border-radius: 1rem;
+  border: 1px solid rgb(var(--theme-rgb) / 20%);
+  color: rgb(var(--theme-rgb));
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#actions button:is(:hover, :focus-visible) {
+  background: linear-gradient(135deg, rgb(var(--theme-rgb) / 20%), rgb(var(--theme-rgb) / 10%));
+  box-shadow: 0 0 20px rgb(var(--theme-rgb) / 30%);
+  transform: translateY(-2px);
+}
+
+#actions button:focus-visible {
+  border-color: rgb(var(--theme-rgb) / 40%);
+}
+
+#redo-button > i {  
+  font-size: 1.1rem;
+}
+
+#theme-actions {
+  display: flex;
+  gap: 0.8rem;
+}
+
+#theme-actions > .theme-button > i {
+  color: white;
+  font-size: 1.4rem;
+}
+
+#theme-actions > .theme-button[data-theme="cyan"][data-selected="true"] > i {
+  color: rgb(var(--neon-cyan));
+  filter: drop-shadow(0 0 10px rgb(var(--neon-cyan)));
+}
+
+#theme-actions > .theme-button[data-theme="purple"][data-selected="true"] > i {
+  color: rgb(var(--neon-purple));
+  filter: drop-shadow(0 0 10px rgb(var(--neon-purple)));
+}
+
+#theme-actions > .theme-button[data-theme="orange"][data-selected="true"] > i {
+  color: rgb(var(--neon-orange));
+  filter: drop-shadow(0 0 10px rgb(var(--neon-orange)));
+}
+
+@media(max-width: 1700px) {
+  #prize {
+    scale: 0.8;
+  }
+}
+
+@media(max-width: 1300px) {
+  #prize {
+    scale: 0.6;
+  }
+}
+
+@media(max-width: 900px) {
+  #prize {
+    scale: 0.4;
+  }
+}
+
+@media(max-width: 600px) {
+  #prize {
+    scale: 0.25;
+  }
+}
+  </style>
+</head>
+<body>
+<div id="app">
+  <div id="prize">
+    <div id="prize-lines" class="prize-filter"></div>
+    <div id="prize-shadow" class="prize-filter"></div>
+    <h2 id="prize-label">
+      <span class="asterisk">◆</span>
+      <span>Elite Reward</span>
+      <span class="asterisk">◆</span>      
+    </h2>
+    <h1 id="prize-text"></h1>
+  </div>
+  
+  <div id="shapes">
+    <i class="fa-solid fa-star"></i>
+    <i class="fa-solid fa-gem"></i>
+    <i class="fa-brands fa-bitcoin"></i>
+  </div>
+  
+  <div id="actions-wrapper">
+    <div id="actions">
+      <div id="theme-actions">
+        <button class="theme-button" data-theme="cyan" data-selected="true" onclick="handleChangeTheme(event)">
+          <i class="fa-solid fa-star"></i>
+        </button>
+        <button class="theme-button" data-theme="purple" onclick="handleChangeTheme(event)">
+          <i class="fa-solid fa-gem"></i>
+        </button>
+        <button class="theme-button" data-theme="orange" onclick="handleChangeTheme(event)">
+          <i class="fa-brands fa-bitcoin"></i>
+        </button>
+      </div>
+      <button id="redo-button" type="button" onclick="handleRedo()">
+        <i class="fa-solid fa-rocket"></i>
+        <span>Launch</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+const MINIMUM_ADDITIONAL_ITERATION_COUNT = 2;
+
+const config = {  
+  additionalIterationCount: Math.max(MINIMUM_ADDITIONAL_ITERATION_COUNT, 4),
+  transitionDuration: 2500,
+  prize: 7890000,
+  digits: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+}
+
+const USD = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  maximumFractionDigits: 0
+});
+
+const getPrizeText = () => document.getElementById("prize-text"),
+      getTracks = () => document.querySelectorAll(".digit > .digit-track");
+
+const getFormattedPrize = () => USD.format(config.prize),
+      getPrizeDigitByIndex = index => parseInt(config.prize.toString()[index]),
+      determineIterations = index => index + config.additionalIterationCount;
+
+const createElement = (type, className, text) => {
+  const element = document.createElement(type);
+  element.className = className;
+  if(text !== undefined) element.innerText = text;
+  return element;
+}
+
+const createCharacter = character => createElement("span", "character", character);
+
+const createDigit = (digit, trackIndex) => {
+  const digitElement = createElement("span", "digit"),
+        trackElement = createElement("span", "digit-track");
+  
+  let digits = [],
+      iterations = determineIterations(trackIndex);
+  
+  for(let i = 0; i < iterations; i++) {
+    digits = [...digits, ...config.digits];
+  }
+  
+  trackElement.innerText = digits.join(" ");
+  
+  trackElement.style.transitionDuration = `${config.transitionDuration}ms`;
+  
+  digitElement.appendChild(trackElement);
+  
+  return digitElement;
+}
+
+const setup = () => {
+  let index = 0;
+  
+  const prizeText = getPrizeText();
+  
+  for(const character of getFormattedPrize()) {
+    const element = isNaN(character) 
+      ? createCharacter(character) : createDigit(character, index++);
+    
+    prizeText.appendChild(element);
+  }  
+}
+
+const animate = () => {
+  getTracks().forEach((track, index) => {
+    const digit = getPrizeDigitByIndex(index),
+          iterations = determineIterations(index),
+          activeDigit = ((iterations - 1) * 10) + digit;
+    
+    track.style.translate = `0rem ${activeDigit * -9}rem`;
+  });
+}
+
+const resetTrackPosition = track => {
+  track.style.transitionDuration = "0ms";
+  track.style.translate = "0rem 0rem";
+  track.offsetHeight;
+  track.style.transitionDuration = `${config.transitionDuration}ms`;
+}
+
+const resetAnimation = () => {
+  for(const track of getTracks()) resetTrackPosition(track);
+}
+
+window.onload = () => {
+  setup();
+  
+  setTimeout(animate, 500);  
+};
+
+const handleRedo = () => {
+  resetAnimation();
+  
+  setTimeout(animate, 100);
+}
+
+const updateTheme = theme => {
+  const themeMap = {
+    cyan: 'neon-cyan',
+    purple: 'neon-purple', 
+    orange: 'neon-orange'
+  };
+  
+  document.documentElement.style.setProperty("--theme-rgb", `var(--${themeMap[theme]})`);
+  
+  for(const button of document.querySelectorAll(".theme-button")) {
+    button.dataset.selected = theme === button.dataset.theme;
+  }
+}
+
+const handleChangeTheme = e => updateTheme(e.currentTarget.dataset.theme);
+
+updateTheme("cyan");
+</script>
+
+</body>
+</html>
