@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animated Clock</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 226, 0.2) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .clock-container {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .time-unit {
+            position: relative;
+            width: 160px;
+            height: 160px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            filter: drop-shadow(0 8px 32px rgba(0, 0, 0, 0.3));
+        }
+
+        .circle-container {
+            position: relative;
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .circle-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent 50%, rgba(0, 0, 0, 0.1));
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .circle-container::after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 60px;
+            bottom: 60px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .circle-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .circle-progress {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: transparent;
+            transform: rotate(-90deg);
+            transition: all 0.5s ease;
+        }
+
+        .circle-progress svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(0deg);
+        }
+
+        .progress-ring {
+            fill: none;
+            stroke-width: 6;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: drop-shadow(0 0 8px currentColor);
+        }
+
+        .hours .progress-ring {
+            stroke: #ff6b6b;
+        }
+
+        .minutes .progress-ring {
+            stroke: #ffd93d;
+        }
+
+        .seconds .progress-ring {
+            stroke: #6bcf7f;
+        }
+
+        .time-display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+            z-index: 10;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .time-value {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            text-shadow: 
+                0 0 10px rgba(255, 255, 255, 0.5),
+                0 2px 4px rgba(0, 0, 0, 0.3);
+            letter-spacing: 1px;
+        }
+
+        .time-label {
+            font-size: 11px;
+            font-weight: 500;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .pm-indicator {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            opacity: 0.9;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            box-shadow: 
+                0 4px 16px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .glow {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            
+            left: 50%;
+            
+            animation: pulse 2s infinite;
+            z-index: 5;
+        }
+
+        .hours .glow {
+            background: radial-gradient(circle, #ff6b6b, #ff4757);
+            box-shadow: 
+                0 0 20px #ff6b6b,
+                0 0 40px rgba(255, 107, 107, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .minutes .glow {
+            background: radial-gradient(circle, #ffd93d, #ffa502);
+            box-shadow: 
+                0 0 20px #ffd93d,
+                0 0 40px rgba(255, 217, 61, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .seconds .glow {
+            background: radial-gradient(circle, #6bcf7f, #2ed573);
+            box-shadow: 
+                0 0 20px #6bcf7f,
+                0 0 40px rgba(107, 207, 127, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        @keyframes pulse {
+            0%, 100% { 
+                opacity: 1; 
+                transform: translateX(-50%) scale(1);
+                box-shadow: 
+                    0 0 20px currentColor,
+                    0 0 40px rgba(255, 255, 255, 0.3),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            }
+            50% { 
+                opacity: 0.7; 
+                transform: translateX(-50%) scale(1.3);
+                box-shadow: 
+                    0 0 30px currentColor,
+                    0 0 60px rgba(255, 255, 255, 0.5),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .clock-container {
+                gap: 20px;
+            }
+            
+            .time-unit {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .circle-container {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .time-value {
+                font-size: 24px;
+            }
+            
+            .pm-indicator {
+                top: 200px;
+                right: 20px;
+                font-size: 16px;
+                padding: 6px 10px;
+            }
+        }
+
+        /* Additional glass effects */
+        .hours .circle-container {
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+        }
+
+        .minutes .circle-container {
+            background: rgba(255, 217, 61, 0.1);
+            border: 1px solid rgba(255, 217, 61, 0.3);
+        }
+
+        .seconds .circle-container {
+            background: rgba(107, 207, 127, 0.1);
+            border: 1px solid rgba(107, 207, 127, 0.3);
+        }
+
+        /* Floating animation */
+        .time-unit {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .time-unit:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .time-unit:nth-child(2) {
+            animation-delay: 2s;
+        }
+
+        .time-unit:nth-child(3) {
+            animation-delay: 4s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Hover effects */
+        .time-unit:hover {
+            transform: scale(1.05);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .time-unit:hover .circle-container {
+            backdrop-filter: blur(25px);
+            box-shadow: 
+                0 12px 48px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="clock-container">
+        <div class="time-unit hours">
+            <div class="circle-container">
+                <div class="circle-bg"></div>
+                <div class="circle-progress">
+                    <svg>
+                        <circle class="progress-ring" cx="80" cy="80" r="74"></circle>
+                    </svg>
+                </div>
+                <div class="glow"></div>
+                <div class="time-display">
+                    <div class="time-value" id="hours">03</div>
+                    <div class="time-label">Hours</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="time-unit minutes">
+            <div class="circle-container">
+                <div class="circle-bg"></div>
+                <div class="circle-progress">
+                    <svg>
+                        <circle class="progress-ring" cx="80" cy="80" r="74"></circle>
+                    </svg>
+                </div>
+                <div class="glow"></div>
+                <div class="time-display">
+                    <div class="time-value" id="minutes">58</div>
+                    <div class="time-label">Minutes</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="time-unit seconds">
+            <div class="circle-container">
+                <div class="circle-bg"></div>
+                <div class="circle-progress">
+                    <svg>
+                        <circle class="progress-ring" cx="80" cy="80" r="74"></circle>
+                    </svg>
+                </div>
+                <div class="glow"></div>
+                <div class="time-display">
+                    <div class="time-value" id="seconds">46</div>
+                    <div class="time-label">Seconds</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="pm-indicator" id="ampm">PM</div>
+
+    <script>
+        class AnimatedClock {
+            constructor() {
+                this.hoursElement = document.getElementById('hours');
+                this.minutesElement = document.getElementById('minutes');
+                this.secondsElement = document.getElementById('seconds');
+                this.ampmElement = document.getElementById('ampm');
+                
+                this.hoursRing = document.querySelector('.hours .progress-ring');
+                this.minutesRing = document.querySelector('.minutes .progress-ring');
+                this.secondsRing = document.querySelector('.seconds .progress-ring');
+                
+                this.setupRings();
+                this.updateClock();
+                setInterval(() => this.updateClock(), 1000);
+            }
+            
+            setupRings() {
+                const radius = 74;
+                const circumference = 2 * Math.PI * radius;
+                
+                [this.hoursRing, this.minutesRing, this.secondsRing].forEach(ring => {
+                    ring.style.strokeDasharray = circumference;
+                    ring.style.strokeDashoffset = circumference;
+                });
+            }
+            
+            updateClock() {
+                const now = new Date();
+                let hours = now.getHours();
+                const minutes = now.getMinutes();
+                const seconds = now.getSeconds();
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                
+                // Convert to 12-hour format
+                hours = hours % 12;
+                hours = hours ? hours : 12;
+                
+                // Update display
+                this.hoursElement.textContent = hours.toString().padStart(2, '0');
+                this.minutesElement.textContent = minutes.toString().padStart(2, '0');
+                this.secondsElement.textContent = seconds.toString().padStart(2, '0');
+                this.ampmElement.textContent = ampm;
+                
+                // Update progress rings
+                this.updateRing(this.hoursRing, hours, 12);
+                this.updateRing(this.minutesRing, minutes, 60);
+                this.updateRing(this.secondsRing, seconds, 60);
+            }
+            
+            updateRing(ring, value, max) {
+                const radius = 74;
+                const circumference = 2 * Math.PI * radius;
+                const progress = (value / max) * circumference;
+                const offset = circumference - progress;
+                
+                ring.style.strokeDashoffset = offset;
+            }
+        }
+        
+        // Initialize the clock when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new AnimatedClock();
+        });
+    </script>
+</body>
+</html>

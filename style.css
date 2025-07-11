@@ -1,0 +1,60 @@
+/* Copyright (c) 2025 by Esther k (https://codepen.io/Esther-k/pen/XJbxKQq) */
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&display=swap");
+body {
+  height: 150vh;
+  background: url("https://images.unsplash.com/photo-1683657535824-5b570c7a1749?q=80&w=764&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");
+  background-size: cover;
+  animation: floatBG 15s ease-in-out infinite;
+}
+
+@keyframes floatBG {
+  0%,
+  100% {
+    background-position: center center;
+  }
+  25% {
+    background-position: 30% 70%;
+  }
+  50% {
+    background-position: 70% 30%;
+  }
+  75% {
+    background-position: 40% 60%;
+  }
+}
+
+.glass-button {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  outline: none;
+  width: 350px;
+  height: 180px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  255, 0.3);
+  background: linear-gradient(
+  135deg,
+  rgba(255, 255, 255, 0.2) 0%,
+  rgba(255, 255, 255, 0.08) 50%,
+  rgba(255, 255, 255, 0.03) 100%
+);
+
+  backdrop-filter: url(#glass);
+  transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 2.2);
+}
+
+.glass-button span {
+  font-family: "Orbitron", sans-serif;
+  color: white;
+  font-size: 2.5rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.glass-button:hover {
+  transform: translate(-50%, -50%) scale(1.05);
+}
