@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Colorful Countdown</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            background: #000;
+        }
+        
+        h4 {
+            font-size: 18px;
+            margin: 10px 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .counter {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        
+        .counter.hide {
+            transform: translate(-50%, -50%) scale(0);
+            animation: hide 0.2s ease-out;
+        }
+        
+        @keyframes hide {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(0);
+            }
+        }
+        
+        .final {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            text-align: center;
+        }
+        
+        .final.show {
+            transform: translate(-50%, -50%) scale(1);
+            animation: show 0.2s ease-out;
+        }
+        
+        @keyframes show {
+            0% {
+                transform: translate(-50%, -50%) scale(0);
+            }
+            30% {
+                transform: translate(-50%, -50%) scale(1.4);
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+        
+        .nums {
+            font-size: 80px;
+            font-weight: 700;
+            position: relative;
+            overflow: hidden;
+            width: 200px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            box-shadow: 
+                0 20px 40px rgba(0,0,0,0.5),
+                0 0 20px rgba(255, 255, 255, 0.1),
+                inset 0 0 20px rgba(255, 255, 255, 0.05);
+            margin: 0 auto;
+            backdrop-filter: blur(10px);
+        }
+        
+        .nums span {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(120deg);
+            transform-origin: bottom center;
+            color: #ff6b6b;
+        }
+        
+        .nums span:nth-child(1) { 
+            color: #ff6b6b; 
+            text-shadow: 0 0 20px #ff6b6b, 0 0 40px #ff6b6b;
+        }
+        .nums span:nth-child(2) { 
+            color: #4ecdc4; 
+            text-shadow: 0 0 20px #4ecdc4, 0 0 40px #4ecdc4;
+        }
+        .nums span:nth-child(3) { 
+            color: #45b7d1; 
+            text-shadow: 0 0 20px #45b7d1, 0 0 40px #45b7d1;
+        }
+        .nums span:nth-child(4) { 
+            color: #f9ca24; 
+            text-shadow: 0 0 20px #f9ca24, 0 0 40px #f9ca24;
+        }
+        
+        .nums span.in {
+            transform: translate(-50%, -50%) rotate(0deg);
+            animation: goIn 0.5s ease-in-out;
+        }
+        
+        .nums span.out {
+            animation: goOut 0.5s ease-in-out;
+        }
+        
+        @keyframes goIn {
+            0% {
+                transform: translate(-50%, -50%) rotate(120deg);
+            }
+            30% {
+                transform: translate(-50%, -50%) rotate(-20deg);
+            }
+            60% {
+                transform: translate(-50%, -50%) rotate(10deg);
+            }
+            100% {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+        }
+        
+        @keyframes goOut {
+            0% {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+            60% {
+                transform: translate(-50%, -50%) rotate(20deg);
+            }
+            100% {
+                transform: translate(-50%, -50%) rotate(-120deg);
+            }
+        }
+        
+        .final h1 {
+            font-size: 100px;
+            font-weight: 700;
+            color: #2ecc71;
+            margin: 0;
+            text-shadow: 
+                0 0 20px #2ecc71,
+                0 0 40px #2ecc71,
+                0 0 60px #2ecc71,
+                0 10px 20px rgba(46, 204, 113, 0.3);
+        }
+        
+        #replay {
+            background: linear-gradient(45deg, #ff6b6b, #ff8787);
+            border-radius: 50px;
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            color: white;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 10px 20px rgba(255, 107, 107, 0.3),
+                0 0 20px rgba(255, 107, 107, 0.2);
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #replay span {
+            cursor: pointer;
+            display: inline-block;
+            position: relative;
+            transition: 0.3s;
+        }
+        
+        #replay span:after {
+            content: '↻';
+            position: absolute;
+            opacity: 0;
+            top: 0;
+            right: -20px;
+            transition: 0.5s;
+            font-size: 18px;
+        }
+        
+        #replay:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 15px 30px rgba(255, 107, 107, 0.4),
+                0 0 30px rgba(255, 107, 107, 0.4);
+        }
+        
+        #replay:hover span {
+            padding-right: 25px;
+        }
+        
+        #replay:hover span:after {
+            opacity: 1;
+            right: 0;
+        }
+        
+        #replay:active {
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+    <div class="counter">
+        <div class="nums">
+            <span class="in">3</span>
+            <span>2</span>
+            <span>1</span>
+            <span>0</span>
+        </div>
+        <h4>Get Ready</h4>
+    </div>
+    
+    <div class="final">
+        <h1>GO</h1>
+        <button id="replay">
+            <span>Replay</span>
+        </button>
+    </div>
+
+    <script>
+        const nums = document.querySelectorAll('.nums span');
+        const counter = document.querySelector('.counter');
+        const finalMessage = document.querySelector('.final');
+        const replay = document.querySelector('#replay');
+        
+        runAnimation();
+        
+        function resetDOM() {
+            counter.classList.remove('hide');
+            finalMessage.classList.remove('show');
+            nums.forEach((num) => {
+                num.classList.value = '';
+            });
+            nums[0].classList.add('in');
+        }
+        
+        function runAnimation() {
+            nums.forEach((num, idx) => {
+                const nextToLast = nums.length - 1;
+                num.addEventListener('animationend', (e) => {
+                    if (e.animationName === 'goIn' && idx !== nextToLast) {
+                        num.classList.remove('in');
+                        num.classList.add('out');
+                    } else if (e.animationName === 'goOut' && num.nextElementSibling) {
+                        num.nextElementSibling.classList.add('in');
+                    } else {
+                        counter.classList.add('hide');
+                        finalMessage.classList.add('show');
+                    }
+                });
+            });
+        }
+        
+        replay.addEventListener('click', () => {
+            resetDOM();
+            runAnimation();
+        });
+    </script>
+</body>
+</html>

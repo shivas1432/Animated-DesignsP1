@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skate Runner</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        html {
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+        * {
+            box-sizing: inherit;
+        }
+        *:before, *:after {
+            box-sizing: inherit;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        .game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .ground {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 100px;
+            background: linear-gradient(180deg, #333 0%, #222 100%);
+            border-top: 3px solid #79f513;
+        }
+
+        .ground::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: repeating-linear-gradient(
+                90deg,
+                #79f513 0px,
+                #79f513 20px,
+                transparent 20px,
+                transparent 40px
+            );
+            animation: moveGround 1s linear infinite;
+        }
+
+        @keyframes moveGround {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-40px); }
+        }
+
+        .skater {
+            --arm-front: 24deg;
+            --arm-front-end: -48deg;
+            --arm-back: 164deg;
+            --arm-back-end: -50deg;
+            --leg-front: 40deg;
+            --leg-front-end: 30deg;
+            --leg-back: 120deg;
+            --leg-back-end: -36deg;
+            --board-r: 0deg;
+            --board-x: 0px;
+            --body-r: 12deg;
+            --body-y: -65%;
+            --body-x: -85%;
+            --skate-x: 0px;
+            --skate-y: 0px;
+            --color: #79f513;
+            position: absolute;
+            left: 150px;
+            bottom: 100px;
+            z-index: 10;
+        }
+
+        .skater .skate {
+            position: relative;
+            width: 40px;
+            height: 46px;
+            transform: translate(var(--skate-x), var(--skate-y)) translateZ(0);
+        }
+
+        .skater .skate .body {
+            background: var(--color);
+            height: 15px;
+            width: 7px;
+            border-radius: 4px;
+            transform-origin: 4px 11px;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(var(--body-x), var(--body-y)) rotate(var(--body-r)) translateZ(0);
+        }
+
+        .skater .skate .body:before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 4px;
+            bottom: 16px;
+            left: 0;
+            position: absolute;
+            background: var(--color);
+            transform: translateY(-0.5px);
+        }
+
+        .skater .skate .body .arm,
+        .skater .skate .body .arm:before,
+        .skater .skate .body .leg,
+        .skater .skate .body .leg:before {
+            content: '';
+            width: var(--w, 11px);
+            height: 4px;
+            top: var(--t, 0);
+            left: var(--l, 2px);
+            border-radius: 2px;
+            transform-origin: 2px 2px;
+            position: absolute;
+            background: var(--color);
+            transform: rotate(var(--r, 0deg));
+        }
+
+        .skater .skate .body .arm:before {
+            --l: 8px;
+        }
+
+        .skater .skate .body .arm.front {
+            --r: var(--arm-front);
+        }
+
+        .skater .skate .body .arm.front:before {
+            --r: var(--arm-front-end);
+        }
+
+        .skater .skate .body .arm.back {
+            --r: var(--arm-back);
+        }
+
+        .skater .skate .body .arm.back:before {
+            --r: var(--arm-back-end);
+        }
+
+        .skater .skate .body .leg {
+            --w: 11px;
+            --t: 11px;
+        }
+
+        .skater .skate .body .leg:before {
+            --t: 0;
+            --l: 8px;
+        }
+
+        .skater .skate .body .leg.front {
+            --r: var(--leg-front);
+        }
+
+        .skater .skate .body .leg.front:before {
+            --r: var(--leg-front-end);
+        }
+
+        .skater .skate .body .leg.back {
+            --l: 1px;
+            --r: var(--leg-back);
+        }
+
+        .skater .skate .body .leg.back:before {
+            --r: var(--leg-back-end);
+        }
+
+        .skater .skate .board {
+            position: absolute;
+            left: 2px;
+            bottom: -1px;
+            transform: translateX(var(--board-x)) rotate(var(--board-r)) translateZ(0);
+            transform-origin: 7px 5.5px;
+        }
+
+        .skater .skate .board svg {
+            display: block;
+            width: 34px;
+            height: 8px;
+            fill: var(--color);
+        }
+
+        .obstacle {
+            position: absolute;
+            bottom: 100px;
+            right: -50px;
+            width: 15px;
+            height: 25px;
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            border-radius: 3px;
+            animation: moveObstacle 3s linear infinite;
+            z-index: 5;
+        }
+
+        .obstacle::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 10px solid #ff6b6b;
+        }
+
+        @keyframes moveObstacle {
+            0% { right: -50px; }
+            100% { right: 100vw; }
+        }
+
+        .ui {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            color: #79f513;
+            font-size: 24px;
+            font-weight: bold;
+            z-index: 20;
+        }
+
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #fff;
+            z-index: 30;
+            display: none;
+        }
+
+        .game-over h2 {
+            font-size: 48px;
+            margin: 0 0 20px 0;
+            color: #ff6b6b;
+        }
+
+        .game-over p {
+            font-size: 20px;
+            margin: 10px 0;
+        }
+
+        .game-over button {
+            background: #79f513;
+            color: #000;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .game-over button:hover {
+            background: #6ed10f;
+            transform: scale(1.05);
+        }
+
+        .instructions {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #fff;
+            z-index: 30;
+        }
+
+        .instructions h2 {
+            font-size: 48px;
+            margin: 0 0 20px 0;
+            color: #79f513;
+        }
+
+        .instructions p {
+            font-size: 20px;
+            margin: 10px 0;
+        }
+
+        .instructions button {
+            background: #79f513;
+            color: #000;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .instructions button:hover {
+            background: #6ed10f;
+            transform: scale(1.05);
+        }
+
+        .clouds {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            animation: moveClouds 15s linear infinite;
+        }
+
+        .cloud::before,
+        .cloud::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+        }
+
+        .cloud1 {
+            width: 80px;
+            height: 30px;
+            top: 20%;
+            right: -100px;
+            animation-delay: 0s;
+        }
+
+        .cloud1::before {
+            width: 50px;
+            height: 40px;
+            top: -15px;
+            left: 10px;
+        }
+
+        .cloud1::after {
+            width: 40px;
+            height: 35px;
+            top: -10px;
+            right: 15px;
+        }
+
+        .cloud2 {
+            width: 60px;
+            height: 25px;
+            top: 40%;
+            right: -80px;
+            animation-delay: 7s;
+        }
+
+        .cloud2::before {
+            width: 40px;
+            height: 30px;
+            top: -12px;
+            left: 8px;
+        }
+
+        .cloud2::after {
+            width: 35px;
+            height: 28px;
+            top: -8px;
+            right: 12px;
+        }
+
+        @keyframes moveClouds {
+            0% { right: -100px; }
+            100% { right: 100vw; }
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #79f513;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        @media (max-width: 768px) {
+            .ui {
+                font-size: 20px;
+                top: 20px;
+                left: 20px;
+            }
+            
+            .game-over h2,
+            .instructions h2 {
+                font-size: 36px;
+            }
+            
+            .game-over p,
+            .instructions p {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="clouds">
+            <div class="cloud cloud1"></div>
+            <div class="cloud cloud2"></div>
+        </div>
+        
+        <div class="ground"></div>
+        
+        <div class="skater">
+            <div class="skate">
+                <div class="body">
+                    <div class="arm back"></div>
+                    <div class="arm front"></div>
+                    <div class="leg back"></div>
+                    <div class="leg front"></div>
+                </div>
+                <div class="board">
+                    <svg viewBox="0 0 34 8">
+                        <path d="M0.897306 0.911767C1.22218 0.30263 1.97934 0.072188 2.58848 0.397061L2.91936 0.573532C3.75214 1.01768 4.68144 1.25 5.62525 1.25H28.3752C29.3191 1.25 30.2484 1.01768 31.0811 0.573532L31.412 0.397061C32.0212 0.072188 32.7783 0.30263 33.1032 0.911767C33.4281 1.5209 33.1976 2.27807 32.5885 2.60294L32.2576 2.77941C31.0627 3.41667 29.7294 3.75 28.3752 3.75H27.9692C28.5841 4.09118 29.0002 4.747 29.0002 5.5C29.0002 6.60457 28.1048 7.5 27.0002 7.5C25.8957 7.5 25.0002 6.60457 25.0002 5.5C25.0002 4.747 25.4164 4.09118 26.0312 3.75H7.96925C8.5841 4.09118 9.00025 4.747 9.00025 5.5C9.00025 6.60457 8.10482 7.5 7.00025 7.5C5.89568 7.5 5.00025 6.60457 5.00025 5.5C5.00025 4.747 5.41639 4.09118 6.03124 3.75H5.62525C4.27109 3.75 2.93774 3.41667 1.74289 2.77941L1.41201 2.60294C0.802874 2.27807 0.572432 1.5209 0.897306 0.911767Z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+        
+        <div class="ui">
+            <div>Score: <span id="score">0</span></div>
+            <div>High Score: <span id="highScore">0</span></div>
+        </div>
+        
+        <div class="instructions">
+            <h2>🛹 Skate Runner</h2>
+            <p>Press SPACE or click to jump over obstacles!</p>
+            <p>How long can you keep skating?</p>
+            <button onclick="startGame()">Start Game</button>
+        </div>
+        
+        <div class="game-over">
+            <h2>Game Over!</h2>
+            <p>Final Score: <span id="finalScore">0</span></p>
+            <p id="newHighScore" style="display: none; color: #79f513;">🎉 New High Score! 🎉</p>
+            <button onclick="restartGame()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        const { to, set } = gsap;
+        
+        let gameState = 'menu'; // 'menu', 'playing', 'gameOver'
+        let score = 0;
+        let highScore = localStorage.getItem('skateRunnerHighScore') || 0;
+        let gameSpeed = 1;
+        let obstacles = [];
+        let particles = [];
+        let isJumping = false;
+        let obstacleSpawnTimer = 0;
+        let lastTime = 0;
+        
+        const skater = document.querySelector('.skater');
+        const scoreElement = document.getElementById('score');
+        const highScoreElement = document.getElementById('highScore');
+        const finalScoreElement = document.getElementById('finalScore');
+        const newHighScoreElement = document.getElementById('newHighScore');
+        const gameOverScreen = document.querySelector('.game-over');
+        const instructionsScreen = document.querySelector('.instructions');
+        const gameContainer = document.querySelector('.game-container');
+        
+        // Display initial high score
+        highScoreElement.textContent = highScore;
+        
+        function startGame() {
+            gameState = 'playing';
+            score = 0;
+            gameSpeed = 1;
+            obstacles = [];
+            particles = [];
+            isJumping = false;
+            obstacleSpawnTimer = 0;
+            
+            instructionsScreen.style.display = 'none';
+            gameOverScreen.style.display = 'none';
+            scoreElement.textContent = score;
+            
+            // Start skating animation
+            startSkatingAnimation();
+            
+            // Start game loop
+            gameLoop();
+        }
+        
+        function restartGame() {
+            // Clear all obstacles
+            obstacles.forEach(obstacle => obstacle.element.remove());
+            particles.forEach(particle => particle.element.remove());
+            
+            // Reset skater position and appearance
+            set(skater, {
+                '--arm-front': '24deg',
+                '--arm-front-end': '-48deg',
+                '--arm-back': '164deg',
+                '--arm-back-end': '-50deg',
+                '--leg-front': '40deg',
+                '--leg-front-end': '30deg',
+                '--leg-back': '120deg',
+                '--leg-back-end': '-36deg',
+                '--board-r': '0deg',
+                '--board-x': '0px',
+                '--body-r': '12deg',
+                '--body-y': '-65%',
+                '--body-x': '-85%',
+                '--skate-x': '0px',
+                '--skate-y': '0px'
+            });
+            
+            startGame();
+        }
+        
+        function startSkatingAnimation() {
+            // Continuous skating animation
+            const skateAnimation = () => {
+                if (gameState !== 'playing') return;
+                
+                to(skater, {
+                    keyframes: [{
+                        '--arm-front': '32deg',
+                        '--arm-back': '156deg',
+                        '--leg-front': '19deg',
+                        '--leg-back': '134deg',
+                        '--body-r': '8deg',
+                        duration: 0.3
+                    }, {
+                        '--arm-front': '16deg',
+                        '--arm-back': '172deg',
+                        '--leg-front': '50deg',
+                        '--leg-back': '110deg',
+                        '--body-r': '16deg',
+                        duration: 0.3
+                    }],
+                    ease: 'power2.inOut',
+                    onComplete: skateAnimation
+                });
+            };
+            
+            skateAnimation();
+        }
+        
+        function jump() {
+            if (gameState !== 'playing' || isJumping) return;
+            
+            isJumping = true;
+            
+            // Jump animation
+            to(skater, {
+                keyframes: [{
+                    '--skate-x': '-12px',
+                    '--skate-y': '-60px',
+                    '--arm-front': '40deg',
+                    '--arm-back': '172deg',
+                    '--leg-front': '-8deg',
+                    '--leg-back': '103deg',
+                    '--board-r': '-40deg',
+                    '--body-r': '7deg',
+                    duration: 0.4
+                }, {
+                    '--skate-x': '0px',
+                    '--skate-y': '0px',
+                    '--arm-front': '24deg',
+                    '--arm-back': '164deg',
+                    '--leg-front': '40deg',
+                    '--leg-back': '120deg',
+                    '--board-r': '0deg',
+                    '--body-r': '12deg',
+                    duration: 0.4,
+                    onComplete: () => {
+                        isJumping = false;
+                    }
+                }],
+                ease: 'power2.out'
+            });
+            
+            // Create jump particles
+            createJumpParticles();
+        }
+        
+        function createJumpParticles() {
+            for (let i = 0; i < 8; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = (150 + Math.random() * 40) + 'px';
+                particle.style.bottom = (100 + Math.random() * 20) + 'px';
+                gameContainer.appendChild(particle);
+                
+                const particleObj = {
+                    element: particle,
+                    life: 1
+                };
+                particles.push(particleObj);
+                
+                to(particle, {
+                    x: (Math.random() - 0.5) * 100,
+                    y: -50 - Math.random() * 50,
+                    opacity: 0,
+                    scale: 0,
+                    duration: 0.8,
+                    ease: 'power2.out',
+                    onComplete: () => {
+                        particle.remove();
+                        particles.splice(particles.indexOf(particleObj), 1);
+                    }
+                });
+            }
+        }
+        
+        function spawnObstacle() {
+            const obstacle = document.createElement('div');
+            obstacle.className = 'obstacle';
+            obstacle.style.animationDuration = (3 / gameSpeed) + 's';
+            gameContainer.appendChild(obstacle);
+            
+            const obstacleObj = {
+                element: obstacle,
+                x: window.innerWidth,
+                width: 15,
+                height: 25,
+                passed: false
+            };
+            obstacles.push(obstacleObj);
+            
+            // Remove obstacle after it passes
+            setTimeout(() => {
+                if (obstacle.parentNode) {
+                    obstacle.remove();
+                    obstacles.splice(obstacles.indexOf(obstacleObj), 1);
+                }
+            }, 3000 / gameSpeed);
+        }
+        
+        function checkCollisions() {
+            const skaterRect = {
+                x: 150,
+                y: isJumping ? 100 : 100,
+                width: 40,
+                height: 46
+            };
+            
+            obstacles.forEach(obstacle => {
+                const obstacleRect = obstacle.element.getBoundingClientRect();
+                const gameRect = gameContainer.getBoundingClientRect();
+                
+                const obstacleX = obstacleRect.left - gameRect.left;
+                const obstacleY = obstacleRect.bottom - gameRect.bottom;
+                
+                if (obstacleX < skaterRect.x + skaterRect.width &&
+                    obstacleX + obstacle.width > skaterRect.x &&
+                    obstacleY < skaterRect.y + skaterRect.height &&
+                    obstacleY + obstacle.height > skaterRect.y) {
+                    
+                    if (!isJumping) {
+                        slip(); // Call slip function instead of gameOver
+                        return;
+                    }
+                }
+                
+                // Check if obstacle passed for scoring
+                if (obstacleX < skaterRect.x && !obstacle.passed) {
+                    obstacle.passed = true;
+                    score += 10;
+                    scoreElement.textContent = score;
+                    
+                    // Increase game speed slightly
+                    gameSpeed = Math.min(gameSpeed + 0.02, 3);
+                }
+            });
+        }
+        
+        function slip() {
+            if (gameState !== 'playing') return;
+            
+            gameState = 'slipping';
+            
+            // Slip animation similar to the fall function from original code
+            to(skater, {
+                duration: 0.5,
+                '--board-x': '60px'
+            });
+            
+            to(skater, {
+                keyframes: [{
+                    '--board-r': '-40deg',
+                    duration: 0.15
+                }, {
+                    '--board-r': '0deg',
+                    duration: 0.3
+                }]
+            });
+            
+            to(skater, {
+                keyframes: [{
+                    '--body-r': '-8deg',
+                    '--leg-back-end': '24deg',
+                    '--leg-back': '60deg',
+                    '--leg-front-end': '30deg',
+                    '--leg-front': '10deg',
+                    '--arm-back-end': '-40deg',
+                    '--arm-back': '54deg',
+                    '--arm-front-end': '-28deg',
+                    '--arm-front': '24deg',
+                    duration: 0.2
+                }, {
+                    '--body-x': '-85%',
+                    '--body-y': '36%',
+                    '--body-r': '-26deg',
+                    '--leg-back-end': '24deg',
+                    '--leg-back': '20deg',
+                    '--leg-front-end': '30deg',
+                    '--leg-front': '-10deg',
+                    '--arm-back-end': '-40deg',
+                    '--arm-back': '164deg',
+                    '--arm-front-end': '-28deg',
+                    '--arm-front': '24deg',
+                    duration: 0.2,
+                    onComplete: () => {
+                        // After slip animation, show game over
+                        setTimeout(() => {
+                            gameOver();
+                        }, 500);
+                    }
+                }]
+            });
+        }
+        
+        function gameOver() {
+            gameState = 'gameOver';
+            
+            // Check for new high score
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('skateRunnerHighScore', highScore);
+                highScoreElement.textContent = highScore;
+                newHighScoreElement.style.display = 'block';
+            } else {
+                newHighScoreElement.style.display = 'none';
+            }
+            
+            finalScoreElement.textContent = score;
+            gameOverScreen.style.display = 'block';
+        }
+        
+        function gameLoop() {
+            if (gameState !== 'playing') return;
+            
+            // Spawn obstacles
+            obstacleSpawnTimer += 16;
+            if (obstacleSpawnTimer > (2000 / gameSpeed)) {
+                spawnObstacle();
+                obstacleSpawnTimer = 0;
+            }
+            
+            // Check collisions
+            checkCollisions();
+            
+            // Update particles
+            particles.forEach(particle => {
+                particle.life -= 0.02;
+                if (particle.life <= 0) {
+                    particle.element.remove();
+                    particles.splice(particles.indexOf(particle), 1);
+                }
+            });
+            
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // Event listeners
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                if (gameState === 'playing') {
+                    jump();
+                } else if (gameState === 'menu') {
+                    startGame();
+                } else if (gameState === 'gameOver') {
+                    restartGame();
+                }
+            }
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (gameState === 'playing') {
+                jump();
+            }
+        });
+        
+        // Touch support
+        document.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (gameState === 'playing') {
+                jump();
+            }
+        });
+        
+        // Prevent scrolling on mobile
+        document.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+        }, { passive: false });
+    </script>
+</body>
+</html>

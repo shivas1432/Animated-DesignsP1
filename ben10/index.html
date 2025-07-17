@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" />
+    <title>Ben 10 Alien Slider</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css?family=Open+Sans');
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Open Sans', sans-serif;
+            height: 100vh;
+        }
+        
+        .slider-container {
+            position: relative;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        .left-slide {
+            height: 100%;
+            width: 40%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: transform 0.7s cubic-bezier(0.4, 0.0, 0.2, 1);
+            box-shadow: 2px 0 20px rgba(0,0,0,0.3);
+        }
+        
+        .left-slide > div {
+            height: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            background: linear-gradient(135deg, var(--bg-color) 0%, rgba(0,0,0,0.4) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .left-slide > div::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        
+        .left-slide h1 {
+            font-size: 48px;
+            margin-bottom: 15px;
+            margin-top: -30px;
+            font-weight: 700;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+            letter-spacing: 2px;
+            font-family: 'Arial Black', Arial, sans-serif;
+            text-transform: uppercase;
+        }
+        
+        .left-slide p {
+            font-size: 16px;
+            font-weight: 400;
+            opacity: 0.95;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.2);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        .right-slide {
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 40%;
+            width: 60%;
+            transition: transform 0.7s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+        
+        .right-slide > div {
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center center;
+            height: 100%;
+            width: 100%;
+            position: relative;
+            filter: contrast(1.1) brightness(1.05);
+        }
+        
+        .right-slide > div::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(0,0,0,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            pointer-events: none;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+            border: 2px solid rgba(0,0,0,0.1);
+            color: #555;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 18px 20px;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        button:hover {
+            color: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+            background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
+        }
+        
+        button:focus {
+            outline: none;
+        }
+        
+        .slider-container .action-buttons button {
+            position: absolute;
+            left: 40%;
+            top: 50%;
+            z-index: 100;
+        }
+        
+        .slider-container .action-buttons .down-button {
+            transform: translateX(-100%) translateY(10px);
+            border-radius: 25px 0 0 25px;
+        }
+        
+        .slider-container .action-buttons .up-button {
+            transform: translateY(-100%) translateY(-10px);
+            border-radius: 0 25px 25px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="slider-container">
+        <div class="left-slide">
+            <div style="background-color: #FF4500; --bg-color: #FF4500;">
+                
+                <h1>XLR8</h1>
+                <p>Kineceleran Speed Demon</p>
+            </div>
+            <div style="background-color: #00CED1; --bg-color: #00CED1;">
+               
+                 <h1>FOUR ARMS</h1>
+                <p>Tetramand Super Strength</p>
+            </div>
+            <div style="background-color: #DC143C; --bg-color: #DC143C;">
+                 <h1>DIAMONDHEAD</h1>
+                <p>Petrosapien Crystal Warrior</p>
+            </div>
+            <div style="background-color: #32CD32; --bg-color: #32CD32;">
+                <h1>HEATBLAST</h1>
+                <p>Pyronite Fire Alien</p>
+            </div>
+        </div>
+        <div class="right-slide">
+            <div style="background-image: url('F.jpg'); filter: hue-rotate(20deg) saturate(1.3) contrast(1.2);"></div>
+            <div style="background-image: url('DH.jpg'); filter: hue-rotate(180deg) saturate(1.5) contrast(1.3);"></div>
+            <div style="background-image: url('FA.jpg'); filter: hue-rotate(340deg) saturate(1.4) contrast(1.2);"></div>
+            <div style="background-image: url('XLr.jpg'); filter: hue-rotate(100deg) saturate(1.6) contrast(1.3);"></div>
+        </div>
+        <div class="action-buttons">
+            <button class="down-button">
+                <i class="fas fa-arrow-down"></i>
+            </button>
+            <button class="up-button">
+                <i class="fas fa-arrow-up"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const sliderContainer = document.querySelector('.slider-container')
+        const slideRight = document.querySelector('.right-slide')
+        const slideLeft = document.querySelector('.left-slide')
+        const upButton = document.querySelector('.up-button')
+        const downButton = document.querySelector('.down-button')
+        const slidesLength = slideRight.querySelectorAll('div').length
+        
+        let activeSlideIndex = 0
+        slideLeft.style.top = `-${(slidesLength - 1) * 100}vh`
+        
+        upButton.addEventListener('click', () => changeSlide('up'))
+        downButton.addEventListener('click', () => changeSlide('down'))
+        
+        const changeSlide = (direction) => {
+            const sliderHeight = sliderContainer.clientHeight
+            if(direction === 'up') {
+                activeSlideIndex++
+                if(activeSlideIndex > slidesLength - 1) {
+                    activeSlideIndex = 0
+                }
+            } else if(direction === 'down') {
+                activeSlideIndex--
+                if(activeSlideIndex < 0) {
+                    activeSlideIndex = slidesLength - 1
+                }
+            }
+            slideRight.style.transform = `translateY(-${activeSlideIndex * sliderHeight}px)`
+            slideLeft.style.transform = `translateY(${activeSlideIndex * sliderHeight}px)`
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Neon Drawing Studio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: radial-gradient(circle at 20% 80%, #120458 0%, #000000 50%, #1a0033 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 25% 25%, #ff00ff22 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, #00ffff22 0%, transparent 50%);
+            animation: shimmer 8s ease-in-out infinite alternate;
+            pointer-events: none;
+        }
+
+        @keyframes shimmer {
+            0% { opacity: 0.3; }
+            100% { opacity: 0.7; }
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .title {
+            color: #fff;
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px #ff00ff, 0 0 40px #ff00ff, 0 0 60px #ff00ff;
+            animation: titleGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes titleGlow {
+            0% { text-shadow: 0 0 20px #ff00ff, 0 0 40px #ff00ff, 0 0 60px #ff00ff; }
+            100% { text-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff, 0 0 60px #00ffff; }
+        }
+
+        .canvas-container {
+            position: relative;
+            border-radius: 20px;
+            padding: 3px;
+            background: linear-gradient(45deg, #ff00ff, #00ffff, #ff00ff);
+            animation: borderGlow 4s linear infinite;
+            box-shadow: 
+                0 0 30px rgba(255, 0, 255, 0.5),
+                0 0 60px rgba(0, 255, 255, 0.3),
+                inset 0 0 30px rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes borderGlow {
+            0% { background: linear-gradient(45deg, #ff00ff, #00ffff, #ff00ff); }
+            25% { background: linear-gradient(45deg, #00ffff, #ff00ff, #00ffff); }
+            50% { background: linear-gradient(45deg, #ff00ff, #00ffff, #ff00ff); }
+            75% { background: linear-gradient(45deg, #00ffff, #ff00ff, #00ffff); }
+            100% { background: linear-gradient(45deg, #ff00ff, #00ffff, #ff00ff); }
+        }
+
+        #canvas {
+            border-radius: 17px;
+            background: #000;
+            cursor: crosshair;
+            display: block;
+            transition: all 0.3s ease;
+        }
+
+        #canvas:hover {
+            transform: scale(1.01);
+            box-shadow: 0 0 50px rgba(255, 0, 255, 0.8);
+        }
+
+        .toolbox {
+            display: flex;
+            gap: 20px;
+            margin-top: 30px;
+            padding: 25px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 25px;
+            border: 2px solid rgba(255, 0, 255, 0.3);
+            backdrop-filter: blur(10px);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.8),
+                0 0 30px rgba(255, 0, 255, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            align-items: center;
+        }
+
+        .tool-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tool-btn {
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+            color: #fff;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 4px 15px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tool-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .tool-btn:hover::before {
+            left: 100%;
+        }
+
+        .tool-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.7),
+                0 0 20px rgba(255, 0, 255, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .tool-btn:active {
+            transform: translateY(0);
+        }
+
+        .size-display {
+            background: linear-gradient(135deg, #ff00ff, #00ffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 24px;
+            font-weight: bold;
+            min-width: 40px;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(255, 0, 255, 0.5);
+        }
+
+        .color-picker {
+            width: 60px;
+            height: 60px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 
+                0 4px 15px rgba(0, 0, 0, 0.5),
+                0 0 20px rgba(255, 0, 255, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .color-picker::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #ff00ff, #00ffff, #ff00ff);
+            border-radius: 50%;
+            z-index: -1;
+            animation: colorPickerGlow 2s linear infinite;
+        }
+
+        @keyframes colorPickerGlow {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .color-picker:hover {
+            transform: scale(1.1);
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.7),
+                0 0 30px rgba(255, 0, 255, 0.8);
+        }
+
+        .clear-btn {
+            background: linear-gradient(135deg, #ff1744, #d50000);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 4px 15px rgba(0, 0, 0, 0.5),
+                0 0 20px rgba(255, 23, 68, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .clear-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .clear-btn:hover::before {
+            left: 100%;
+        }
+
+        .clear-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.7),
+                0 0 30px rgba(255, 23, 68, 0.6);
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #00c851, #007e33);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 4px 15px rgba(0, 0, 0, 0.5),
+                0 0 20px rgba(0, 200, 81, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .download-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .download-btn:hover::before {
+            left: 100%;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.7),
+                0 0 30px rgba(0, 200, 81, 0.6);
+        }
+
+        .brush-preview {
+            position: fixed;
+            pointer-events: none;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            margin-left: 20px;
+        }
+
+        .mode-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 
+                0 4px 15px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, #ff00ff, #00ffff);
+            box-shadow: 
+                0 4px 15px rgba(0, 0, 0, 0.5),
+                0 0 20px rgba(255, 0, 255, 0.5);
+        }
+
+        .mode-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.7),
+                0 0 20px rgba(255, 0, 255, 0.3);
+        }
+
+        .separator {
+            width: 2px;
+            height: 40px;
+            background: linear-gradient(to bottom, transparent, #ff00ff, #00ffff, transparent);
+            margin: 0 10px;
+        }
+
+        @media (max-width: 768px) {
+            .toolbox {
+                flex-wrap: wrap;
+                gap: 15px;
+                padding: 20px;
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+            
+            #canvas {
+                width: 90vw;
+                height: 60vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        
+        <div class="canvas-container">
+            <canvas id="canvas" width="800" height="600"></canvas>
+        </div>
+        
+        <div class="toolbox">
+            <div class="tool-group">
+                <button class="tool-btn" id="decrease">−</button>
+                <span class="size-display" id="size">10</span>
+                <button class="tool-btn" id="increase">+</button>
+            </div>
+            
+            <div class="separator"></div>
+            
+            <div class="tool-group">
+                <input type="color" class="color-picker" id="color" value="#ff00ff">
+            </div>
+            
+            <div class="separator"></div>
+            
+            <div class="mode-selector">
+                <button class="mode-btn active" id="brush-mode">🖌️ Brush</button>
+                <button class="mode-btn" id="glow-mode">✨ Glow</button>
+                <button class="mode-btn" id="neon-mode">💫 Neon</button>
+            </div>
+            
+            <div class="separator"></div>
+            
+            <button class="clear-btn" id="clear">🗑️ Clear Canvas</button>
+            
+            <div class="separator"></div>
+            
+            <button class="download-btn" id="download">💾 Download PNG</button>
+        </div>
+    </div>
+    
+    <div class="brush-preview" id="brush-preview"></div>
+
+    <script>
+        class AdvancedDrawingApp {
+            constructor() {
+                this.canvas = document.getElementById('canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.increaseBtn = document.getElementById('increase');
+                this.decreaseBtn = document.getElementById('decrease');
+                this.sizeEl = document.getElementById('size');
+                this.colorEl = document.getElementById('color');
+                this.clearEl = document.getElementById('clear');
+                this.downloadEl = document.getElementById('download');
+                this.brushPreview = document.getElementById('brush-preview');
+                
+                this.size = 10;
+                this.isPressed = false;
+                this.color = '#ff00ff';
+                this.x = undefined;
+                this.y = undefined;
+                this.drawingMode = 'brush';
+                
+                this.init();
+            }
+            
+            init() {
+                this.setupEventListeners();
+                this.setupCanvas();
+                this.updateSizeDisplay();
+                this.setupModeButtons();
+            }
+            
+            setupCanvas() {
+                this.ctx.lineCap = 'round';
+                this.ctx.lineJoin = 'round';
+                
+                // Create starfield background
+                this.createStarfield();
+            }
+            
+            createStarfield() {
+                this.ctx.fillStyle = '#000';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+            }
+            
+            setupEventListeners() {
+                // Canvas events
+                this.canvas.addEventListener('mousedown', (e) => this.startDrawing(e));
+                this.canvas.addEventListener('mousemove', (e) => this.draw(e));
+                this.canvas.addEventListener('mouseup', () => this.stopDrawing());
+                this.canvas.addEventListener('mouseout', () => this.stopDrawing());
+                
+                // Touch events for mobile
+                this.canvas.addEventListener('touchstart', (e) => this.startDrawing(e.touches[0]));
+                this.canvas.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                    this.draw(e.touches[0]);
+                });
+                this.canvas.addEventListener('touchend', () => this.stopDrawing());
+                
+                // Tool events
+                this.increaseBtn.addEventListener('click', () => this.changeSize(5));
+                this.decreaseBtn.addEventListener('click', () => this.changeSize(-5));
+                this.colorEl.addEventListener('change', (e) => this.changeColor(e.target.value));
+                this.clearEl.addEventListener('click', () => this.clearCanvas());
+                this.downloadEl.addEventListener('click', () => this.downloadCanvas());
+                
+                // Mouse preview
+                this.canvas.addEventListener('mousemove', (e) => this.updateBrushPreview(e));
+                this.canvas.addEventListener('mouseenter', () => this.showBrushPreview());
+                this.canvas.addEventListener('mouseleave', () => this.hideBrushPreview());
+            }
+            
+            setupModeButtons() {
+                const brushBtn = document.getElementById('brush-mode');
+                const glowBtn = document.getElementById('glow-mode');
+                const neonBtn = document.getElementById('neon-mode');
+                
+                brushBtn.addEventListener('click', () => this.setMode('brush', brushBtn));
+                glowBtn.addEventListener('click', () => this.setMode('glow', glowBtn));
+                neonBtn.addEventListener('click', () => this.setMode('neon', neonBtn));
+            }
+            
+            setMode(mode, button) {
+                this.drawingMode = mode;
+                document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+            }
+            
+            startDrawing(e) {
+                this.isPressed = true;
+                const rect = this.canvas.getBoundingClientRect();
+                this.x = e.clientX - rect.left;
+                this.y = e.clientY - rect.top;
+            }
+            
+            draw(e) {
+                if (!this.isPressed) return;
+                
+                const rect = this.canvas.getBoundingClientRect();
+                const x2 = e.clientX - rect.left;
+                const y2 = e.clientY - rect.top;
+                
+                this.drawStroke(this.x, this.y, x2, y2);
+                
+                this.x = x2;
+                this.y = y2;
+            }
+            
+            drawStroke(x1, y1, x2, y2) {
+                this.ctx.globalCompositeOperation = 'source-over';
+                
+                switch (this.drawingMode) {
+                    case 'brush':
+                        this.drawBrush(x1, y1, x2, y2);
+                        break;
+                    case 'glow':
+                        this.drawGlow(x1, y1, x2, y2);
+                        break;
+                    case 'neon':
+                        this.drawNeon(x1, y1, x2, y2);
+                        break;
+                }
+            }
+            
+            drawBrush(x1, y1, x2, y2) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(x1, y1);
+                this.ctx.lineTo(x2, y2);
+                this.ctx.strokeStyle = this.color;
+                this.ctx.lineWidth = this.size;
+                this.ctx.stroke();
+                
+                // Add sparkle effect
+                this.addSparkles(x2, y2);
+            }
+            
+            drawGlow(x1, y1, x2, y2) {
+                // Outer glow
+                this.ctx.beginPath();
+                this.ctx.moveTo(x1, y1);
+                this.ctx.lineTo(x2, y2);
+                this.ctx.strokeStyle = this.color;
+                this.ctx.lineWidth = this.size * 3;
+                this.ctx.globalAlpha = 0.1;
+                this.ctx.stroke();
+                
+                // Middle glow
+                this.ctx.beginPath();
+                this.ctx.moveTo(x1, y1);
+                this.ctx.lineTo(x2, y2);
+                this.ctx.strokeStyle = this.color;
+                this.ctx.lineWidth = this.size * 2;
+                this.ctx.globalAlpha = 0.3;
+                this.ctx.stroke();
+                
+                // Inner stroke
+                this.ctx.beginPath();
+                this.ctx.moveTo(x1, y1);
+                this.ctx.lineTo(x2, y2);
+                this.ctx.strokeStyle = this.color;
+                this.ctx.lineWidth = this.size;
+                this.ctx.globalAlpha = 1;
+                this.ctx.stroke();
+            }
+            
+            drawNeon(x1, y1, x2, y2) {
+                // Neon outer glow
+                this.ctx.shadowBlur = this.size * 2;
+                this.ctx.shadowColor = this.color;
+                
+                this.ctx.beginPath();
+                this.ctx.moveTo(x1, y1);
+                this.ctx.lineTo(x2, y2);
+                this.ctx.strokeStyle = '#ffffff';
+                this.ctx.lineWidth = this.size * 0.5;
+                this.ctx.stroke();
+                
+                // Reset shadow
+                this.ctx.shadowBlur = 0;
+                
+                // Neon inner line
+                this.ctx.beginPath();
+                this.ctx.moveTo(x1, y1);
+                this.ctx.lineTo(x2, y2);
+                this.ctx.strokeStyle = this.color;
+                this.ctx.lineWidth = this.size * 0.3;
+                this.ctx.stroke();
+            }
+            
+            addSparkles(x, y) {
+                const sparkleCount = 3;
+                for (let i = 0; i < sparkleCount; i++) {
+                    const sparkleX = x + (Math.random() - 0.5) * this.size * 2;
+                    const sparkleY = y + (Math.random() - 0.5) * this.size * 2;
+                    const sparkleSize = Math.random() * 2 + 1;
+                    
+                    this.ctx.beginPath();
+                    this.ctx.arc(sparkleX, sparkleY, sparkleSize, 0, Math.PI * 2);
+                    this.ctx.fillStyle = '#ffffff';
+                    this.ctx.globalAlpha = Math.random() * 0.5;
+                    this.ctx.fill();
+                    this.ctx.globalAlpha = 1;
+                }
+            }
+            
+            stopDrawing() {
+                this.isPressed = false;
+                this.x = undefined;
+                this.y = undefined;
+            }
+            
+            changeSize(delta) {
+                this.size = Math.max(5, Math.min(50, this.size + delta));
+                this.updateSizeDisplay();
+            }
+            
+            changeColor(newColor) {
+                this.color = newColor;
+            }
+            
+            updateSizeDisplay() {
+                this.sizeEl.textContent = this.size;
+            }
+            
+            clearCanvas() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.createStarfield();
+            }
+            
+            downloadCanvas() {
+                // Create a temporary canvas with white background for signature
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = this.canvas.width;
+                tempCanvas.height = this.canvas.height;
+                const tempCtx = tempCanvas.getContext('2d');
+                
+                // Fill with white background
+                tempCtx.fillStyle = '#ffffff';
+                tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+                
+                // Draw the original canvas content on top
+                tempCtx.drawImage(this.canvas, 0, 0);
+                
+                // Create download link
+                const link = document.createElement('a');
+                link.download = 'signature.png';
+                link.href = tempCanvas.toDataURL('image/png');
+                link.click();
+            }
+            
+            updateBrushPreview(e) {
+                const rect = this.canvas.getBoundingClientRect();
+                const x = e.clientX;
+                const y = e.clientY;
+                
+                this.brushPreview.style.left = (x - this.size) + 'px';
+                this.brushPreview.style.top = (y - this.size) + 'px';
+                this.brushPreview.style.width = (this.size * 2) + 'px';
+                this.brushPreview.style.height = (this.size * 2) + 'px';
+                this.brushPreview.style.borderColor = this.color;
+            }
+            
+            showBrushPreview() {
+                this.brushPreview.style.display = 'block';
+            }
+            
+            hideBrushPreview() {
+                this.brushPreview.style.display = 'none';
+            }
+        }
+        
+        // Initialize the app
+        new AdvancedDrawingApp();
+    </script>
+</body>
+</html>
